@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import styles from './styles.module.css';
 
-export const Route = createLazyFileRoute('/partyjs/dice-roll/')({
+export const Route = createLazyFileRoute('/dice-roll/')({
   component: DiceRoll,
 });
 

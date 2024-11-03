@@ -5,13 +5,13 @@ export const Route = createRootRoute({
   component: () => (
     <>
       <div className="p-2 flex gap-2">
-        <Link to="/partyjs/home" className="[&.active]:font-bold">
+        <Link to="/home" className="[&.active]:font-bold">
           Home
         </Link>{' '}
-        <Link to="/partyjs/dice-roll" className="[&.active]:font-bold">
+        <Link to="/dice-roll" className="[&.active]:font-bold">
           Dice Roll
         </Link>{' '}
-        <Link to="/partyjs/russian-roulette" className="[&.active]:font-bold">
+        <Link to="/russian-roulette" className="[&.active]:font-bold">
           Russian Roulette
         </Link>
       </div>
