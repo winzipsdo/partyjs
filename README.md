@@ -11,14 +11,14 @@ A collection of party games built with React + TypeScript + Vite. Most of the co
 
 ## Tech Stack
 
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- Shadcn UI
-- Tanstack Table
-- Tanstack Router
-- Zustand
+- [React 18](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vitejs.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Shadcn UI](https://ui.shadcn.com/)
+- [Tanstack Table](https://tanstack.com/table)
+- [Tanstack Router](https://tanstack.com/router)
+- [Zustand](https://zustand-demo.pmnd.rs/)
 
 ## Getting Started
 
