@@ -6,6 +6,7 @@ A collection of party games built with React + TypeScript + Vite. Most of the co
 
 - 🎲 Dice Rolling
 - 🔫 Russian Roulette
+- 🃏 Liar Card
 - 🎯 More games coming soon...
 
 ## Tech Stack
