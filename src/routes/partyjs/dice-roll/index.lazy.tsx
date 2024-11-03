@@ -1,8 +1,9 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { Dice } from '../components/Dice';
+import { Dice } from '../../../components/Dice';
 import { useState } from 'react';
+import styles from './styles.module.css';
 
-export const Route = createLazyFileRoute('/dice-roll')({
+export const Route = createLazyFileRoute('/partyjs/dice-roll/')({
   component: DiceRoll,
 });
 
@@ -37,29 +38,16 @@ function DiceRoll() {
   };
 
   return (
-    <div style={{ textAlign: 'center', padding: '20px' }}>
+    <div className={styles.container}>
       <h2>Dice Rolling Game</h2>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-      >
+      <div className={styles.diceContainer}>
         <Dice value={diceValue} size={100} />
       </div>
-      <div style={{ marginTop: '20px' }}>
+      <div className={styles.buttonContainer}>
         <button
           onClick={rollDice}
           disabled={isRolling}
-          style={{
-            padding: '10px 20px',
-            fontSize: '16px',
-            borderRadius: '5px',
-            cursor: isRolling ? 'not-allowed' : 'pointer',
-            backgroundColor: isRolling ? '#cccccc' : '#4CAF50',
-            color: 'white',
-            border: 'none',
-          }}
+          className={styles.rollButton}
         >
           {isRolling ? '骰子滚动中...' : '掷骰子'}
         </button>

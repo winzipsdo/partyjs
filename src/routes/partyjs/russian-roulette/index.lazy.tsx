@@ -1,7 +1,8 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
+import styles from './styles.module.css';
 
-export const Route = createLazyFileRoute('/russian-roulette')({
+export const Route = createLazyFileRoute('/partyjs/russian-roulette/')({
   component: RussianRoulette,
 });
 
@@ -43,24 +44,10 @@ function RussianRoulette() {
   }
 
   return (
-    <div
-      style={{
-        textAlign: 'center',
-        padding: '20px',
-        maxWidth: '600px',
-        margin: '0 auto',
-      }}
-    >
+    <div className={styles.container}>
       <h2>左轮手枪游戏</h2>
 
-      <div
-        style={{
-          backgroundColor: '#f5f5f5',
-          padding: '20px',
-          borderRadius: '10px',
-          marginBottom: '20px',
-        }}
-      >
+      <div className={styles.statusBox}>
         <p>已开枪次数: {shotsFired}</p>
         <p>
           游戏状态:{' '}
@@ -72,41 +59,16 @@ function RussianRoulette() {
         </p>
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          gap: '10px',
-          justifyContent: 'center',
-        }}
-      >
+      <div className={styles.buttonGroup}>
         <button
           onClick={shoot}
           disabled={isGameOver}
-          style={{
-            padding: '10px 20px',
-            fontSize: '16px',
-            borderRadius: '5px',
-            cursor: isGameOver ? 'not-allowed' : 'pointer',
-            backgroundColor: isGameOver ? '#cccccc' : '#dc3545',
-            color: 'white',
-            border: 'none',
-          }}
+          className={styles.shootButton}
         >
           开枪
         </button>
 
-        <button
-          onClick={resetGame}
-          style={{
-            padding: '10px 20px',
-            fontSize: '16px',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-          }}
-        >
+        <button onClick={resetGame} className={styles.resetButton}>
           重新开始
         </button>
       </div>

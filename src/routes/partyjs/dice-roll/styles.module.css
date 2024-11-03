@@ -1,0 +1,28 @@
+.container {
+  text-align: center;
+  padding: 20px;
+}
+
+.diceContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.buttonContainer {
+  margin-top: 20px;
+}
+
+.rollButton {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+}
+
+.rollButton:disabled {
+  cursor: not-allowed;
+  background-color: #cccccc;
+} 
