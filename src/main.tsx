@@ -8,7 +8,6 @@ import { routeTree } from './routeTree.gen';
 // Create a new router instance
 const router = createRouter({
   routeTree,
-  defaultErrorComponent: () => import('./routes/partyjs/index.lazy.tsx'),
 });
 
 // Register the router instance for type safety

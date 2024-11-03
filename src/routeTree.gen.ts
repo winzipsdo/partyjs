@@ -20,6 +20,7 @@ const PartyjsIndexLazyImport = createFileRoute('/partyjs/')()
 const PartyjsRussianRouletteIndexLazyImport = createFileRoute(
   '/partyjs/russian-roulette/',
 )()
+const PartyjsHomeIndexLazyImport = createFileRoute('/partyjs/home/')()
 const PartyjsDiceRollIndexLazyImport = createFileRoute('/partyjs/dice-roll/')()
 
 // Create/Update Routes
@@ -38,6 +39,14 @@ const PartyjsRussianRouletteIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/partyjs/russian-roulette/index.lazy').then((d) => d.Route),
   )
+
+const PartyjsHomeIndexLazyRoute = PartyjsHomeIndexLazyImport.update({
+  id: '/partyjs/home/',
+  path: '/partyjs/home/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/partyjs/home/index.lazy').then((d) => d.Route),
+)
 
 const PartyjsDiceRollIndexLazyRoute = PartyjsDiceRollIndexLazyImport.update({
   id: '/partyjs/dice-roll/',
@@ -65,6 +74,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartyjsDiceRollIndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/partyjs/home/': {
+      id: '/partyjs/home/'
+      path: '/partyjs/home'
+      fullPath: '/partyjs/home'
+      preLoaderRoute: typeof PartyjsHomeIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/partyjs/russian-roulette/': {
       id: '/partyjs/russian-roulette/'
       path: '/partyjs/russian-roulette'
@@ -80,12 +96,14 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/partyjs': typeof PartyjsIndexLazyRoute
   '/partyjs/dice-roll': typeof PartyjsDiceRollIndexLazyRoute
+  '/partyjs/home': typeof PartyjsHomeIndexLazyRoute
   '/partyjs/russian-roulette': typeof PartyjsRussianRouletteIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
   '/partyjs': typeof PartyjsIndexLazyRoute
   '/partyjs/dice-roll': typeof PartyjsDiceRollIndexLazyRoute
+  '/partyjs/home': typeof PartyjsHomeIndexLazyRoute
   '/partyjs/russian-roulette': typeof PartyjsRussianRouletteIndexLazyRoute
 }
 
@@ -93,18 +111,28 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/partyjs/': typeof PartyjsIndexLazyRoute
   '/partyjs/dice-roll/': typeof PartyjsDiceRollIndexLazyRoute
+  '/partyjs/home/': typeof PartyjsHomeIndexLazyRoute
   '/partyjs/russian-roulette/': typeof PartyjsRussianRouletteIndexLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/partyjs' | '/partyjs/dice-roll' | '/partyjs/russian-roulette'
+  fullPaths:
+    | '/partyjs'
+    | '/partyjs/dice-roll'
+    | '/partyjs/home'
+    | '/partyjs/russian-roulette'
   fileRoutesByTo: FileRoutesByTo
-  to: '/partyjs' | '/partyjs/dice-roll' | '/partyjs/russian-roulette'
+  to:
+    | '/partyjs'
+    | '/partyjs/dice-roll'
+    | '/partyjs/home'
+    | '/partyjs/russian-roulette'
   id:
     | '__root__'
     | '/partyjs/'
     | '/partyjs/dice-roll/'
+    | '/partyjs/home/'
     | '/partyjs/russian-roulette/'
   fileRoutesById: FileRoutesById
 }
@@ -112,12 +140,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   PartyjsIndexLazyRoute: typeof PartyjsIndexLazyRoute
   PartyjsDiceRollIndexLazyRoute: typeof PartyjsDiceRollIndexLazyRoute
+  PartyjsHomeIndexLazyRoute: typeof PartyjsHomeIndexLazyRoute
   PartyjsRussianRouletteIndexLazyRoute: typeof PartyjsRussianRouletteIndexLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   PartyjsIndexLazyRoute: PartyjsIndexLazyRoute,
   PartyjsDiceRollIndexLazyRoute: PartyjsDiceRollIndexLazyRoute,
+  PartyjsHomeIndexLazyRoute: PartyjsHomeIndexLazyRoute,
   PartyjsRussianRouletteIndexLazyRoute: PartyjsRussianRouletteIndexLazyRoute,
 }
 
@@ -133,6 +163,7 @@ export const routeTree = rootRoute
       "children": [
         "/partyjs/",
         "/partyjs/dice-roll/",
+        "/partyjs/home/",
         "/partyjs/russian-roulette/"
       ]
     },
@@ -141,6 +172,9 @@ export const routeTree = rootRoute
     },
     "/partyjs/dice-roll/": {
       "filePath": "partyjs/dice-roll/index.lazy.tsx"
+    },
+    "/partyjs/home/": {
+      "filePath": "partyjs/home/index.lazy.tsx"
     },
     "/partyjs/russian-roulette/": {
       "filePath": "partyjs/russian-roulette/index.lazy.tsx"
