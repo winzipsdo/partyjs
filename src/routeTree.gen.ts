@@ -18,6 +18,7 @@ import { Route as rootRoute } from './routes/__root'
 
 const IndexLazyImport = createFileRoute('/')()
 const RussianRouletteIndexLazyImport = createFileRoute('/russian-roulette/')()
+const LiarCardIndexLazyImport = createFileRoute('/liar-card/')()
 const HomeIndexLazyImport = createFileRoute('/home/')()
 const DiceRollIndexLazyImport = createFileRoute('/dice-roll/')()
 
@@ -35,6 +36,14 @@ const RussianRouletteIndexLazyRoute = RussianRouletteIndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() =>
   import('./routes/russian-roulette/index.lazy').then((d) => d.Route),
+)
+
+const LiarCardIndexLazyRoute = LiarCardIndexLazyImport.update({
+  id: '/liar-card/',
+  path: '/liar-card/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/liar-card/index.lazy').then((d) => d.Route),
 )
 
 const HomeIndexLazyRoute = HomeIndexLazyImport.update({
@@ -76,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeIndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/liar-card/': {
+      id: '/liar-card/'
+      path: '/liar-card'
+      fullPath: '/liar-card'
+      preLoaderRoute: typeof LiarCardIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/russian-roulette/': {
       id: '/russian-roulette/'
       path: '/russian-roulette'
@@ -92,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/dice-roll': typeof DiceRollIndexLazyRoute
   '/home': typeof HomeIndexLazyRoute
+  '/liar-card': typeof LiarCardIndexLazyRoute
   '/russian-roulette': typeof RussianRouletteIndexLazyRoute
 }
 
@@ -99,6 +116,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/dice-roll': typeof DiceRollIndexLazyRoute
   '/home': typeof HomeIndexLazyRoute
+  '/liar-card': typeof LiarCardIndexLazyRoute
   '/russian-roulette': typeof RussianRouletteIndexLazyRoute
 }
 
@@ -107,15 +125,22 @@ export interface FileRoutesById {
   '/': typeof IndexLazyRoute
   '/dice-roll/': typeof DiceRollIndexLazyRoute
   '/home/': typeof HomeIndexLazyRoute
+  '/liar-card/': typeof LiarCardIndexLazyRoute
   '/russian-roulette/': typeof RussianRouletteIndexLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dice-roll' | '/home' | '/russian-roulette'
+  fullPaths: '/' | '/dice-roll' | '/home' | '/liar-card' | '/russian-roulette'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dice-roll' | '/home' | '/russian-roulette'
-  id: '__root__' | '/' | '/dice-roll/' | '/home/' | '/russian-roulette/'
+  to: '/' | '/dice-roll' | '/home' | '/liar-card' | '/russian-roulette'
+  id:
+    | '__root__'
+    | '/'
+    | '/dice-roll/'
+    | '/home/'
+    | '/liar-card/'
+    | '/russian-roulette/'
   fileRoutesById: FileRoutesById
 }
 
@@ -123,6 +148,7 @@ export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   DiceRollIndexLazyRoute: typeof DiceRollIndexLazyRoute
   HomeIndexLazyRoute: typeof HomeIndexLazyRoute
+  LiarCardIndexLazyRoute: typeof LiarCardIndexLazyRoute
   RussianRouletteIndexLazyRoute: typeof RussianRouletteIndexLazyRoute
 }
 
@@ -130,6 +156,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   DiceRollIndexLazyRoute: DiceRollIndexLazyRoute,
   HomeIndexLazyRoute: HomeIndexLazyRoute,
+  LiarCardIndexLazyRoute: LiarCardIndexLazyRoute,
   RussianRouletteIndexLazyRoute: RussianRouletteIndexLazyRoute,
 }
 
@@ -146,6 +173,7 @@ export const routeTree = rootRoute
         "/",
         "/dice-roll/",
         "/home/",
+        "/liar-card/",
         "/russian-roulette/"
       ]
     },
@@ -157,6 +185,9 @@ export const routeTree = rootRoute
     },
     "/home/": {
       "filePath": "home/index.lazy.tsx"
+    },
+    "/liar-card/": {
+      "filePath": "liar-card/index.lazy.tsx"
     },
     "/russian-roulette/": {
       "filePath": "russian-roulette/index.lazy.tsx"
