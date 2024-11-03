@@ -1,7 +1,6 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { Dice } from '@/components/Dice';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Dice } from '@/components/Dice/index';
+import { useState, useEffect } from 'react';
 import styles from './styles.module.css';
 
 export const Route = createLazyFileRoute('/dice-roll/')({
@@ -11,42 +10,45 @@ export const Route = createLazyFileRoute('/dice-roll/')({
 function DiceRoll() {
   const [diceValue, setDiceValue] = useState(6);
   const [isRolling, setIsRolling] = useState(false);
+  const [finalValue, setFinalValue] = useState(6);
+
+  useEffect(() => {
+    if (isRolling) {
+      const interval = setInterval(() => {
+        setDiceValue(Math.floor(Math.random() * 6) + 1);
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        setDiceValue(finalValue);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isRolling, finalValue]);
 
   const rollDice = () => {
+    if (isRolling) return;
+
     setIsRolling(true);
+    const newValue = Math.floor(Math.random() * 6) + 1;
+    setFinalValue(newValue);
 
-    // 创建动画效果
-    const animationDuration = 3000; // 3秒
-    const intervalDuration = 100; // 每100ms改变一次点数
-    let elapsedTime = 0;
-
-    const interval = setInterval(() => {
-      const newValue = Math.floor(Math.random() * 6) + 1;
-      setDiceValue(newValue);
-
-      elapsedTime += intervalDuration;
-      if (elapsedTime >= animationDuration) {
-        clearInterval(interval);
-        // 生成最终的随机数
-        const finalValue = Math.floor(Math.random() * 6) + 1;
-        setDiceValue(finalValue);
-        setIsRolling(false);
-      }
-    }, intervalDuration);
-
-    // 添加安全清理，以防组件在动画未完成时卸载
-    return () => clearInterval(interval);
+    setTimeout(() => {
+      setIsRolling(false);
+    }, 1200);
   };
 
   return (
     <div className={styles.container}>
-      <div className={styles.diceContainer}>
-        <Dice value={diceValue} size={100} />
-      </div>
-      <div className="mt-4">
-        <Button onClick={rollDice} disabled={isRolling}>
-          {isRolling ? 'Rolling dice...' : 'Roll Dice'}
-        </Button>
+      <div
+        className={styles.diceContainer}
+        onClick={rollDice}
+        style={{ cursor: isRolling ? 'default' : 'pointer' }}
+        role="button"
+        aria-label="Roll dice"
+      >
+        <Dice value={diceValue} size={100} isRolling={isRolling} />
       </div>
     </div>
   );
