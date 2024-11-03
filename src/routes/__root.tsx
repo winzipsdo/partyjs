@@ -13,10 +13,10 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { useState, useEffect } from 'react';
 
 const routes = [
-  { label: 'Home', path: '/home' },
-  { label: 'Dice Roll', path: '/dice-roll' },
-  { label: 'Russian Roulette', path: '/russian-roulette' },
-  { label: 'Liar Card', path: '/liar-card' },
+  { label: '🏠 Home', path: '/home' },
+  { label: '🎲 Dice Roll', path: '/dice-roll' },
+  { label: '🔫 Russian Roulette', path: '/russian-roulette' },
+  { label: '🃏 Liar Card', path: '/liar-card' },
 ];
 
 export const Route = createRootRoute({
