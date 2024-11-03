@@ -1,6 +1,7 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { Dice } from '../../../components/Dice';
+import { Dice } from '@/components/Dice';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import styles from './styles.module.css';
 
 export const Route = createLazyFileRoute('/partyjs/dice-roll/')({
@@ -39,18 +40,13 @@ function DiceRoll() {
 
   return (
     <div className={styles.container}>
-      <h2>Dice Rolling Game</h2>
       <div className={styles.diceContainer}>
         <Dice value={diceValue} size={100} />
       </div>
-      <div className={styles.buttonContainer}>
-        <button
-          onClick={rollDice}
-          disabled={isRolling}
-          className={styles.rollButton}
-        >
-          {isRolling ? '骰子滚动中...' : '掷骰子'}
-        </button>
+      <div className="mt-4">
+        <Button onClick={rollDice} disabled={isRolling}>
+          {isRolling ? 'Rolling dice...' : 'Roll Dice'}
+        </Button>
       </div>
     </div>
   );
