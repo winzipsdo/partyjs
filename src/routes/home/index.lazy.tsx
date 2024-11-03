@@ -1,10 +1,10 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
 
 export const Route = createLazyFileRoute('/home/')({
-  component: RouteComponent,
+  component: Home,
 });
 
-function RouteComponent() {
+export function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <div className="max-w-4xl mx-auto px-4 py-16">
