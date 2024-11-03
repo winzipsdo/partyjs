@@ -1,40 +1,31 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { Dice } from '@/components/Dice/index';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useLocalStorageState } from 'ahooks';
 import styles from './styles.module.css';
+import { createStorageKey } from '@/constants/storage';
 
 export const Route = createLazyFileRoute('/dice-roll/')({
   component: DiceRoll,
 });
 
 function DiceRoll() {
-  const [diceValue, setDiceValue] = useState(6);
-  const [isRolling, setIsRolling] = useState(false);
-  const [finalValue, setFinalValue] = useState(6);
-
-  useEffect(() => {
-    if (isRolling) {
-      const interval = setInterval(() => {
-        setDiceValue(Math.floor(Math.random() * 6) + 1);
-      }, 100);
-
-      setTimeout(() => {
-        clearInterval(interval);
-        setDiceValue(finalValue);
-      }, 1000);
-
-      return () => clearInterval(interval);
+  const [diceValue, setDiceValue] = useLocalStorageState(
+    createStorageKey('dice-value'),
+    {
+      defaultValue: 6,
     }
-  }, [isRolling, finalValue]);
+  );
+  const [isRolling, setIsRolling] = useState(false);
 
-  const rollDice = () => {
+  const handleClick = () => {
     if (isRolling) return;
 
     setIsRolling(true);
-    const newValue = Math.floor(Math.random() * 6) + 1;
-    setFinalValue(newValue);
 
     setTimeout(() => {
+      const newValue = Math.floor(Math.random() * 6) + 1;
+      setDiceValue(newValue);
       setIsRolling(false);
     }, 1200);
   };
@@ -43,12 +34,12 @@ function DiceRoll() {
     <div className={styles.container}>
       <div
         className={styles.diceContainer}
-        onClick={rollDice}
+        onClick={handleClick}
         style={{ cursor: isRolling ? 'default' : 'pointer' }}
         role="button"
         aria-label="Roll dice"
       >
-        <Dice value={diceValue} size={100} isRolling={isRolling} />
+        <Dice value={diceValue ?? 6} isRolling={isRolling} size={100} />
       </div>
     </div>
   );

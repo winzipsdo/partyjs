@@ -1,4 +1,5 @@
 import styles from './styles.module.css';
+import clsx from 'clsx';
 
 interface DiceProps {
   value: number; // 骰子点数 (1-6)
@@ -8,9 +9,9 @@ interface DiceProps {
 
 export function Dice({ value, size = 60, isRolling = false }: DiceProps) {
   return (
-    <div className={`${styles.diceWrapper} ${isRolling ? styles.shaking : ''}`}>
+    <div className={clsx(styles.diceWrapper, isRolling && styles.shaking)}>
       <div
-        className={`${styles.dice} ${isRolling ? styles.rolling : ''}`}
+        className={clsx(styles.dice, isRolling && styles.rolling)}
         style={{
           width: size,
           height: size,
