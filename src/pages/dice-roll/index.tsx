@@ -100,7 +100,7 @@ export function DiceRollPage() {
         <div>
           <div className={styles.tableHeader}>
             <Button variant="destructive" onClick={handleReset}>
-              重置历史记录
+              Reset History
             </Button>
           </div>
           <Table>

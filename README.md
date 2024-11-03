@@ -1,50 +1,53 @@
-# React + TypeScript + Vite
+# Party Games Hub
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A collection of party games built with React + TypeScript + Vite. Most of the code in this project was written with the assistance of Cursor AI.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🎲 Dice Rolling
+- 🔫 Russian Roulette
+- 🎯 More games coming soon...
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- Shadcn UI
+- Tanstack Table
+- Tanstack Router
+- Zustand
 
-- Configure the top-level `parserOptions` property like this:
+## Getting Started
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+1. Clone the repository
+
+```bash
+git clone https://github.com/yourusername/party-games-hub.git
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+2. Install dependencies
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+pnpm install
 ```
+
+3. Start the development server
+
+```bash
+pnpm start
+```
+
+## Contributing
+
+Contributions are welcome! Feel free to open issues and submit pull requests.
+
+## Acknowledgements
+
+- This project was primarily developed using [Cursor](https://cursor.sh/), an AI-powered code editor
+- Built with [Vite](https://vitejs.dev/) + [React](https://reactjs.org/)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
