@@ -1,5 +1,6 @@
 import styles from './styles.module.css';
 import clsx from 'clsx';
+import React from 'react';
 
 interface DiceProps {
   value: number; // 骰子点数 (1-6)
@@ -8,6 +9,21 @@ interface DiceProps {
 }
 
 export function Dice({ value, size = 60, isRolling = false }: DiceProps) {
+  const [currentValue, setCurrentValue] = React.useState(value);
+
+  React.useEffect(() => {
+    if (!isRolling) {
+      setCurrentValue(value);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setCurrentValue(Math.floor(Math.random() * 6) + 1);
+    }, 80);
+
+    return () => clearInterval(interval);
+  }, [isRolling, value]);
+
   return (
     <div className={clsx(styles.diceWrapper, isRolling && styles.shaking)}>
       <div
@@ -24,11 +40,11 @@ export function Dice({ value, size = 60, isRolling = false }: DiceProps) {
           `,
         }}
       >
-        {[...Array(value)].map((_, i) => (
+        {[...Array(currentValue)].map((_, i) => (
           <span
             key={i}
             className={styles.dot}
-            data-position={getDotPosition(value, i)}
+            data-position={getDotPosition(currentValue, i)}
             style={{
               width: size / 6,
               height: size / 6,
