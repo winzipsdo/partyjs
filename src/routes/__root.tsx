@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/command';
 import { useNavigate, createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import { Github } from 'lucide-react';
 
 import { useState, useEffect } from 'react';
 
@@ -38,14 +39,25 @@ export const Route = createRootRoute({
 
     return (
       <>
-        <div className="p-2">
+        <div className="p-2 flex items-center gap-2">
           <button
             onClick={() => setOpen(true)}
-            className="w-full justify-between text-sm text-muted-foreground border rounded-md px-3 py-2"
+            className="flex-1 justify-between text-sm text-muted-foreground border rounded-md px-3 py-2"
           >
             Search navigation... <kbd className="text-xs">⌘K</kbd>
           </button>
+
+          <a
+            href="https://github.com/winzipsdo/partyjs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 hover:text-gray-600 transition-colors"
+            title="View on GitHub"
+          >
+            <Github size={20} />
+          </a>
         </div>
+
         <CommandDialog open={open} onOpenChange={setOpen}>
           <Command>
             <CommandInput placeholder="Type to search..." autoFocus={false} />
