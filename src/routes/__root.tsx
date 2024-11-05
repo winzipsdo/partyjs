@@ -3,7 +3,7 @@ import {
   CommandDialog,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
+  // CommandInput,
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
@@ -13,8 +13,9 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { useState, useEffect } from 'react';
 import GithubIcon from '@/assets/github.svg';
 
-const routes = [
-  { label: '🏠 Home', path: '/home' },
+const navigationRoutes = [{ label: '🏠 Home', path: '/home' }];
+
+const gameRoutes = [
   { label: '🎲 Dice Roll', path: '/dice-roll' },
   { label: '🔫 Russian Roulette', path: '/russian-roulette' },
   { label: '🃏 Liar Card', path: '/liar-card' },
@@ -44,7 +45,7 @@ export const Route = createRootRoute({
             onClick={() => setOpen(true)}
             className="flex-1 justify-between text-sm text-muted-foreground border rounded-md px-3 py-2"
           >
-            Search navigation... <kbd className="text-xs">⌘K</kbd>
+            More games... <kbd className="text-xs">⌘K</kbd>
           </button>
 
           <a
@@ -60,11 +61,25 @@ export const Route = createRootRoute({
 
         <CommandDialog open={open} onOpenChange={setOpen}>
           <Command>
-            <CommandInput placeholder="Type to search..." autoFocus={false} />
+            {/* TODO: Add search functionality */}
+            {/* <CommandInput placeholder="Type to search..." autoFocus={false} /> */}
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup heading="Navigation">
-                {routes.map((route) => (
+                {navigationRoutes.map((route) => (
+                  <CommandItem
+                    key={route.path}
+                    onSelect={() => {
+                      navigate({ to: route.path });
+                      setOpen(false);
+                    }}
+                  >
+                    {route.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+              <CommandGroup heading="Games">
+                {gameRoutes.map((route) => (
                   <CommandItem
                     key={route.path}
                     onSelect={() => {
