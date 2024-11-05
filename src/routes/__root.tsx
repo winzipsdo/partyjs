@@ -9,9 +9,9 @@ import {
 } from '@/components/ui/command';
 import { useNavigate, createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
-import { Github } from 'lucide-react';
 
 import { useState, useEffect } from 'react';
+import GithubIcon from '@/assets/github.svg';
 
 const routes = [
   { label: '🏠 Home', path: '/home' },
@@ -54,7 +54,7 @@ export const Route = createRootRoute({
             className="p-2 hover:text-gray-600 transition-colors"
             title="View on GitHub"
           >
-            <Github size={20} />
+            <img src={GithubIcon} alt="GitHub" width={20} height={20} />
           </a>
         </div>
 
