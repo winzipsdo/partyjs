@@ -34,7 +34,7 @@ export const Route = createRootRoute({
         <div className="p-2 flex items-center gap-2">
           <button
             onClick={() => setOpen(true)}
-            className="flex-1 justify-between text-sm text-muted-foreground border rounded-md px-3 py-2"
+            className="flex-1 justify-between text-sm text-muted-foreground border rounded-md px-4 py-3"
           >
             More games...
           </button>
@@ -43,10 +43,10 @@ export const Route = createRootRoute({
             href="https://github.com/winzipsdo/partyjs"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 hover:text-gray-600 transition-colors"
+            className="p-3 hover:text-gray-600 transition-colors"
             title="View on GitHub"
           >
-            <img src={GithubIcon} alt="GitHub" width={20} height={20} />
+            <img src={GithubIcon} alt="GitHub" width={24} height={24} />
           </a>
         </div>
 
@@ -57,7 +57,7 @@ export const Route = createRootRoute({
             if (!open) setShowSearch(false);
           }}
         >
-          <Command>
+          <Command className="w-full sm:w-[400px] touch-manipulation rounded-lg">
             {showSearch ? (
               <CommandInput ref={inputRef} placeholder="Type to search..." />
             ) : (
