@@ -10,7 +10,7 @@ import {
 import { useNavigate, createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import GithubIcon from '@/assets/github.svg';
 
 const navigationRoutes = [{ label: '🏠 Home', path: '/home' }];
@@ -29,17 +29,6 @@ export const Route = createRootRoute({
     const [showSearch, setShowSearch] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-      const down = (e: KeyboardEvent) => {
-        if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-          e.preventDefault();
-          setOpen((open) => !open);
-        }
-      };
-      document.addEventListener('keydown', down);
-      return () => document.removeEventListener('keydown', down);
-    }, []);
-
     return (
       <>
         <div className="p-2 flex items-center gap-2">
@@ -47,7 +36,7 @@ export const Route = createRootRoute({
             onClick={() => setOpen(true)}
             className="flex-1 justify-between text-sm text-muted-foreground border rounded-md px-3 py-2"
           >
-            More games... <kbd className="text-xs">⌘K</kbd>
+            More games...
           </button>
 
           <a
