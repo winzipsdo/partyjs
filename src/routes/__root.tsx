@@ -10,7 +10,7 @@ import {
 import { useNavigate, createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import GithubIcon from '@/assets/github.svg';
 
 const navigationRoutes = [{ label: '🏠 Home', path: '/home' }];
@@ -28,6 +28,18 @@ export const Route = createRootRoute({
     const navigate = useNavigate();
     const [showSearch, setShowSearch] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      const handleCustomCommand = () => {
+        setOpen(true);
+        setShowSearch(false);
+        setTimeout(() => inputRef.current?.focus(), 0);
+      };
+
+      document.addEventListener('toggleCommand', handleCustomCommand);
+      return () =>
+        document.removeEventListener('toggleCommand', handleCustomCommand);
+    }, []);
 
     return (
       <>
