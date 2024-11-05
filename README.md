@@ -7,6 +7,7 @@ A collection of party games built with React + TypeScript + Vite. Most of the co
 - 🎲 Dice Rolling
 - 🔫 Russian Roulette
 - 🃏 Liar Card
+- 🦷 Crocodile Dentist
 - 🎯 More games coming soon...
 
 ## Tech Stack
@@ -25,10 +26,18 @@ A collection of party games built with React + TypeScript + Vite. Most of the co
 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/party-games-hub.git
+git clone https://github.com/winzipsdo/partyjs.git
 ```
 
 2. Install dependencies
+
+First, make sure you have pnpm installed. If not, you can install it via npm:
+
+```bash
+npm install -g pnpm
+```
+
+Then install project dependencies:
 
 ```bash
 pnpm install
