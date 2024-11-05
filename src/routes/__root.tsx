@@ -3,14 +3,14 @@ import {
   CommandDialog,
   CommandEmpty,
   CommandGroup,
-  // CommandInput,
+  CommandInput,
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
 import { useNavigate, createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import GithubIcon from '@/assets/github.svg';
 
 const navigationRoutes = [{ label: '🏠 Home', path: '/home' }];
@@ -26,6 +26,8 @@ export const Route = createRootRoute({
   component: () => {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
+    const [showSearch, setShowSearch] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
       const down = (e: KeyboardEvent) => {
@@ -59,10 +61,27 @@ export const Route = createRootRoute({
           </a>
         </div>
 
-        <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandDialog
+          open={open}
+          onOpenChange={(open) => {
+            setOpen(open);
+            if (!open) setShowSearch(false);
+          }}
+        >
           <Command>
-            {/* TODO: Add search functionality */}
-            {/* <CommandInput placeholder="Type to search..." autoFocus={false} /> */}
+            {showSearch ? (
+              <CommandInput ref={inputRef} placeholder="Type to search..." />
+            ) : (
+              <div
+                className="p-4 text-sm text-center text-muted-foreground cursor-pointer hover:text-foreground"
+                onClick={() => {
+                  setShowSearch(true);
+                  setTimeout(() => inputRef.current?.focus(), 0);
+                }}
+              >
+                Click to search games...
+              </div>
+            )}
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup heading="Navigation">
