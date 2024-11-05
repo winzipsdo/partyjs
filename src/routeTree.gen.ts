@@ -21,6 +21,7 @@ const RussianRouletteIndexLazyImport = createFileRoute('/russian-roulette/')()
 const LiarCardIndexLazyImport = createFileRoute('/liar-card/')()
 const HomeIndexLazyImport = createFileRoute('/home/')()
 const DiceRollIndexLazyImport = createFileRoute('/dice-roll/')()
+const CrocodileDentistIndexLazyImport = createFileRoute('/crocodile-dentist/')()
 
 // Create/Update Routes
 
@@ -60,6 +61,14 @@ const DiceRollIndexLazyRoute = DiceRollIndexLazyImport.update({
   import('./routes/dice-roll/index.lazy').then((d) => d.Route),
 )
 
+const CrocodileDentistIndexLazyRoute = CrocodileDentistIndexLazyImport.update({
+  id: '/crocodile-dentist/',
+  path: '/crocodile-dentist/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/crocodile-dentist/index.lazy').then((d) => d.Route),
+)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -69,6 +78,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/crocodile-dentist/': {
+      id: '/crocodile-dentist/'
+      path: '/crocodile-dentist'
+      fullPath: '/crocodile-dentist'
+      preLoaderRoute: typeof CrocodileDentistIndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/dice-roll/': {
@@ -106,6 +122,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/crocodile-dentist': typeof CrocodileDentistIndexLazyRoute
   '/dice-roll': typeof DiceRollIndexLazyRoute
   '/home': typeof HomeIndexLazyRoute
   '/liar-card': typeof LiarCardIndexLazyRoute
@@ -114,6 +131,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/crocodile-dentist': typeof CrocodileDentistIndexLazyRoute
   '/dice-roll': typeof DiceRollIndexLazyRoute
   '/home': typeof HomeIndexLazyRoute
   '/liar-card': typeof LiarCardIndexLazyRoute
@@ -123,6 +141,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
+  '/crocodile-dentist/': typeof CrocodileDentistIndexLazyRoute
   '/dice-roll/': typeof DiceRollIndexLazyRoute
   '/home/': typeof HomeIndexLazyRoute
   '/liar-card/': typeof LiarCardIndexLazyRoute
@@ -131,12 +150,25 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dice-roll' | '/home' | '/liar-card' | '/russian-roulette'
+  fullPaths:
+    | '/'
+    | '/crocodile-dentist'
+    | '/dice-roll'
+    | '/home'
+    | '/liar-card'
+    | '/russian-roulette'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dice-roll' | '/home' | '/liar-card' | '/russian-roulette'
+  to:
+    | '/'
+    | '/crocodile-dentist'
+    | '/dice-roll'
+    | '/home'
+    | '/liar-card'
+    | '/russian-roulette'
   id:
     | '__root__'
     | '/'
+    | '/crocodile-dentist/'
     | '/dice-roll/'
     | '/home/'
     | '/liar-card/'
@@ -146,6 +178,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  CrocodileDentistIndexLazyRoute: typeof CrocodileDentistIndexLazyRoute
   DiceRollIndexLazyRoute: typeof DiceRollIndexLazyRoute
   HomeIndexLazyRoute: typeof HomeIndexLazyRoute
   LiarCardIndexLazyRoute: typeof LiarCardIndexLazyRoute
@@ -154,6 +187,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  CrocodileDentistIndexLazyRoute: CrocodileDentistIndexLazyRoute,
   DiceRollIndexLazyRoute: DiceRollIndexLazyRoute,
   HomeIndexLazyRoute: HomeIndexLazyRoute,
   LiarCardIndexLazyRoute: LiarCardIndexLazyRoute,
@@ -171,6 +205,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/crocodile-dentist/",
         "/dice-roll/",
         "/home/",
         "/liar-card/",
@@ -179,6 +214,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.lazy.tsx"
+    },
+    "/crocodile-dentist/": {
+      "filePath": "crocodile-dentist/index.lazy.tsx"
     },
     "/dice-roll/": {
       "filePath": "dice-roll/index.lazy.tsx"

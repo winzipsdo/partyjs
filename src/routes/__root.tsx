@@ -17,6 +17,7 @@ const routes = [
   { label: '🎲 Dice Roll', path: '/dice-roll' },
   { label: '🔫 Russian Roulette', path: '/russian-roulette' },
   { label: '🃏 Liar Card', path: '/liar-card' },
+  { label: '🦷 Crocodile Dentist', path: '/crocodile-dentist' },
 ];
 
 export const Route = createRootRoute({
