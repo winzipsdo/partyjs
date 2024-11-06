@@ -34,7 +34,7 @@ export function CrocodileDentistPage() {
                   ? index === losingTooth
                     ? 'bg-red-500' // 被咬到的牙齿显示红色
                     : 'bg-gray-300' // 其他按过的牙齿显示灰色
-                  : 'bg-white hover:bg-gray-100'
+                  : 'bg-white'
               }
               border-2 border-gray-400
               disabled:cursor-not-allowed
