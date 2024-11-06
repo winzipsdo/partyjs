@@ -98,11 +98,6 @@ export function DiceRollPage() {
           <Dice value={diceValue ?? 6} isRolling={isRolling} size={100} />
         </div>
         <div>
-          <div className={styles.tableHeader}>
-            <Button variant="destructive" onClick={handleReset}>
-              Reset History
-            </Button>
-          </div>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -133,6 +128,16 @@ export function DiceRollPage() {
               ))}
             </TableBody>
           </Table>
+          <div className={styles.tableFooter}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleReset}
+              className={styles.resetButton}
+            >
+              <span className={styles.underline}>Clear History</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

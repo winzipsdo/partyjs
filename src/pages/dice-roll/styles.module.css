@@ -31,7 +31,8 @@
 }
 
 @keyframes shake {
-  0%, 100% {
+  0%,
+  100% {
     transform: rotate(0deg);
   }
   25% {
@@ -58,8 +59,16 @@
   }
 }
 
-.tableHeader {
+.tableFooter {
   display: flex;
   justify-content: center;
-  margin-bottom: 1rem;
-} 
+  margin-top: 8px;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.resetButton {
+  color: #ff6b6b;
+}
