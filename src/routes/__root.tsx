@@ -20,6 +20,7 @@ const gameRoutes = [
   { label: '🔫 Russian Roulette', path: '/russian-roulette' },
   { label: '🃏 Liar Card', path: '/liar-card' },
   { label: '🦷 Crocodile Dentist', path: '/crocodile-dentist' },
+  { label: '🎨 Color Memory Quest', path: '/color-memory-quest' },
 ];
 
 export const Route = createRootRoute({

@@ -13,6 +13,7 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ColorMemoryQuestIndexImport } from './routes/color-memory-quest/index'
 
 // Create Virtual Routes
 
@@ -69,6 +70,12 @@ const CrocodileDentistIndexLazyRoute = CrocodileDentistIndexLazyImport.update({
   import('./routes/crocodile-dentist/index.lazy').then((d) => d.Route),
 )
 
+const ColorMemoryQuestIndexRoute = ColorMemoryQuestIndexImport.update({
+  id: '/color-memory-quest/',
+  path: '/color-memory-quest/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -78,6 +85,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/color-memory-quest/': {
+      id: '/color-memory-quest/'
+      path: '/color-memory-quest'
+      fullPath: '/color-memory-quest'
+      preLoaderRoute: typeof ColorMemoryQuestIndexImport
       parentRoute: typeof rootRoute
     }
     '/crocodile-dentist/': {
@@ -122,6 +136,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/color-memory-quest': typeof ColorMemoryQuestIndexRoute
   '/crocodile-dentist': typeof CrocodileDentistIndexLazyRoute
   '/dice-roll': typeof DiceRollIndexLazyRoute
   '/home': typeof HomeIndexLazyRoute
@@ -131,6 +146,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/color-memory-quest': typeof ColorMemoryQuestIndexRoute
   '/crocodile-dentist': typeof CrocodileDentistIndexLazyRoute
   '/dice-roll': typeof DiceRollIndexLazyRoute
   '/home': typeof HomeIndexLazyRoute
@@ -141,6 +157,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
+  '/color-memory-quest/': typeof ColorMemoryQuestIndexRoute
   '/crocodile-dentist/': typeof CrocodileDentistIndexLazyRoute
   '/dice-roll/': typeof DiceRollIndexLazyRoute
   '/home/': typeof HomeIndexLazyRoute
@@ -152,6 +169,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/color-memory-quest'
     | '/crocodile-dentist'
     | '/dice-roll'
     | '/home'
@@ -160,6 +178,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/color-memory-quest'
     | '/crocodile-dentist'
     | '/dice-roll'
     | '/home'
@@ -168,6 +187,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/color-memory-quest/'
     | '/crocodile-dentist/'
     | '/dice-roll/'
     | '/home/'
@@ -178,6 +198,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  ColorMemoryQuestIndexRoute: typeof ColorMemoryQuestIndexRoute
   CrocodileDentistIndexLazyRoute: typeof CrocodileDentistIndexLazyRoute
   DiceRollIndexLazyRoute: typeof DiceRollIndexLazyRoute
   HomeIndexLazyRoute: typeof HomeIndexLazyRoute
@@ -187,6 +208,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  ColorMemoryQuestIndexRoute: ColorMemoryQuestIndexRoute,
   CrocodileDentistIndexLazyRoute: CrocodileDentistIndexLazyRoute,
   DiceRollIndexLazyRoute: DiceRollIndexLazyRoute,
   HomeIndexLazyRoute: HomeIndexLazyRoute,
@@ -205,6 +227,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/color-memory-quest/",
         "/crocodile-dentist/",
         "/dice-roll/",
         "/home/",
@@ -214,6 +237,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.lazy.tsx"
+    },
+    "/color-memory-quest/": {
+      "filePath": "color-memory-quest/index.tsx"
     },
     "/crocodile-dentist/": {
       "filePath": "crocodile-dentist/index.lazy.tsx"
