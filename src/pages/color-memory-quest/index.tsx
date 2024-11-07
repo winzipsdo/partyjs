@@ -179,69 +179,69 @@ export function ColorMemoryQuestPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto px-4 max-w-2xl">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Color Memory Quest</h1>
+        <h1 className="text-xl sm:text-2xl font-bold">Color Memory Quest</h1>
         <button
           onClick={resetGame}
-          className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors"
+          className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 sm:px-4 sm:py-2 rounded transition-colors text-sm sm:text-base"
         >
-          重新开始游戏
+          New Game
         </button>
       </div>
 
-      {/* 添加调试信息显示 */}
-      <div className="mb-4 text-sm text-gray-600">
-        <p>Debug - Player 1 tiles: {players[0].collectedTiles.join(', ')}</p>
-        <p>Debug - Player 2 tiles: {players[1].collectedTiles.join(', ')}</p>
-        <p>Debug - Winner: {winner}</p>
-      </div>
-
-      {/* 显示胜利信息 */}
+      {/* Victory message */}
       {winner && (
-        <div className="mb-4 text-xl font-bold text-green-600">
-          🎉 恭喜 Player {winner} 获胜！
+        <div className="mb-4 text-lg sm:text-xl font-bold text-green-600">
+          🎉 Congratulations! Player {winner} Wins!
         </div>
       )}
 
-      {/* 游戏状态 */}
-      <div className="mb-4">
-        <p>当前玩家: Player {currentPlayer}</p>
-        <p>骰子颜色: {currentDiceColor || '请掷骰子'}</p>
+      {/* Game status */}
+      <div className="mb-4 text-sm sm:text-base">
+        <p>Current Player: Player {currentPlayer}</p>
+        <p>Dice Color: {currentDiceColor || 'Roll the dice'}</p>
       </div>
 
-      {/* 骰子按钮 */}
+      {/* Dice button */}
       <button
         onClick={rollDice}
         disabled={!!currentDiceColor || !!winner}
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4 disabled:bg-gray-400"
+        className="bg-blue-500 text-white px-3 py-1 sm:px-4 sm:py-2 rounded mb-4 disabled:bg-gray-400 text-sm sm:text-base"
       >
-        掷骰子
+        Roll Dice
       </button>
 
-      {/* 棋盘 */}
-      <div className="grid grid-cols-4 gap-4">
-        {tiles.map((tile) => (
-          <div
-            key={tile.id}
-            onClick={() => flipTile(tile.id)}
-            className={`
-              w-24 h-24 rounded cursor-pointer
-              transition-all duration-300
-              ${tile.isCollected ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}
-              ${tile.isFlipped ? getColorClass(tile.color) : 'bg-gray-300'}
-              ${tile.isMatched ? styles.animateBounce : ''}
-            `}
-          />
-        ))}
+      {/* Game board */}
+      <div className="w-full">
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-4">
+          {tiles.map((tile) => {
+            const aspectRatio = 'aspect-square'; // 保持 1:1 的宽高比
+            return (
+              <div
+                key={tile.id}
+                onClick={() => flipTile(tile.id)}
+                className={`
+                  ${aspectRatio}
+                  w-full
+                  rounded cursor-pointer
+                  transition-all duration-300
+                  ${tile.isCollected ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}
+                  ${tile.isFlipped ? getColorClass(tile.color) : 'bg-gray-300'}
+                  ${tile.isMatched ? styles.animateBounce : ''}
+                `}
+              />
+            );
+          })}
+        </div>
       </div>
 
-      {/* 玩家得分 */}
-      <div className="mt-4">
+      {/* Player scores */}
+      <div className="mt-4 text-sm sm:text-base">
         {players.map((player) => (
           <div key={player.id} className="mb-2">
             <p>
-              Player {player.id}: {player.collectedTiles.length} 块棋子
+              Player {player.id}: {player.collectedTiles.length} Tiles
             </p>
           </div>
         ))}
