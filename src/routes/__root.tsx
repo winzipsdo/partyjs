@@ -20,10 +20,6 @@ const gameRoutes = [
   { label: '🔫 Russian Roulette', path: '/russian-roulette' },
   { label: '🃏 Liar Card', path: '/liar-card' },
   { label: '🦷 Crocodile Dentist', path: '/crocodile-dentist' },
-  {
-    label: '🐊 (Test) Crocodile Dentist Pixi',
-    path: '/crocodile-dentist-pixi',
-  },
 ];
 
 export const Route = createRootRoute({
