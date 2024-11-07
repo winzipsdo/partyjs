@@ -64,6 +64,9 @@ module.exports = {
       animation: {
         'spin-shake': 'spin-shake 0.5s ease-in-out infinite',
       },
+      rotate: {
+        180: '180deg',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

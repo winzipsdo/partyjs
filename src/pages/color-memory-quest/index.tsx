@@ -1,8 +1,15 @@
 import { useState } from 'react';
-import styles from './styles.module.css';
+import ColorTile, { TileColor } from './components/ColorTile';
+import { RotateCcw } from 'lucide-react';
 
 // 定义颜色类型
 type Color = 'red' | 'yellow' | 'blue' | 'green';
+
+// 游戏配置常量
+const GAME_CONFIG = {
+  TILES_PER_COLOR: 3,
+  TILES_TO_WIN: 5,
+} as const;
 
 // 定义棋子类型
 interface Tile {
@@ -19,26 +26,15 @@ interface Player {
   collectedTiles: Color[];
 }
 
-// 添加颜色映射函数
-const getColorClass = (color: Color): string => {
-  const colorMap = {
-    red: 'bg-red-500',
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    yellow: 'bg-yellow-500',
-  };
-  return colorMap[color];
-};
-
 export function ColorMemoryQuestPage() {
-  // 初始化12个棋子
+  // 初始化棋子
   const [tiles, setTiles] = useState<Tile[]>(() => {
     const colors: Color[] = ['red', 'yellow', 'blue', 'green'];
     const initialTiles: Tile[] = [];
 
-    // 每种颜色3个棋子
+    // 每种颜色指定数量的棋子
     colors.forEach((color) => {
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < GAME_CONFIG.TILES_PER_COLOR; i++) {
         initialTiles.push({
           id: initialTiles.length,
           color,
@@ -49,7 +45,6 @@ export function ColorMemoryQuestPage() {
       }
     });
 
-    // 随机打乱棋子顺序
     return initialTiles.sort(() => Math.random() - 0.5);
   });
 
@@ -70,8 +65,7 @@ export function ColorMemoryQuestPage() {
 
   // 检查胜利条件
   const checkWinCondition = (playerTiles: Color[]): boolean => {
-    // 只需要检查总数量是否达到3个
-    return playerTiles.length >= 3;
+    return playerTiles.length >= GAME_CONFIG.TILES_TO_WIN;
   };
 
   // 掷骰子
@@ -164,29 +158,39 @@ export function ColorMemoryQuestPage() {
 
   // 添加重新开始游戏功能
   const resetGame = () => {
+    // 先翻转所有棋子
     setTiles((prevTiles) => {
-      return [...prevTiles]
-        .map((tile) => ({ ...tile, isFlipped: false, isCollected: false }))
-        .sort(() => Math.random() - 0.5);
+      return prevTiles.map((tile) => ({ ...tile, isFlipped: false }));
     });
-    setCurrentPlayer(1);
-    setCurrentDiceColor(null);
-    setWinner(null);
-    setPlayers([
-      { id: 1, collectedTiles: [] },
-      { id: 2, collectedTiles: [] },
-    ]);
+
+    // 等待翻转动画完成后再重置其他状态
+    setTimeout(() => {
+      setTiles((prevTiles) => {
+        return [...prevTiles]
+          .map((tile) => ({ ...tile, isCollected: false }))
+          .sort(() => Math.random() - 0.5);
+      });
+      setCurrentPlayer(1);
+      setCurrentDiceColor(null);
+      setWinner(null);
+      setPlayers([
+        { id: 1, collectedTiles: [] },
+        { id: 2, collectedTiles: [] },
+      ]);
+    }, 300); // 等待翻转动画完成
   };
 
   return (
     <div className="container mx-auto px-4 max-w-2xl">
-      <div className="flex justify-between items-center mb-4">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4 mt-2">
         <h1 className="text-xl sm:text-2xl font-bold">Color Memory Quest</h1>
         <button
           onClick={resetGame}
-          className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 sm:px-4 sm:py-2 rounded transition-colors text-sm sm:text-base"
+          className="w-10 h-10 rounded-full bg-gray-500 hover:bg-gray-600 text-white flex items-center justify-center transition-colors"
+          title="New Game"
         >
-          New Game
+          <RotateCcw className="w-5 h-5" />
         </button>
       </div>
 
@@ -200,7 +204,19 @@ export function ColorMemoryQuestPage() {
       {/* Game status */}
       <div className="mb-4 text-sm sm:text-base">
         <p>Current Player: Player {currentPlayer}</p>
-        <p>Dice Color: {currentDiceColor || 'Roll the dice'}</p>
+        <div className="flex items-center gap-2 h-8">
+          <span>Dice Color:</span>
+          <div className="w-6 h-6 flex items-center">
+            {currentDiceColor ? (
+              <ColorTile
+                color={currentDiceColor as TileColor}
+                isFlipped={true}
+              />
+            ) : (
+              <span className="whitespace-nowrap">Roll the dice</span>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Dice button */}
@@ -215,34 +231,35 @@ export function ColorMemoryQuestPage() {
       {/* Game board */}
       <div className="w-full">
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-4">
-          {tiles.map((tile) => {
-            const aspectRatio = 'aspect-square'; // 保持 1:1 的宽高比
-            return (
-              <div
-                key={tile.id}
-                onClick={() => flipTile(tile.id)}
-                className={`
-                  ${aspectRatio}
-                  w-full
-                  rounded cursor-pointer
-                  transition-all duration-300
-                  ${tile.isCollected ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}
-                  ${tile.isFlipped ? getColorClass(tile.color) : 'bg-gray-300'}
-                  ${tile.isMatched ? styles.animateBounce : ''}
-                `}
-              />
-            );
-          })}
+          {tiles.map((tile) => (
+            <ColorTile
+              key={tile.id}
+              color={tile.color as TileColor}
+              isFlipped={tile.isFlipped}
+              isCollected={tile.isCollected}
+              isMatched={tile.isMatched}
+              onClick={() => flipTile(tile.id)}
+            />
+          ))}
         </div>
       </div>
 
       {/* Player scores */}
       <div className="mt-4 text-sm sm:text-base">
         {players.map((player) => (
-          <div key={player.id} className="mb-2">
-            <p>
-              Player {player.id}: {player.collectedTiles.length} Tiles
-            </p>
+          <div key={player.id} className="mb-2 flex items-center gap-4 h-8">
+            <span className="w-16">Player {player.id}</span>
+            <div className="flex gap-2">
+              {player.collectedTiles.map((color, index) => (
+                <div key={index} className="w-6 h-6">
+                  <ColorTile
+                    color={color as TileColor}
+                    isFlipped={true}
+                    showColorOnly={true}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </div>
