@@ -8,6 +8,7 @@ A collection of party games built with React + TypeScript + Vite. Most of the co
 - 🔫 Russian Roulette
 - 🃏 Liar Card
 - 🦷 Crocodile Dentist
+- 🎨 Color Memory Quest
 - 🎯 More games coming soon...
 
 ## Tech Stack
