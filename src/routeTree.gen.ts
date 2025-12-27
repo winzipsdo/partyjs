@@ -16,6 +16,7 @@ import { Route as ColorMemoryQuestIndexRouteImport } from './routes/color-memory
 const IndexLazyRouteImport = createFileRoute('/')()
 const RussianRouletteIndexLazyRouteImport =
   createFileRoute('/russian-roulette/')()
+const OthelloIndexLazyRouteImport = createFileRoute('/othello/')()
 const LiarCardIndexLazyRouteImport = createFileRoute('/liar-card/')()
 const HomeIndexLazyRouteImport = createFileRoute('/home/')()
 const GomokuIndexLazyRouteImport = createFileRoute('/gomoku/')()
@@ -37,6 +38,11 @@ const RussianRouletteIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/russian-roulette/index.lazy').then((d) => d.Route),
   )
+const OthelloIndexLazyRoute = OthelloIndexLazyRouteImport.update({
+  id: '/othello/',
+  path: '/othello/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/othello/index.lazy').then((d) => d.Route))
 const LiarCardIndexLazyRoute = LiarCardIndexLazyRouteImport.update({
   id: '/liar-card/',
   path: '/liar-card/',
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/gomoku': typeof GomokuIndexLazyRoute
   '/home': typeof HomeIndexLazyRoute
   '/liar-card': typeof LiarCardIndexLazyRoute
+  '/othello': typeof OthelloIndexLazyRoute
   '/russian-roulette': typeof RussianRouletteIndexLazyRoute
 }
 export interface FileRoutesByTo {
@@ -93,6 +100,7 @@ export interface FileRoutesByTo {
   '/gomoku': typeof GomokuIndexLazyRoute
   '/home': typeof HomeIndexLazyRoute
   '/liar-card': typeof LiarCardIndexLazyRoute
+  '/othello': typeof OthelloIndexLazyRoute
   '/russian-roulette': typeof RussianRouletteIndexLazyRoute
 }
 export interface FileRoutesById {
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/gomoku/': typeof GomokuIndexLazyRoute
   '/home/': typeof HomeIndexLazyRoute
   '/liar-card/': typeof LiarCardIndexLazyRoute
+  '/othello/': typeof OthelloIndexLazyRoute
   '/russian-roulette/': typeof RussianRouletteIndexLazyRoute
 }
 export interface FileRouteTypes {
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/gomoku'
     | '/home'
     | '/liar-card'
+    | '/othello'
     | '/russian-roulette'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/gomoku'
     | '/home'
     | '/liar-card'
+    | '/othello'
     | '/russian-roulette'
   id:
     | '__root__'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
     | '/gomoku/'
     | '/home/'
     | '/liar-card/'
+    | '/othello/'
     | '/russian-roulette/'
   fileRoutesById: FileRoutesById
 }
@@ -147,6 +159,7 @@ export interface RootRouteChildren {
   GomokuIndexLazyRoute: typeof GomokuIndexLazyRoute
   HomeIndexLazyRoute: typeof HomeIndexLazyRoute
   LiarCardIndexLazyRoute: typeof LiarCardIndexLazyRoute
+  OthelloIndexLazyRoute: typeof OthelloIndexLazyRoute
   RussianRouletteIndexLazyRoute: typeof RussianRouletteIndexLazyRoute
 }
 
@@ -164,6 +177,13 @@ declare module '@tanstack/react-router' {
       path: '/russian-roulette'
       fullPath: '/russian-roulette'
       preLoaderRoute: typeof RussianRouletteIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/othello/': {
+      id: '/othello/'
+      path: '/othello'
+      fullPath: '/othello'
+      preLoaderRoute: typeof OthelloIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/liar-card/': {
@@ -219,6 +239,7 @@ const rootRouteChildren: RootRouteChildren = {
   GomokuIndexLazyRoute: GomokuIndexLazyRoute,
   HomeIndexLazyRoute: HomeIndexLazyRoute,
   LiarCardIndexLazyRoute: LiarCardIndexLazyRoute,
+  OthelloIndexLazyRoute: OthelloIndexLazyRoute,
   RussianRouletteIndexLazyRoute: RussianRouletteIndexLazyRoute,
 }
 export const routeTree = rootRouteImport

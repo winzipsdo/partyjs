@@ -22,6 +22,7 @@ const gameRoutes = [
   { label: '🦷 Crocodile Dentist', path: '/crocodile-dentist' },
   { label: '🎨 Color Memory Quest', path: '/color-memory-quest' },
   { label: '⚫ Gomoku', path: '/gomoku' },
+  { label: '⚪ Othello', path: '/othello' },
 ];
 
 export const Route = createRootRoute({
@@ -39,28 +40,27 @@ export const Route = createRootRoute({
       };
 
       document.addEventListener('toggleCommand', handleCustomCommand);
-      return () =>
-        document.removeEventListener('toggleCommand', handleCustomCommand);
+      return () => document.removeEventListener('toggleCommand', handleCustomCommand);
     }, []);
 
     return (
       <>
-        <div className="p-2 flex items-center gap-2">
+        <div className='p-2 flex items-center gap-2'>
           <button
             onClick={() => setOpen(true)}
-            className="flex-1 justify-between text-sm text-muted-foreground border rounded-md px-4 py-3"
+            className='flex-1 justify-between text-sm text-muted-foreground border rounded-md px-4 py-3'
           >
             More games...
           </button>
 
           <a
-            href="https://github.com/winzipsdo/partyjs"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-3 hover:text-gray-600 transition-colors"
-            title="View on GitHub"
+            href='https://github.com/winzipsdo/partyjs'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='p-3 hover:text-gray-600 transition-colors'
+            title='View on GitHub'
           >
-            <img src={GithubIcon} alt="GitHub" width={24} height={24} />
+            <img src={GithubIcon} alt='GitHub' width={24} height={24} />
           </a>
         </div>
 
@@ -71,12 +71,12 @@ export const Route = createRootRoute({
             if (!open) setShowSearch(false);
           }}
         >
-          <Command className="w-full sm:w-[400px] touch-manipulation rounded-lg">
+          <Command className='w-full sm:w-[400px] touch-manipulation rounded-lg'>
             {showSearch ? (
-              <CommandInput ref={inputRef} placeholder="Type to search..." />
+              <CommandInput ref={inputRef} placeholder='Type to search...' />
             ) : (
               <div
-                className="p-4 text-sm text-center text-muted-foreground cursor-pointer hover:text-foreground"
+                className='p-4 text-sm text-center text-muted-foreground cursor-pointer hover:text-foreground'
                 onClick={() => {
                   setShowSearch(true);
                   setTimeout(() => inputRef.current?.focus(), 0);
@@ -87,7 +87,7 @@ export const Route = createRootRoute({
             )}
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup heading="Navigation">
+              <CommandGroup heading='Navigation'>
                 {navigationRoutes.map((route) => (
                   <CommandItem
                     key={route.path}
@@ -100,7 +100,7 @@ export const Route = createRootRoute({
                   </CommandItem>
                 ))}
               </CommandGroup>
-              <CommandGroup heading="Games">
+              <CommandGroup heading='Games'>
                 {gameRoutes.map((route) => (
                   <CommandItem
                     key={route.path}
