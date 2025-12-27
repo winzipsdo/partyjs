@@ -1,22 +1,26 @@
 import styles from './styles.module.css';
-import clsx from 'clsx';
-import React from 'react';
+import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
 
 interface DiceProps {
   value: number; // 骰子点数 (1-6)
-  size?: number; // 骰子大小，默认 60px
+  size?: number; // 骰子大小，默认 100px
   isRolling?: boolean; // 是否正在滚动
 }
 
-export function Dice({ value, size = 60, isRolling = false }: DiceProps) {
-  const [currentValue, setCurrentValue] = React.useState(value);
+export function Dice({ value, size = 100, isRolling = false }: DiceProps) {
+  const [currentValue, setCurrentValue] = useState(value);
+  const [showResult, setShowResult] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isRolling) {
       setCurrentValue(value);
-      return;
+      setShowResult(true);
+      const timer = setTimeout(() => setShowResult(false), 300);
+      return () => clearTimeout(timer);
     }
 
+    // 滚动时快速切换数字
     const interval = setInterval(() => {
       setCurrentValue(Math.floor(Math.random() * 6) + 1);
     }, 80);
@@ -24,15 +28,23 @@ export function Dice({ value, size = 60, isRolling = false }: DiceProps) {
     return () => clearInterval(interval);
   }, [isRolling, value]);
 
+  const dotSize = size / 5;
+  const padding = size / 8;
+  const gap = size / 20;
+
   return (
-    <div className={clsx(styles.diceWrapper, isRolling && styles.shaking)}>
+    <div className={cn(styles.diceWrapper, isRolling && styles.shaking)}>
       <div
-        className={clsx(styles.dice, isRolling && styles.rolling)}
+        className={cn(
+          styles.dice,
+          isRolling && styles.rolling,
+          showResult && !isRolling && styles.showResult
+        )}
         style={{
           width: size,
           height: size,
-          borderRadius: size / 10,
-          padding: size / 10,
+          padding: padding,
+          gap: gap,
           gridTemplateAreas: `
             "a . c"
             "e g f"
@@ -42,12 +54,12 @@ export function Dice({ value, size = 60, isRolling = false }: DiceProps) {
       >
         {[...Array(currentValue)].map((_, i) => (
           <span
-            key={i}
+            key={`${currentValue}-${i}`}
             className={styles.dot}
             data-position={getDotPosition(currentValue, i)}
             style={{
-              width: size / 6,
-              height: size / 6,
+              width: dotSize,
+              height: dotSize,
             }}
           />
         ))}
@@ -57,7 +69,7 @@ export function Dice({ value, size = 60, isRolling = false }: DiceProps) {
 }
 
 function getDotPosition(value: number, index: number): string {
-  const positions = {
+  const positions: Record<number, string[]> = {
     1: ['g'],
     2: ['a', 'b'],
     3: ['a', 'g', 'b'],
@@ -66,5 +78,5 @@ function getDotPosition(value: number, index: number): string {
     6: ['a', 'c', 'e', 'f', 'b', 'd'],
   };
 
-  return positions[value as keyof typeof positions][index];
+  return positions[value]?.[index] ?? 'g';
 }

@@ -1,74 +1,229 @@
 .container {
-  width: 100%;
   min-height: 100vh;
-  padding: 2rem;
-}
-
-.content {
-  max-width: 800px;
-  margin: 0 auto;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
   align-items: center;
+  gap: 1.5rem;
 }
 
-.diceContainer {
+/* 骰子区域 */
+.diceArea {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  padding: 2rem;
+  padding: 2rem 0;
+}
+
+.diceButton {
+  cursor: pointer;
   transition: transform 0.2s ease;
 }
 
-.diceContainer:hover:not([disabled]) {
-  transform: scale(1.1);
+.diceButton:hover:not(.rolling) {
+  transform: scale(1.05);
 }
 
-.dice {
-  animation: shake 0.5s ease-in-out infinite;
-  transform-origin: center;
+.diceButton.rolling {
+  cursor: default;
 }
 
-@keyframes shake {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-10deg) translateX(-5px);
-  }
-  75% {
-    transform: rotate(10deg) translateX(5px);
-  }
+.hint {
+  margin-top: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  animation: pulse 2s ease-in-out infinite;
 }
 
-.rolling {
-  animation: roll 0.8s ease-in-out;
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 
-@keyframes roll {
-  0% {
-    transform: rotate(0deg) scale(1);
-  }
-  50% {
-    transform: rotate(360deg) scale(1.2);
-  }
-  100% {
-    transform: rotate(720deg) scale(1);
-  }
+/* 统计区域 */
+.statsArea {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 1rem;
+  width: 100%;
+  max-width: 320px;
 }
 
-.tableFooter {
+.statsHeader {
   display: flex;
-  justify-content: center;
-  margin-top: 8px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
 }
 
-.underline {
-  text-decoration: underline;
+.statsTitle {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.resetButton {
+.clearButton {
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.25rem;
+  height: auto;
+}
+
+.clearButton:hover {
   color: #ff6b6b;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.statDots {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-areas:
+    "a . c"
+    "e g f"
+    "d . b";
+  gap: 1px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+}
+
+.miniDot {
+  width: 4px;
+  height: 4px;
+  background: #333;
+  border-radius: 50%;
+  justify-self: center;
+  align-self: center;
+}
+
+.statBar {
+  width: 100%;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.statFill {
+  width: 100%;
+  background: linear-gradient(to top, #ffd700, #ffed4a);
+  border-radius: 4px;
+  transition: height 0.3s ease;
+  min-height: 2px;
+}
+
+.statCount {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* 历史记录区域 */
+.historyArea {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 1rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.historyTitle {
+  display: block;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.historyList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.historyItem {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.historyItem.latest {
+  background: rgba(255, 215, 0, 0.4);
+  animation: pop 0.3s ease-out;
+}
+
+@keyframes pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.historyValue {
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* 响应式 */
+@media (min-width: 640px) {
+  .container {
+    padding: 2rem;
+  }
+
+  .statsArea,
+  .historyArea {
+    max-width: 400px;
+  }
+
+  .statDots {
+    width: 32px;
+    height: 32px;
+  }
+
+  .miniDot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .statBar {
+    height: 60px;
+  }
+
+  .historyItem {
+    width: 40px;
+    height: 40px;
+  }
 }

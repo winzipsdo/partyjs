@@ -1,101 +1,133 @@
+/* 骰子容器 - 用于整体动画 */
+.diceWrapper {
+  padding: 20px;
+}
+
+.diceWrapper.shaking {
+  animation: shake 1.2s ease-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-15px);
+  }
+  40% {
+    transform: translateY(0);
+  }
+  60% {
+    transform: translateY(-8px);
+  }
+  80% {
+    transform: translateY(0);
+  }
+}
+
+/* 骰子本体 */
 .dice {
-  background: white;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 3px;
+  gap: 4px;
   align-items: center;
   justify-items: center;
-  border-radius: 10%;
-  padding: 8px;
-  background: linear-gradient(145deg, #ffffff, #f5f5f5);
-  box-shadow: 
-    5px 5px 15px rgba(0, 0, 0, 0.2),
-    -5px -5px 15px rgba(255, 255, 255, 0.7),
-    inset 0 5px 10px -5px rgba(255, 255, 255, 0.8),
-    inset 0 -5px 10px -5px rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 16%;
+  background: linear-gradient(135deg, #fefefe 0%, #f0f0f0 50%, #e8e8e8 100%);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    0 5px 15px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+/* 骰子边框光泽 */
+.dice::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 14%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  pointer-events: none;
+}
+
+/* 悬停效果 */
+.dice:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.35),
+    0 8px 20px rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 点击效果 */
+.dice:active {
+  transform: translateY(-2px) scale(0.98);
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 滚动动画 - 简单旋转 + 淡出淡入 */
+.rolling {
+  animation: roll 1.2s ease-out;
 }
 
 @keyframes roll {
   0% {
     transform: rotate(0deg);
-    box-shadow: none;
+    opacity: 1;
   }
-  20% {
+  30% {
     transform: rotate(180deg);
-  }
-  40% {
-    transform: rotate(360deg);
-  }
-  50% {
-    transform: rotate(405deg);
+    opacity: 0.3;
   }
   60% {
-    transform: rotate(450deg);
-  }
-  70% {
-    transform: rotate(495deg);
-  }
-  80% {
-    transform: rotate(720deg) scale(1.2);
-  }
-  90% {
-    transform: rotate(720deg) scale(0.8);
+    transform: rotate(540deg);
+    opacity: 0.3;
   }
   100% {
-    transform: rotate(720deg) scale(1);
-    box-shadow: 
-      5px 5px 15px rgba(0, 0, 0, 0.2),
-      -5px -5px 15px rgba(255, 255, 255, 0.7),
-      inset 0 5px 10px -5px rgba(255, 255, 255, 0.8),
-      inset 0 -5px 10px -5px rgba(0, 0, 0, 0.15);
+    transform: rotate(720deg);
+    opacity: 1;
   }
 }
 
-.rolling {
-  animation: roll 1.2s cubic-bezier(0.17, 0.67, 0.83, 0.67);
-  box-shadow: none;
-}
-
+/* 滚动时点淡出 */
 .rolling .dot {
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
-/* 悬停效果 */
-.dice:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    6px 6px 20px rgba(0, 0, 0, 0.25),
-    -6px -6px 20px rgba(255, 255, 255, 0.8),
-    inset 0 5px 10px -5px rgba(255, 255, 255, 0.8),
-    inset 0 -5px 10px -5px rgba(0, 0, 0, 0.15),
-    inset 5px 0 10px -5px rgba(0, 0, 0, 0.1),
-    inset -5px 0 10px -5px rgba(0, 0, 0, 0.1);
-}
-
-/* 点击效果 */
-.dice:active {
-  transform: translateY(0);
-  box-shadow: 
-    3px 3px 10px rgba(0, 0, 0, 0.15),
-    -3px -3px 10px rgba(255, 255, 255, 0.6),
-    inset 0 5px 10px -5px rgba(255, 255, 255, 0.8),
-    inset 0 -5px 10px -5px rgba(0, 0, 0, 0.15),
-    inset 5px 0 10px -5px rgba(0, 0, 0, 0.1),
-    inset -5px 0 10px -5px rgba(0, 0, 0, 0.1);
-}
-
+/* 点样式 */
 .dot {
   display: block;
   border-radius: 50%;
   aspect-ratio: 1;
-  background: linear-gradient(145deg, #333333, #222222);
-  box-shadow: 
-    inset 1px 1px 2px rgba(255, 255, 255, 0.1),
-    inset -1px -1px 2px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease;
+  background: radial-gradient(
+    circle at 30% 30%,
+    #4a4a4a 0%,
+    #2a2a2a 40%,
+    #1a1a1a 100%
+  );
+  box-shadow:
+    inset 2px 2px 4px rgba(255, 255, 255, 0.15),
+    inset -1px -1px 3px rgba(0, 0, 0, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.3s ease;
 }
 
+/* 点的位置 */
 .dot[data-position="a"] { grid-area: a; }
 .dot[data-position="b"] { grid-area: b; }
 .dot[data-position="c"] { grid-area: c; }
@@ -104,30 +136,18 @@
 .dot[data-position="f"] { grid-area: f; }
 .dot[data-position="g"] { grid-area: g; }
 
-/* 添加震动效果的动画 */
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-1px); }
-  75% { transform: translateX(1px); }
+/* 结果展示动画 */
+.showResult {
+  animation: fadeIn 0.3s ease-out;
 }
 
-/* 添加地面震动效果 */
-@keyframes groundShake {
-  0%, 100% { transform: scaleY(1); }
-  80% { transform: scaleY(0.98); }
-  85% { transform: scaleY(1.02); }
-  90% { transform: scaleY(0.99); }
-  95% { transform: scaleY(1.01); }
-}
-
-/* 添加容器样式来实现地面震动效果 */
-.diceWrapper {
-  padding: 20px;
-  transform-origin: bottom;
-  animation: groundShake 1.2s cubic-bezier(0.17, 0.67, 0.83, 0.67);
-  animation-play-state: paused;
-}
-
-.diceWrapper.shaking {
-  animation-play-state: running;
+@keyframes fadeIn {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
