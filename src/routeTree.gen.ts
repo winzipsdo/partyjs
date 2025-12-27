@@ -10,161 +10,102 @@
 
 import { createFileRoute } from '@tanstack/react-router'
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as ColorMemoryQuestIndexRouteImport } from './routes/color-memory-quest/index'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as ColorMemoryQuestIndexImport } from './routes/color-memory-quest/index'
+const IndexLazyRouteImport = createFileRoute('/')()
+const RussianRouletteIndexLazyRouteImport =
+  createFileRoute('/russian-roulette/')()
+const LiarCardIndexLazyRouteImport = createFileRoute('/liar-card/')()
+const HomeIndexLazyRouteImport = createFileRoute('/home/')()
+const GomokuIndexLazyRouteImport = createFileRoute('/gomoku/')()
+const DiceRollIndexLazyRouteImport = createFileRoute('/dice-roll/')()
+const CrocodileDentistIndexLazyRouteImport = createFileRoute(
+  '/crocodile-dentist/',
+)()
 
-// Create Virtual Routes
-
-const IndexLazyImport = createFileRoute('/')()
-const RussianRouletteIndexLazyImport = createFileRoute('/russian-roulette/')()
-const LiarCardIndexLazyImport = createFileRoute('/liar-card/')()
-const HomeIndexLazyImport = createFileRoute('/home/')()
-const DiceRollIndexLazyImport = createFileRoute('/dice-roll/')()
-const CrocodileDentistIndexLazyImport = createFileRoute('/crocodile-dentist/')()
-
-// Create/Update Routes
-
-const IndexLazyRoute = IndexLazyImport.update({
+const IndexLazyRoute = IndexLazyRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
-
-const RussianRouletteIndexLazyRoute = RussianRouletteIndexLazyImport.update({
-  id: '/russian-roulette/',
-  path: '/russian-roulette/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() =>
-  import('./routes/russian-roulette/index.lazy').then((d) => d.Route),
-)
-
-const LiarCardIndexLazyRoute = LiarCardIndexLazyImport.update({
+const RussianRouletteIndexLazyRoute =
+  RussianRouletteIndexLazyRouteImport.update({
+    id: '/russian-roulette/',
+    path: '/russian-roulette/',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/russian-roulette/index.lazy').then((d) => d.Route),
+  )
+const LiarCardIndexLazyRoute = LiarCardIndexLazyRouteImport.update({
   id: '/liar-card/',
   path: '/liar-card/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() =>
   import('./routes/liar-card/index.lazy').then((d) => d.Route),
 )
-
-const HomeIndexLazyRoute = HomeIndexLazyImport.update({
+const HomeIndexLazyRoute = HomeIndexLazyRouteImport.update({
   id: '/home/',
   path: '/home/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/home/index.lazy').then((d) => d.Route))
-
-const DiceRollIndexLazyRoute = DiceRollIndexLazyImport.update({
+const GomokuIndexLazyRoute = GomokuIndexLazyRouteImport.update({
+  id: '/gomoku/',
+  path: '/gomoku/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/gomoku/index.lazy').then((d) => d.Route))
+const DiceRollIndexLazyRoute = DiceRollIndexLazyRouteImport.update({
   id: '/dice-roll/',
   path: '/dice-roll/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() =>
   import('./routes/dice-roll/index.lazy').then((d) => d.Route),
 )
-
-const CrocodileDentistIndexLazyRoute = CrocodileDentistIndexLazyImport.update({
-  id: '/crocodile-dentist/',
-  path: '/crocodile-dentist/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() =>
-  import('./routes/crocodile-dentist/index.lazy').then((d) => d.Route),
-)
-
-const ColorMemoryQuestIndexRoute = ColorMemoryQuestIndexImport.update({
+const CrocodileDentistIndexLazyRoute =
+  CrocodileDentistIndexLazyRouteImport.update({
+    id: '/crocodile-dentist/',
+    path: '/crocodile-dentist/',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/crocodile-dentist/index.lazy').then((d) => d.Route),
+  )
+const ColorMemoryQuestIndexRoute = ColorMemoryQuestIndexRouteImport.update({
   id: '/color-memory-quest/',
   path: '/color-memory-quest/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/color-memory-quest/': {
-      id: '/color-memory-quest/'
-      path: '/color-memory-quest'
-      fullPath: '/color-memory-quest'
-      preLoaderRoute: typeof ColorMemoryQuestIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/crocodile-dentist/': {
-      id: '/crocodile-dentist/'
-      path: '/crocodile-dentist'
-      fullPath: '/crocodile-dentist'
-      preLoaderRoute: typeof CrocodileDentistIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/dice-roll/': {
-      id: '/dice-roll/'
-      path: '/dice-roll'
-      fullPath: '/dice-roll'
-      preLoaderRoute: typeof DiceRollIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/home/': {
-      id: '/home/'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/liar-card/': {
-      id: '/liar-card/'
-      path: '/liar-card'
-      fullPath: '/liar-card'
-      preLoaderRoute: typeof LiarCardIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/russian-roulette/': {
-      id: '/russian-roulette/'
-      path: '/russian-roulette'
-      fullPath: '/russian-roulette'
-      preLoaderRoute: typeof RussianRouletteIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-  }
-}
-
-// Create and export the route tree
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/color-memory-quest': typeof ColorMemoryQuestIndexRoute
   '/crocodile-dentist': typeof CrocodileDentistIndexLazyRoute
   '/dice-roll': typeof DiceRollIndexLazyRoute
+  '/gomoku': typeof GomokuIndexLazyRoute
   '/home': typeof HomeIndexLazyRoute
   '/liar-card': typeof LiarCardIndexLazyRoute
   '/russian-roulette': typeof RussianRouletteIndexLazyRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/color-memory-quest': typeof ColorMemoryQuestIndexRoute
   '/crocodile-dentist': typeof CrocodileDentistIndexLazyRoute
   '/dice-roll': typeof DiceRollIndexLazyRoute
+  '/gomoku': typeof GomokuIndexLazyRoute
   '/home': typeof HomeIndexLazyRoute
   '/liar-card': typeof LiarCardIndexLazyRoute
   '/russian-roulette': typeof RussianRouletteIndexLazyRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
   '/color-memory-quest/': typeof ColorMemoryQuestIndexRoute
   '/crocodile-dentist/': typeof CrocodileDentistIndexLazyRoute
   '/dice-roll/': typeof DiceRollIndexLazyRoute
+  '/gomoku/': typeof GomokuIndexLazyRoute
   '/home/': typeof HomeIndexLazyRoute
   '/liar-card/': typeof LiarCardIndexLazyRoute
   '/russian-roulette/': typeof RussianRouletteIndexLazyRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -172,6 +113,7 @@ export interface FileRouteTypes {
     | '/color-memory-quest'
     | '/crocodile-dentist'
     | '/dice-roll'
+    | '/gomoku'
     | '/home'
     | '/liar-card'
     | '/russian-roulette'
@@ -181,6 +123,7 @@ export interface FileRouteTypes {
     | '/color-memory-quest'
     | '/crocodile-dentist'
     | '/dice-roll'
+    | '/gomoku'
     | '/home'
     | '/liar-card'
     | '/russian-roulette'
@@ -190,20 +133,82 @@ export interface FileRouteTypes {
     | '/color-memory-quest/'
     | '/crocodile-dentist/'
     | '/dice-roll/'
+    | '/gomoku/'
     | '/home/'
     | '/liar-card/'
     | '/russian-roulette/'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   ColorMemoryQuestIndexRoute: typeof ColorMemoryQuestIndexRoute
   CrocodileDentistIndexLazyRoute: typeof CrocodileDentistIndexLazyRoute
   DiceRollIndexLazyRoute: typeof DiceRollIndexLazyRoute
+  GomokuIndexLazyRoute: typeof GomokuIndexLazyRoute
   HomeIndexLazyRoute: typeof HomeIndexLazyRoute
   LiarCardIndexLazyRoute: typeof LiarCardIndexLazyRoute
   RussianRouletteIndexLazyRoute: typeof RussianRouletteIndexLazyRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/russian-roulette/': {
+      id: '/russian-roulette/'
+      path: '/russian-roulette'
+      fullPath: '/russian-roulette'
+      preLoaderRoute: typeof RussianRouletteIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/liar-card/': {
+      id: '/liar-card/'
+      path: '/liar-card'
+      fullPath: '/liar-card'
+      preLoaderRoute: typeof LiarCardIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home/': {
+      id: '/home/'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gomoku/': {
+      id: '/gomoku/'
+      path: '/gomoku'
+      fullPath: '/gomoku'
+      preLoaderRoute: typeof GomokuIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dice-roll/': {
+      id: '/dice-roll/'
+      path: '/dice-roll'
+      fullPath: '/dice-roll'
+      preLoaderRoute: typeof DiceRollIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crocodile-dentist/': {
+      id: '/crocodile-dentist/'
+      path: '/crocodile-dentist'
+      fullPath: '/crocodile-dentist'
+      preLoaderRoute: typeof CrocodileDentistIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/color-memory-quest/': {
+      id: '/color-memory-quest/'
+      path: '/color-memory-quest'
+      fullPath: '/color-memory-quest'
+      preLoaderRoute: typeof ColorMemoryQuestIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -211,51 +216,11 @@ const rootRouteChildren: RootRouteChildren = {
   ColorMemoryQuestIndexRoute: ColorMemoryQuestIndexRoute,
   CrocodileDentistIndexLazyRoute: CrocodileDentistIndexLazyRoute,
   DiceRollIndexLazyRoute: DiceRollIndexLazyRoute,
+  GomokuIndexLazyRoute: GomokuIndexLazyRoute,
   HomeIndexLazyRoute: HomeIndexLazyRoute,
   LiarCardIndexLazyRoute: LiarCardIndexLazyRoute,
   RussianRouletteIndexLazyRoute: RussianRouletteIndexLazyRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/color-memory-quest/",
-        "/crocodile-dentist/",
-        "/dice-roll/",
-        "/home/",
-        "/liar-card/",
-        "/russian-roulette/"
-      ]
-    },
-    "/": {
-      "filePath": "index.lazy.tsx"
-    },
-    "/color-memory-quest/": {
-      "filePath": "color-memory-quest/index.tsx"
-    },
-    "/crocodile-dentist/": {
-      "filePath": "crocodile-dentist/index.lazy.tsx"
-    },
-    "/dice-roll/": {
-      "filePath": "dice-roll/index.lazy.tsx"
-    },
-    "/home/": {
-      "filePath": "home/index.lazy.tsx"
-    },
-    "/liar-card/": {
-      "filePath": "liar-card/index.lazy.tsx"
-    },
-    "/russian-roulette/": {
-      "filePath": "russian-roulette/index.lazy.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

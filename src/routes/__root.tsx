@@ -21,6 +21,7 @@ const gameRoutes = [
   { label: '🃏 Liar Card', path: '/liar-card' },
   { label: '🦷 Crocodile Dentist', path: '/crocodile-dentist' },
   { label: '🎨 Color Memory Quest', path: '/color-memory-quest' },
+  { label: '⚫ Gomoku', path: '/gomoku' },
 ];
 
 export const Route = createRootRoute({
