@@ -61,7 +61,7 @@ export function CrocodileDentistPage() {
       {/* Crocodile container */}
       <div className={`relative ${styles.crocodileContainer} ${isBiting ? styles.biting : ''}`}>
         {/* Crocodile eyes */}
-        <div className='absolute -top-16 left-1/2 -translate-x-1/2 flex gap-16'>
+        <div className='flex justify-center gap-16 mb-3'>
           <div className={`${styles.eye} ${isBiting ? styles.angryEye : ''}`}>
             <div className={styles.pupil} />
           </div>
