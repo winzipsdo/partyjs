@@ -2,6 +2,8 @@
 
 A collection of party games built with React + TypeScript + Vite. Most of the code in this project was written with the assistance of Cursor AI.
 
+🎮 **Live Demo**: [https://winzipsdo.github.io/partyjs/](https://winzipsdo.github.io/partyjs/)
+
 ## Features
 
 - 🎲 Dice Rolling
