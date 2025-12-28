@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Skull, Check, HelpCircle } from 'lucide-react';
+import { Skull, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
 import { useLocalStorageState } from 'ahooks';
 import { createStorageKey } from '@/constants/storage';
+import styles from './styles.module.css';
 
 export function RussianRoulettePage() {
   const [bulletPosition, setBulletPosition] = useLocalStorageState<number>(
@@ -28,13 +27,19 @@ export function RussianRoulettePage() {
     { defaultValue: false }
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showFlash, setShowFlash] = useState<boolean>(false);
+  const [isSpinning, setIsSpinning] = useState<boolean>(false);
 
   const resetGame = () => {
-    setBulletPosition(Math.floor(Math.random() * 6) + 1);
-    setCurrentPosition(1);
-    setShotsFired(0);
-    setIsShot(false);
-    setIsGameOver(false);
+    setIsSpinning(true);
+    setTimeout(() => {
+      setBulletPosition(Math.floor(Math.random() * 6) + 1);
+      setCurrentPosition(1);
+      setShotsFired(0);
+      setIsShot(false);
+      setIsGameOver(false);
+      setIsSpinning(false);
+    }, 800);
   };
 
   const shoot = () => {
@@ -44,6 +49,10 @@ export function RussianRoulettePage() {
     setShotsFired((prev = 0) => prev + 1);
 
     setTimeout(() => {
+      // Show muzzle flash
+      setShowFlash(true);
+      setTimeout(() => setShowFlash(false), 150);
+
       if (currentPosition === bulletPosition) {
         setIsShot(true);
         setIsGameOver(true);
@@ -61,67 +70,149 @@ export function RussianRoulettePage() {
     resetGame();
   }
 
+  const getChamberState = (position: number) => {
+    const fired = position <= (shotsFired ?? 0);
+    const isCurrent = position === currentPosition && !isGameOver;
+    const isDanger = position === bulletPosition && isShot;
+    const isSafe = fired && !isDanger;
+
+    if (isLoading && isCurrent) return 'loading';
+    if (isDanger) return 'danger';
+    if (isSafe) return 'safe';
+    if (isCurrent) return 'current';
+    return 'pending';
+  };
+
   return (
-    <div className="container mx-auto p-4 text-center">
-      <h2 className="text-2xl font-bold mb-4">Russian Roulette</h2>
-
-      <div className="space-y-4 mb-4">
-        <div className="flex justify-center gap-2">
-          {[1, 2, 3, 4, 5, 6].map((position) => (
-            <div
-              key={position}
-              className={cn(
-                'w-10 h-10 rounded-full border-2 flex items-center justify-center',
-                isLoading &&
-                  position === currentPosition &&
-                  'animate-spin-shake',
-                position <= (shotsFired ?? 0)
-                  ? isLoading && position === currentPosition
-                    ? 'border-yellow-500 bg-yellow-100'
-                    : position === bulletPosition && isShot
-                      ? 'border-red-500 bg-red-100'
-                      : 'border-green-500 bg-green-100'
-                  : 'border-gray-300'
-              )}
-            >
-              {position <= (shotsFired ?? 0) ? (
-                isLoading && position === currentPosition ? (
-                  <HelpCircle className="w-5 h-5 text-gray-500" />
-                ) : position === bulletPosition && isShot ? (
-                  <Skull className="w-5 h-5 text-red-500" />
-                ) : (
-                  <Check className="w-5 h-5 text-green-500" />
-                )
-              ) : null}
-            </div>
-          ))}
-        </div>
-
-        <p>
-          Status:{' '}
-          {isLoading
-            ? 'Pulling the trigger...'
-            : isGameOver
-              ? isShot
-                ? 'BANG! Game Over!'
-                : 'You survived!'
-              : `Chamber ${currentPosition}/6 - Pull the trigger if you dare!`}
-        </p>
+    <div className={styles.container}>
+      {/* Background particles */}
+      <div className={styles.particles}>
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className={styles.particle}
+            style={{
+              '--delay': `${i * 0.5}s`,
+              '--left': `${Math.random() * 100}%`,
+              '--top': `${Math.random() * 100}%`,
+            } as React.CSSProperties}
+          />
+        ))}
       </div>
 
-      <div className="space-x-4">
-        <Button
-          variant="destructive"
+      {/* Muzzle flash effect */}
+      {showFlash && <div className={styles.muzzleFlash} />}
+
+      {/* Shot counter */}
+      <div className={styles.shotCounter}>
+        Shots: {shotsFired ?? 0}/6
+      </div>
+
+      {/* Title */}
+      <h1 className={styles.title}>Russian Roulette</h1>
+      <p className={styles.subtitle}>Do you feel lucky?</p>
+
+      {/* Revolver cylinder */}
+      <div className={styles.cylinderContainer}>
+        <div className={cn(styles.cylinder, isSpinning && styles.spinning)}>
+          <div className={styles.cylinderInner}>
+            {[1, 2, 3, 4, 5, 6].map((position) => {
+              const state = getChamberState(position);
+              return (
+                <div
+                  key={position}
+                  className={cn(
+                    styles.chamber,
+                    state === 'current' && styles.chamberCurrent,
+                    state === 'loading' && styles.chamberCurrent,
+                    state === 'safe' && styles.chamberSafe,
+                    state === 'danger' && styles.chamberDanger,
+                    state === 'pending' && styles.chamberPending
+                  )}
+                >
+                  <div className={styles.chamberInner}>
+                    {state === 'safe' && (
+                      <Check className="w-4 h-4 text-green-400" />
+                    )}
+                    {state === 'danger' && (
+                      <Skull className="w-4 h-4 text-red-400" />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className={styles.centerHub} />
+        </div>
+        <div className={styles.hammer} />
+      </div>
+
+      {/* Status message */}
+      <p
+        className={cn(
+          styles.status,
+          isLoading && styles.statusLoading,
+          isGameOver && isShot && styles.statusDanger,
+          isGameOver && !isShot && styles.statusSafe
+        )}
+      >
+        {isLoading
+          ? '[ PULLING TRIGGER... ]'
+          : isGameOver
+            ? isShot
+              ? '💀 BANG! YOU ARE DEAD!'
+              : '🎉 YOU SURVIVED ALL 6 CHAMBERS!'
+            : `Chamber ${currentPosition}/6 — Pull the trigger if you dare...`}
+      </p>
+
+      {/* Action buttons */}
+      <div className={styles.actions}>
+        <button
+          className={styles.shootButton}
           onClick={shoot}
           disabled={isGameOver || isLoading}
         >
-          {isLoading ? 'Shooting...' : 'Shoot'}
-        </Button>
+          {isLoading ? '...' : '🔫 SHOOT'}
+        </button>
 
-        <Button variant="outline" onClick={resetGame}>
-          Reset Game
-        </Button>
+        <button className={styles.resetButton} onClick={resetGame}>
+          ↺ Reset
+        </button>
       </div>
+
+      {/* Game over overlay */}
+      {isGameOver && (
+        <div className={styles.gameOverOverlay}>
+          <div
+            className={styles.gameOverCard}
+            style={{
+              '--glow-color': isShot
+                ? 'rgba(220, 38, 38, 0.4)'
+                : 'rgba(34, 197, 94, 0.4)',
+            } as React.CSSProperties}
+          >
+            <div className={styles.gameOverIcon}>
+              {isShot ? '💀' : '🎉'}
+            </div>
+            <h2
+              className={cn(
+                styles.gameOverTitle,
+                isShot ? styles.gameOverTitleDanger : styles.gameOverTitleSafe
+              )}
+            >
+              {isShot ? 'BANG!' : 'SURVIVED!'}
+            </h2>
+            <p className={styles.gameOverText}>
+              {isShot
+                ? 'The bullet found you on chamber ' + bulletPosition
+                : 'You made it through all 6 chambers!'}
+            </p>
+            <button className={styles.playAgainButton} onClick={resetGame}>
+              🔄 Play Again
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -38,10 +38,10 @@ const createEmptyBoard = (): Board => {
 // Check for winner
 const checkWinner = (board: Board, row: number, col: number, player: Player): boolean => {
   const directions = [
-    [0, 1],   // horizontal
-    [1, 0],   // vertical
-    [1, 1],   // diagonal down-right
-    [1, -1],  // diagonal down-left
+    [0, 1], // horizontal
+    [1, 0], // vertical
+    [1, 1], // diagonal down-right
+    [1, -1], // diagonal down-left
   ];
 
   for (const [dr, dc] of directions) {
@@ -94,10 +94,9 @@ export function GomokuPage() {
   const [showHistory, setShowHistory] = useState(false);
 
   // History records
-  const [gameRecords, setGameRecords] = useLocalStorageState<GameRecord[]>(
-    createStorageKey('gomoku-history'),
-    { defaultValue: [] }
-  );
+  const [gameRecords, setGameRecords] = useLocalStorageState<GameRecord[]>(createStorageKey('gomoku-history'), {
+    defaultValue: [],
+  });
 
   // Calculate win stats
   const stats = useMemo(() => {
@@ -197,62 +196,55 @@ export function GomokuPage() {
   // Render history view
   if (showHistory) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-4">
-        <div className="max-w-md mx-auto">
+      <div className='min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-4'>
+        <div className='max-w-md mx-auto'>
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
+          <div className='flex items-center justify-between mb-4'>
             <button
               onClick={() => setShowHistory(false)}
-              className="flex items-center gap-1 text-gray-600 hover:text-gray-800"
+              className='flex items-center gap-1 text-gray-600 hover:text-gray-800'
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className='w-5 h-5' />
               <span>Back</span>
             </button>
-            <h1 className="text-xl font-bold text-gray-800">Game History</h1>
-            <button
-              onClick={handleClearHistory}
-              className="text-red-500 hover:text-red-700 p-2"
-              title="Clear all"
-            >
-              <Trash2 className="w-5 h-5" />
+            <h1 className='text-xl font-bold text-gray-800'>Game History</h1>
+            <button onClick={handleClearHistory} className='text-red-500 hover:text-red-700 p-2' title='Clear all'>
+              <Trash2 className='w-5 h-5' />
             </button>
           </div>
 
           {/* Stats */}
-          <div className="bg-white rounded-xl p-4 mb-4 shadow-sm">
-            <div className="grid grid-cols-3 gap-4 text-center">
+          <div className='bg-white rounded-xl p-4 mb-4 shadow-sm'>
+            <div className='grid grid-cols-3 gap-4 text-center'>
               <div>
-                <div className="text-2xl font-bold text-gray-800">{stats.blackWins}</div>
-                <div className="text-sm text-gray-500 flex items-center justify-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-gray-800"></span>
+                <div className='text-2xl font-bold text-gray-800'>{stats.blackWins}</div>
+                <div className='text-sm text-gray-500 flex items-center justify-center gap-1'>
+                  <span className='w-3 h-3 rounded-full bg-gray-800'></span>
                   Black Wins
                 </div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-800">{stats.whiteWins}</div>
-                <div className="text-sm text-gray-500 flex items-center justify-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-white border-2 border-gray-300"></span>
+                <div className='text-2xl font-bold text-gray-800'>{stats.whiteWins}</div>
+                <div className='text-sm text-gray-500 flex items-center justify-center gap-1'>
+                  <span className='w-3 h-3 rounded-full bg-white border-2 border-gray-300'></span>
                   White Wins
                 </div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-800">{stats.draws}</div>
-                <div className="text-sm text-gray-500">Draws</div>
+                <div className='text-2xl font-bold text-gray-800'>{stats.draws}</div>
+                <div className='text-sm text-gray-500'>Draws</div>
               </div>
             </div>
           </div>
 
           {/* Records list */}
-          <div className="space-y-2">
+          <div className='space-y-2'>
             {(gameRecords ?? []).length === 0 ? (
-              <div className="text-center text-gray-500 py-8">No game records yet</div>
+              <div className='text-center text-gray-500 py-8'>No game records yet</div>
             ) : (
               (gameRecords ?? []).map((record) => (
-                <div
-                  key={record.id}
-                  className="bg-white rounded-xl p-4 shadow-sm flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
+                <div key={record.id} className='bg-white rounded-xl p-4 shadow-sm flex items-center justify-between'>
+                  <div className='flex items-center gap-3'>
                     <div
                       className={cn(
                         'w-8 h-8 rounded-full flex items-center justify-center',
@@ -263,25 +255,21 @@ export function GomokuPage() {
                             : 'bg-gray-400'
                       )}
                     >
-                      {record.winner === 'draw' && (
-                        <span className="text-white text-xs">=</span>
-                      )}
+                      {record.winner === 'draw' && <span className='text-white text-xs'>=</span>}
                     </div>
                     <div>
-                      <div className="font-medium text-gray-800">
-                        {record.winner === 'draw'
-                          ? 'Draw'
-                          : `${record.winner === 'black' ? 'Black' : 'White'} Wins`}
+                      <div className='font-medium text-gray-800'>
+                        {record.winner === 'draw' ? 'Draw' : `${record.winner === 'black' ? 'Black' : 'White'} Wins`}
                       </div>
-                      <div className="text-sm text-gray-500">{record.date}</div>
-                      <div className="text-xs text-gray-400">{record.moves.length} moves</div>
+                      <div className='text-sm text-gray-500'>{record.date}</div>
+                      <div className='text-xs text-gray-400'>{record.moves.length} moves</div>
                     </div>
                   </div>
                   <button
                     onClick={() => handleDeleteRecord(record.id)}
-                    className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                    className='p-2 text-gray-400 hover:text-red-500 transition-colors'
                   >
-                    <X className="w-5 h-5" />
+                    <X className='w-5 h-5' />
                   </button>
                 </div>
               ))
@@ -294,76 +282,70 @@ export function GomokuPage() {
 
   // Main game view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-2 sm:p-4">
-      <div className="max-w-md mx-auto">
+    <div className='min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-2 sm:p-4'>
+      <div className='max-w-md mx-auto'>
         {/* Header */}
-        <div className="flex items-center justify-between mb-2 sm:mb-4">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Gomoku</h1>
+        <div className='flex items-center justify-between mb-2 sm:mb-4'>
+          <h1 className='text-xl sm:text-2xl font-bold text-gray-800'>Gomoku</h1>
           <button
             onClick={() => setShowHistory(true)}
-            className="flex items-center gap-1 text-gray-600 hover:text-gray-800 p-2"
+            className='flex items-center gap-1 text-gray-600 hover:text-gray-800 p-2'
           >
-            <History className="w-5 h-5" />
-            <span className="text-sm hidden sm:inline">History</span>
+            <History className='w-5 h-5' />
+            <span className='text-sm hidden sm:inline'>History</span>
           </button>
         </div>
 
         {/* Game status */}
-        <div className="bg-white rounded-xl p-3 sm:p-4 mb-2 sm:mb-4 shadow-sm">
+        <div className='bg-white rounded-xl p-3 sm:p-4 mb-2 sm:mb-4 shadow-sm'>
           {winner ? (
-            <div className="text-center">
-              <div className="text-lg sm:text-xl font-bold text-gray-800 mb-2">
+            <div className='text-center'>
+              <div className='text-lg sm:text-xl font-bold text-gray-800 mb-2'>
                 {winner === 'draw' ? (
                   "It's a Draw!"
                 ) : (
-                  <span className="flex items-center justify-center gap-2">
+                  <span className='flex items-center justify-center gap-2'>
                     <span
                       className={cn(
                         'w-5 h-5 rounded-full',
-                        winner === 'black'
-                          ? 'bg-gray-800'
-                          : 'bg-white border-2 border-gray-300'
+                        winner === 'black' ? 'bg-gray-800' : 'bg-white border-2 border-gray-300'
                       )}
                     ></span>
                     {winner === 'black' ? 'Black' : 'White'} Wins!
                   </span>
                 )}
               </div>
-              <Button onClick={handleReset} className="gap-2">
-                <RotateCcw className="w-4 h-4" />
+              <Button onClick={handleReset} className='gap-2'>
+                <RotateCcw className='w-4 h-4' />
                 New Game
               </Button>
             </div>
           ) : (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Current:</span>
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-2'>
+                <span className='text-sm text-gray-600'>Current:</span>
                 <span
                   className={cn(
                     'w-6 h-6 rounded-full',
-                    currentPlayer === 'black'
-                      ? 'bg-gray-800'
-                      : 'bg-white border-2 border-gray-300'
+                    currentPlayer === 'black' ? 'bg-gray-800' : 'bg-white border-2 border-gray-300'
                   )}
                 ></span>
-                <span className="font-medium text-gray-800">
-                  {currentPlayer === 'black' ? 'Black' : 'White'}
-                </span>
+                <span className='font-medium text-gray-800'>{currentPlayer === 'black' ? 'Black' : 'White'}</span>
               </div>
-              <div className="flex gap-2">
+              <div className='flex gap-2'>
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant='outline'
+                  size='sm'
                   onClick={handleUndo}
                   disabled={moves.length === 0}
-                  className="gap-1"
+                  className='gap-1'
                 >
-                  <Undo2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Undo</span>
+                  <Undo2 className='w-4 h-4' />
+                  <span className='hidden sm:inline'>Undo</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleReset} className="gap-1">
-                  <RotateCcw className="w-4 h-4" />
-                  <span className="hidden sm:inline">Reset</span>
+                <Button variant='outline' size='sm' onClick={handleReset} className='gap-1'>
+                  <RotateCcw className='w-4 h-4' />
+                  <span className='hidden sm:inline'>Reset</span>
                 </Button>
               </div>
             </div>
@@ -371,9 +353,9 @@ export function GomokuPage() {
         </div>
 
         {/* Game board */}
-        <div className="bg-amber-200 rounded-xl p-2 sm:p-3 shadow-lg">
+        <div className='bg-amber-200 rounded-xl p-2 sm:p-3 shadow-lg'>
           <div
-            className="grid gap-0 relative"
+            className='grid gap-0 relative'
             style={{
               gridTemplateColumns: `repeat(${BOARD_SIZE}, 1fr)`,
             }}
@@ -390,19 +372,27 @@ export function GomokuPage() {
                   onClick={() => handleCellClick(rowIndex, colIndex)}
                 >
                   {/* Grid lines */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className='absolute inset-0 flex items-center justify-center pointer-events-none'>
                     {/* Horizontal line */}
                     <div
                       className={cn(
                         'absolute h-[1px] bg-amber-700/60',
-                        colIndex === 0 ? 'left-1/2 right-0' : colIndex === BOARD_SIZE - 1 ? 'left-0 right-1/2' : 'left-0 right-0'
+                        colIndex === 0
+                          ? 'left-1/2 right-0'
+                          : colIndex === BOARD_SIZE - 1
+                            ? 'left-0 right-1/2'
+                            : 'left-0 right-0'
                       )}
                     ></div>
                     {/* Vertical line */}
                     <div
                       className={cn(
                         'absolute w-[1px] bg-amber-700/60',
-                        rowIndex === 0 ? 'top-1/2 bottom-0' : rowIndex === BOARD_SIZE - 1 ? 'top-0 bottom-1/2' : 'top-0 bottom-0'
+                        rowIndex === 0
+                          ? 'top-1/2 bottom-0'
+                          : rowIndex === BOARD_SIZE - 1
+                            ? 'top-0 bottom-1/2'
+                            : 'top-0 bottom-0'
                       )}
                     ></div>
                     {/* Star points (corners and center) */}
@@ -411,7 +401,7 @@ export function GomokuPage() {
                       (rowIndex === BOARD_SIZE - 3 && colIndex === 2) ||
                       (rowIndex === BOARD_SIZE - 3 && colIndex === BOARD_SIZE - 3) ||
                       (rowIndex === Math.floor(BOARD_SIZE / 2) && colIndex === Math.floor(BOARD_SIZE / 2))) && (
-                      <div className="absolute w-2 h-2 bg-amber-700/60 rounded-full"></div>
+                      <div className='absolute w-2 h-2 bg-amber-700/60 rounded-full'></div>
                     )}
                   </div>
 
@@ -435,17 +425,17 @@ export function GomokuPage() {
         </div>
 
         {/* Quick stats */}
-        <div className="mt-2 sm:mt-4 text-center text-sm text-gray-500">
-          <span className="inline-flex items-center gap-1">
-            <span className="w-3 h-3 rounded-full bg-gray-800"></span>
+        <div className='mt-2 sm:mt-4 text-center text-sm text-gray-500'>
+          <span className='inline-flex items-center gap-1'>
+            <span className='w-3 h-3 rounded-full bg-gray-800'></span>
             {stats.blackWins}
           </span>
-          <span className="mx-3">-</span>
-          <span className="inline-flex items-center gap-1">
+          <span className='mx-3'>-</span>
+          <span className='inline-flex items-center gap-1'>
             {stats.whiteWins}
-            <span className="w-3 h-3 rounded-full bg-white border border-gray-300"></span>
+            <span className='w-3 h-3 rounded-full bg-white border border-gray-300'></span>
           </span>
-          {stats.draws > 0 && <span className="ml-3 text-gray-400">({stats.draws} draws)</span>}
+          {stats.draws > 0 && <span className='ml-3 text-gray-400'>({stats.draws} draws)</span>}
         </div>
       </div>
     </div>

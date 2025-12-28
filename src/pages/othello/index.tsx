@@ -29,9 +29,14 @@ interface GameRecord {
 
 // Directions for checking: horizontal, vertical, diagonal
 const DIRECTIONS = [
-  [-1, -1], [-1, 0], [-1, 1],
-  [0, -1],          [0, 1],
-  [1, -1],  [1, 0], [1, 1],
+  [-1, -1],
+  [-1, 0],
+  [-1, 1],
+  [0, -1],
+  [0, 1],
+  [1, -1],
+  [1, 0],
+  [1, 1],
 ];
 
 // Create initial board with center 4 pieces
@@ -50,12 +55,7 @@ const createInitialBoard = (): Board => {
 };
 
 // Get pieces that would be flipped if player places at (row, col)
-const getFlippedPieces = (
-  board: Board,
-  row: number,
-  col: number,
-  player: Player
-): { row: number; col: number }[] => {
+const getFlippedPieces = (board: Board, row: number, col: number, player: Player): { row: number; col: number }[] => {
   if (board[row][col] !== null) return [];
 
   const opponent = player === 'black' ? 'white' : 'black';
@@ -67,23 +67,14 @@ const getFlippedPieces = (
     let c = col + dc;
 
     // Move in direction while finding opponent pieces
-    while (
-      r >= 0 && r < BOARD_SIZE &&
-      c >= 0 && c < BOARD_SIZE &&
-      board[r][c] === opponent
-    ) {
+    while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && board[r][c] === opponent) {
       flipped.push({ row: r, col: c });
       r += dr;
       c += dc;
     }
 
     // Check if we ended on our own piece (valid flip)
-    if (
-      flipped.length > 0 &&
-      r >= 0 && r < BOARD_SIZE &&
-      c >= 0 && c < BOARD_SIZE &&
-      board[r][c] === player
-    ) {
+    if (flipped.length > 0 && r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && board[r][c] === player) {
       allFlipped.push(...flipped);
     }
   }
@@ -140,10 +131,9 @@ export function OthelloPage() {
   const [showHistory, setShowHistory] = useState(false);
 
   // History records
-  const [gameRecords, setGameRecords] = useLocalStorageState<GameRecord[]>(
-    createStorageKey('othello-history'),
-    { defaultValue: [] }
-  );
+  const [gameRecords, setGameRecords] = useLocalStorageState<GameRecord[]>(createStorageKey('othello-history'), {
+    defaultValue: [],
+  });
 
   // Valid moves for current player
   const validMoves = useMemo(() => {
@@ -283,62 +273,55 @@ export function OthelloPage() {
   // Render history view
   if (showHistory) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 p-4">
-        <div className="max-w-md mx-auto">
+      <div className='min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 p-4'>
+        <div className='max-w-md mx-auto'>
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
+          <div className='flex items-center justify-between mb-4'>
             <button
               onClick={() => setShowHistory(false)}
-              className="flex items-center gap-1 text-gray-600 hover:text-gray-800"
+              className='flex items-center gap-1 text-gray-600 hover:text-gray-800'
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className='w-5 h-5' />
               <span>Back</span>
             </button>
-            <h1 className="text-xl font-bold text-gray-800">Game History</h1>
-            <button
-              onClick={handleClearHistory}
-              className="text-red-500 hover:text-red-700 p-2"
-              title="Clear all"
-            >
-              <Trash2 className="w-5 h-5" />
+            <h1 className='text-xl font-bold text-gray-800'>Game History</h1>
+            <button onClick={handleClearHistory} className='text-red-500 hover:text-red-700 p-2' title='Clear all'>
+              <Trash2 className='w-5 h-5' />
             </button>
           </div>
 
           {/* Stats */}
-          <div className="bg-white rounded-xl p-4 mb-4 shadow-sm">
-            <div className="grid grid-cols-3 gap-4 text-center">
+          <div className='bg-white rounded-xl p-4 mb-4 shadow-sm'>
+            <div className='grid grid-cols-3 gap-4 text-center'>
               <div>
-                <div className="text-2xl font-bold text-gray-800">{stats.blackWins}</div>
-                <div className="text-sm text-gray-500 flex items-center justify-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-gray-800"></span>
+                <div className='text-2xl font-bold text-gray-800'>{stats.blackWins}</div>
+                <div className='text-sm text-gray-500 flex items-center justify-center gap-1'>
+                  <span className='w-3 h-3 rounded-full bg-gray-800'></span>
                   Black Wins
                 </div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-800">{stats.whiteWins}</div>
-                <div className="text-sm text-gray-500 flex items-center justify-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-white border-2 border-gray-300"></span>
+                <div className='text-2xl font-bold text-gray-800'>{stats.whiteWins}</div>
+                <div className='text-sm text-gray-500 flex items-center justify-center gap-1'>
+                  <span className='w-3 h-3 rounded-full bg-white border-2 border-gray-300'></span>
                   White Wins
                 </div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-800">{stats.draws}</div>
-                <div className="text-sm text-gray-500">Draws</div>
+                <div className='text-2xl font-bold text-gray-800'>{stats.draws}</div>
+                <div className='text-sm text-gray-500'>Draws</div>
               </div>
             </div>
           </div>
 
           {/* Records list */}
-          <div className="space-y-2">
+          <div className='space-y-2'>
             {(gameRecords ?? []).length === 0 ? (
-              <div className="text-center text-gray-500 py-8">No game records yet</div>
+              <div className='text-center text-gray-500 py-8'>No game records yet</div>
             ) : (
               (gameRecords ?? []).map((record) => (
-                <div
-                  key={record.id}
-                  className="bg-white rounded-xl p-4 shadow-sm flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
+                <div key={record.id} className='bg-white rounded-xl p-4 shadow-sm flex items-center justify-between'>
+                  <div className='flex items-center gap-3'>
                     <div
                       className={cn(
                         'w-8 h-8 rounded-full flex items-center justify-center',
@@ -349,27 +332,23 @@ export function OthelloPage() {
                             : 'bg-gray-400'
                       )}
                     >
-                      {record.winner === 'draw' && (
-                        <span className="text-white text-xs">=</span>
-                      )}
+                      {record.winner === 'draw' && <span className='text-white text-xs'>=</span>}
                     </div>
                     <div>
-                      <div className="font-medium text-gray-800">
-                        {record.winner === 'draw'
-                          ? 'Draw'
-                          : `${record.winner === 'black' ? 'Black' : 'White'} Wins`}
+                      <div className='font-medium text-gray-800'>
+                        {record.winner === 'draw' ? 'Draw' : `${record.winner === 'black' ? 'Black' : 'White'} Wins`}
                       </div>
-                      <div className="text-sm text-gray-500">{record.date}</div>
-                      <div className="text-xs text-gray-400">
+                      <div className='text-sm text-gray-500'>{record.date}</div>
+                      <div className='text-xs text-gray-400'>
                         ⚫ {record.blackCount} - {record.whiteCount} ⚪ | {record.moves} moves
                       </div>
                     </div>
                   </div>
                   <button
                     onClick={() => handleDeleteRecord(record.id)}
-                    className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                    className='p-2 text-gray-400 hover:text-red-500 transition-colors'
                   >
-                    <X className="w-5 h-5" />
+                    <X className='w-5 h-5' />
                   </button>
                 </div>
               ))
@@ -382,24 +361,24 @@ export function OthelloPage() {
 
   // Main game view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 p-2 sm:p-4">
-      <div className="max-w-md mx-auto">
+    <div className='min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 p-2 sm:p-4'>
+      <div className='max-w-md mx-auto'>
         {/* Header */}
-        <div className="flex items-center justify-between mb-2 sm:mb-4">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Othello</h1>
+        <div className='flex items-center justify-between mb-2 sm:mb-4'>
+          <h1 className='text-xl sm:text-2xl font-bold text-gray-800'>Othello</h1>
           <button
             onClick={() => setShowHistory(true)}
-            className="flex items-center gap-1 text-gray-600 hover:text-gray-800 p-2"
+            className='flex items-center gap-1 text-gray-600 hover:text-gray-800 p-2'
           >
-            <History className="w-5 h-5" />
-            <span className="text-sm hidden sm:inline">History</span>
+            <History className='w-5 h-5' />
+            <span className='text-sm hidden sm:inline'>History</span>
           </button>
         </div>
 
         {/* Score display */}
-        <div className="bg-white rounded-xl p-3 sm:p-4 mb-2 sm:mb-4 shadow-sm">
-          <div className="flex items-center justify-around mb-3">
-            <div className="flex items-center gap-2">
+        <div className='bg-white rounded-xl p-3 sm:p-4 mb-2 sm:mb-4 shadow-sm'>
+          <div className='flex items-center justify-around mb-3'>
+            <div className='flex items-center gap-2'>
               <span
                 className={cn(
                   'w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-white font-bold',
@@ -408,11 +387,11 @@ export function OthelloPage() {
               >
                 {pieceCount.black}
               </span>
-              <span className="text-sm text-gray-600">Black</span>
+              <span className='text-sm text-gray-600'>Black</span>
             </div>
-            <div className="text-gray-400">vs</div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">White</span>
+            <div className='text-gray-400'>vs</div>
+            <div className='flex items-center gap-2'>
+              <span className='text-sm text-gray-600'>White</span>
               <span
                 className={cn(
                   'w-8 h-8 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center font-bold',
@@ -425,52 +404,50 @@ export function OthelloPage() {
           </div>
 
           {gameOver ? (
-            <div className="text-center">
-              <div className="text-lg sm:text-xl font-bold text-gray-800 mb-2">
+            <div className='text-center'>
+              <div className='text-lg sm:text-xl font-bold text-gray-800 mb-2'>
                 {winner === 'draw' ? (
                   "It's a Draw!"
                 ) : (
-                  <span className="flex items-center justify-center gap-2">
+                  <span className='flex items-center justify-center gap-2'>
                     <span
                       className={cn(
                         'w-5 h-5 rounded-full',
-                        winner === 'black'
-                          ? 'bg-gray-800'
-                          : 'bg-white border-2 border-gray-300'
+                        winner === 'black' ? 'bg-gray-800' : 'bg-white border-2 border-gray-300'
                       )}
                     ></span>
                     {winner === 'black' ? 'Black' : 'White'} Wins!
                   </span>
                 )}
               </div>
-              <Button onClick={handleReset} className="gap-2">
-                <RotateCcw className="w-4 h-4" />
+              <Button onClick={handleReset} className='gap-2'>
+                <RotateCcw className='w-4 h-4' />
                 New Game
               </Button>
             </div>
           ) : (
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
+            <div className='flex items-center justify-between'>
+              <div className='text-sm text-gray-600'>
                 {validMoves.length > 0 ? (
                   <span>{validMoves.length} valid moves</span>
                 ) : (
-                  <span className="text-orange-500">No valid moves - Pass!</span>
+                  <span className='text-orange-500'>No valid moves - Pass!</span>
                 )}
               </div>
-              <div className="flex gap-2">
+              <div className='flex gap-2'>
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant='outline'
+                  size='sm'
                   onClick={handleUndo}
                   disabled={moveHistory.length === 0}
-                  className="gap-1"
+                  className='gap-1'
                 >
-                  <Undo2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Undo</span>
+                  <Undo2 className='w-4 h-4' />
+                  <span className='hidden sm:inline'>Undo</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleReset} className="gap-1">
-                  <RotateCcw className="w-4 h-4" />
-                  <span className="hidden sm:inline">Reset</span>
+                <Button variant='outline' size='sm' onClick={handleReset} className='gap-1'>
+                  <RotateCcw className='w-4 h-4' />
+                  <span className='hidden sm:inline'>Reset</span>
                 </Button>
               </div>
             </div>
@@ -478,18 +455,16 @@ export function OthelloPage() {
         </div>
 
         {/* Game board */}
-        <div className="bg-emerald-600 rounded-xl p-2 sm:p-3 shadow-lg">
+        <div className='bg-emerald-600 rounded-xl p-2 sm:p-3 shadow-lg'>
           <div
-            className="grid gap-1"
+            className='grid gap-1'
             style={{
               gridTemplateColumns: `repeat(${BOARD_SIZE}, 1fr)`,
             }}
           >
             {board.map((row, rowIndex) =>
               row.map((cell, colIndex) => {
-                const isValid = validMoves.some(
-                  (m) => m.row === rowIndex && m.col === colIndex
-                );
+                const isValid = validMoves.some((m) => m.row === rowIndex && m.col === colIndex);
                 const isLast = lastMove?.row === rowIndex && lastMove?.col === colIndex;
 
                 return (
@@ -505,14 +480,7 @@ export function OthelloPage() {
                     onClick={() => handleCellClick(rowIndex, colIndex)}
                   >
                     {/* Valid move indicator */}
-                    {isValid && !cell && (
-                      <div
-                        className={cn(
-                          'absolute w-3 h-3 rounded-full',
-                          'bg-black/20'
-                        )}
-                      ></div>
-                    )}
+                    {isValid && !cell && <div className={cn('absolute w-3 h-3 rounded-full', 'bg-black/20')}></div>}
 
                     {/* Piece */}
                     {cell && (
@@ -535,17 +503,17 @@ export function OthelloPage() {
         </div>
 
         {/* Quick stats */}
-        <div className="mt-2 sm:mt-4 text-center text-sm text-gray-500">
-          <span className="inline-flex items-center gap-1">
-            <span className="w-3 h-3 rounded-full bg-gray-800"></span>
+        <div className='mt-2 sm:mt-4 text-center text-sm text-gray-500'>
+          <span className='inline-flex items-center gap-1'>
+            <span className='w-3 h-3 rounded-full bg-gray-800'></span>
             {stats.blackWins}
           </span>
-          <span className="mx-3">-</span>
-          <span className="inline-flex items-center gap-1">
+          <span className='mx-3'>-</span>
+          <span className='inline-flex items-center gap-1'>
             {stats.whiteWins}
-            <span className="w-3 h-3 rounded-full bg-white border border-gray-300"></span>
+            <span className='w-3 h-3 rounded-full bg-white border border-gray-300'></span>
           </span>
-          {stats.draws > 0 && <span className="ml-3 text-gray-400">({stats.draws} draws)</span>}
+          {stats.draws > 0 && <span className='ml-3 text-gray-400'>({stats.draws} draws)</span>}
         </div>
       </div>
     </div>
