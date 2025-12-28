@@ -1,5 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
 import styles from './styles.module.css';
+import githubIcon from '@/assets/github.svg';
 
 interface GameCard {
   emoji: string;
@@ -67,7 +68,18 @@ export function HomePage() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'>
       {/* Header */}
-      <div className='pt-8 pb-6 px-4 text-center'>
+      <div className='pt-8 pb-6 px-4 text-center relative'>
+        {/* GitHub Button */}
+        <a
+          href='https://github.com/winzipsdo/partyjs'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors'
+          title='View on GitHub'
+        >
+          <img src={githubIcon} alt='GitHub' className='w-6 h-6 invert' />
+        </a>
+
         <div className='flex items-center justify-center gap-3 mb-2'>
           <img src='/partyjs/partyjs.svg' alt='PartyJS Logo' className={`w-12 h-12 ${styles.animateBounce}`} />
           <h1 className={`text-3xl sm:text-4xl font-bold font-mono tracking-wide ${styles.glitch}`} data-text='PartyJS'>

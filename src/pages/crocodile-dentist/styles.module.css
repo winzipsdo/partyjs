@@ -1,0 +1,303 @@
+/* Title animation */
+.title {
+  background: linear-gradient(90deg, #fff, #a7f3d0, #fff);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Bubbles background */
+.bubbles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bubble {
+  position: absolute;
+  bottom: -50px;
+  width: var(--size);
+  height: var(--size);
+  left: var(--left);
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  animation: rise 8s ease-in infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-100vh) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Crocodile container */
+.crocodileContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 48px;
+}
+
+/* Eyes */
+.eye {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(180deg, #fff 0%, #e0e0e0 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.pupil {
+  width: 16px;
+  height: 16px;
+  background: #1a1a1a;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.pupil::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+}
+
+.angryEye {
+  background: linear-gradient(180deg, #fef3c7 0%, #fde68a 100%);
+}
+
+.angryEye .pupil {
+  width: 20px;
+  height: 8px;
+  border-radius: 2px;
+  transform: rotate(-10deg);
+}
+
+.angryEye:last-child .pupil {
+  transform: rotate(10deg);
+}
+
+/* Jaws */
+.jaw {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+  border-radius: 100px;
+  padding: 12px;
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.upperJaw {
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  transform-origin: top center;
+}
+
+.lowerJaw {
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  transform-origin: bottom center;
+}
+
+.upperJawBite {
+  transform: rotate3d(1, 0, 0, -30deg);
+}
+
+.lowerJawBite {
+  transform: rotate3d(1, 0, 0, 30deg);
+}
+
+/* Tongue */
+.tongue {
+  width: 60px;
+  height: 30px;
+  background: linear-gradient(180deg, #f87171 0%, #dc2626 100%);
+  border-radius: 0 0 30px 30px;
+  margin: -8px 0;
+  transition: all 0.3s ease;
+}
+
+.tongueHidden {
+  height: 0;
+  opacity: 0;
+}
+
+/* Teeth */
+.tooth {
+  width: 36px;
+  height: 48px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.tooth:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.tooth:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.upperTooth {
+  border-radius: 8px 8px 4px 4px;
+  clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%);
+}
+
+.lowerTooth {
+  border-radius: 4px 4px 8px 8px;
+  clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+}
+
+.normalTooth {
+  background: linear-gradient(180deg, #fff 0%, #f5f5f5 50%, #e5e5e5 100%);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.8),
+    0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.normalTooth:hover:not(:disabled) {
+  background: linear-gradient(180deg, #fff 0%, #fef9c3 50%, #fde047 100%);
+}
+
+.pressedTooth {
+  background: linear-gradient(180deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%);
+  transform: translateY(8px) scale(0.9);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.dangerTooth {
+  background: linear-gradient(180deg, #fca5a5 0%, #ef4444 50%, #b91c1c 100%);
+  animation: shake 0.5s ease-in-out;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+}
+
+.toothShine {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 8px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  transform: rotate(-15deg);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px) rotate(-2deg); }
+  40% { transform: translateX(4px) rotate(2deg); }
+  60% { transform: translateX(-4px) rotate(-2deg); }
+  80% { transform: translateX(4px) rotate(2deg); }
+}
+
+/* Biting animation */
+.biting {
+  animation: chomp 0.6s ease-in-out;
+}
+
+@keyframes chomp {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.05); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+/* Game over overlay */
+.gameOverOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+  z-index: 50;
+}
+
+.gameOverCard {
+  background: white;
+  padding: 32px 48px;
+  border-radius: 24px;
+  text-align: center;
+  animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .tooth {
+    width: 28px;
+    height: 40px;
+  }
+
+  .eye {
+    width: 32px;
+    height: 32px;
+  }
+
+  .pupil {
+    width: 12px;
+    height: 12px;
+  }
+
+  .crocodileContainer {
+    padding-top: 36px;
+  }
+
+  .jaw {
+    padding: 8px;
+  }
+
+  .tongue {
+    width: 48px;
+    height: 24px;
+  }
+}
