@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import ColorTile, { TileColor } from './components/ColorTile';
 import { RotateCcw } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import styles from './styles.module.css';
 
-// 定义颜色类型
+// Color types
 type Color = 'red' | 'yellow' | 'blue' | 'green';
 
-// 游戏配置常量
+// Game config
 const GAME_CONFIG = {
   TILES_PER_COLOR: 3,
   TILES_TO_WIN: 5,
 } as const;
 
-// 定义棋子类型
+// Tile interface
 interface Tile {
   id: number;
   color: Color;
@@ -20,19 +21,29 @@ interface Tile {
   isMatched: boolean;
 }
 
-// 定义玩家类型
+// Player interface
 interface Player {
   id: 1 | 2;
   collectedTiles: Color[];
 }
 
+// Get color style class
+const getColorClass = (color: Color, prefix: string) => {
+  const map: Record<Color, string> = {
+    red: styles[`${prefix}Red`],
+    yellow: styles[`${prefix}Yellow`],
+    blue: styles[`${prefix}Blue`],
+    green: styles[`${prefix}Green`],
+  };
+  return map[color];
+};
+
 export function ColorMemoryQuestPage() {
-  // 初始化棋子
+  // Initialize tiles
   const [tiles, setTiles] = useState<Tile[]>(() => {
     const colors: Color[] = ['red', 'yellow', 'blue', 'green'];
     const initialTiles: Tile[] = [];
 
-    // 每种颜色指定数量的棋子
     colors.forEach((color) => {
       for (let i = 0; i < GAME_CONFIG.TILES_PER_COLOR; i++) {
         initialTiles.push({
@@ -48,44 +59,42 @@ export function ColorMemoryQuestPage() {
     return initialTiles.sort(() => Math.random() - 0.5);
   });
 
-  // 当前玩家
+  // Current player
   const [currentPlayer, setCurrentPlayer] = useState<1 | 2>(1);
 
-  // 当前骰子颜色
+  // Current dice color
   const [currentDiceColor, setCurrentDiceColor] = useState<Color | null>(null);
 
-  // 玩家状态
+  // Players state
   const [players, setPlayers] = useState<Player[]>([
     { id: 1, collectedTiles: [] },
     { id: 2, collectedTiles: [] },
   ]);
 
-  // 添加游戏结束状态
+  // Winner state
   const [winner, setWinner] = useState<1 | 2 | null>(null);
 
-  // 检查胜利条件
+  // Check win condition
   const checkWinCondition = (playerTiles: Color[]): boolean => {
     return playerTiles.length >= GAME_CONFIG.TILES_TO_WIN;
   };
 
-  // 掷骰子
+  // Roll dice
   const rollDice = () => {
     const colors: Color[] = ['red', 'yellow', 'blue', 'green'];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     setCurrentDiceColor(randomColor);
   };
 
-  // 翻转棋子
+  // Flip tile
   const flipTile = (tileId: number) => {
     if (!currentDiceColor || winner) return;
 
-    // 找到被点击的棋子
     const clickedTile = tiles.find((t) => t.id === tileId);
     if (!clickedTile || clickedTile.isCollected) return;
 
-    // 如果颜色匹配
+    // If color matches
     if (clickedTile.color === currentDiceColor) {
-      // 先只翻转和标记匹配
       setTiles((prevTiles) => {
         return prevTiles.map((tile) => {
           if (tile.id === tileId) {
@@ -95,30 +104,21 @@ export function ColorMemoryQuestPage() {
         });
       });
 
-      // 延迟处理收集逻辑
+      // Delay collection logic
       setTimeout(() => {
-        // 更新玩家分数和收集棋子
         setPlayers((prevPlayers) => {
           return prevPlayers.map((player) => {
             if (player.id === currentPlayer) {
-              const newCollectedTiles = [
-                ...player.collectedTiles,
-                clickedTile.color,
-              ];
-              // 使用 checkWinCondition 函数检查胜利条件
+              const newCollectedTiles = [...player.collectedTiles, clickedTile.color];
               if (checkWinCondition(newCollectedTiles)) {
                 setWinner(currentPlayer);
               }
-              return {
-                ...player,
-                collectedTiles: newCollectedTiles,
-              };
+              return { ...player, collectedTiles: newCollectedTiles };
             }
             return player;
           });
         });
 
-        // 标记棋子为已收集
         setTiles((prevTiles) => {
           return prevTiles.map((tile) => {
             if (tile.id === tileId) {
@@ -129,7 +129,7 @@ export function ColorMemoryQuestPage() {
         });
       }, 1000);
     } else {
-      // 如果颜色不匹配，只翻转
+      // Color doesn't match, just flip
       setTiles((prevTiles) => {
         return prevTiles.map((tile) => {
           if (tile.id === tileId) {
@@ -140,14 +140,12 @@ export function ColorMemoryQuestPage() {
       });
     }
 
-    // 如果没有胜利者，继续游戏
+    // Continue game if no winner
     if (!winner) {
       setTimeout(() => {
         setTiles((prevTiles) =>
           prevTiles.map((tile) =>
-            tile.isCollected
-              ? tile
-              : { ...tile, isFlipped: false, isMatched: false }
+            tile.isCollected ? tile : { ...tile, isFlipped: false, isMatched: false }
           )
         );
         setCurrentPlayer((current) => (current === 1 ? 2 : 1));
@@ -156,14 +154,12 @@ export function ColorMemoryQuestPage() {
     }
   };
 
-  // 添加重新开始游戏功能
+  // Reset game
   const resetGame = () => {
-    // 先翻转所有棋子
     setTiles((prevTiles) => {
       return prevTiles.map((tile) => ({ ...tile, isFlipped: false }));
     });
 
-    // 等待翻转动画完成后再重置其他状态
     setTimeout(() => {
       setTiles((prevTiles) => {
         return [...prevTiles]
@@ -177,92 +173,114 @@ export function ColorMemoryQuestPage() {
         { id: 1, collectedTiles: [] },
         { id: 2, collectedTiles: [] },
       ]);
-    }, 300); // 等待翻转动画完成
+    }, 300);
   };
 
   return (
-    <div className="container mx-auto px-4 max-w-2xl">
+    <div className={styles.container}>
       {/* Header */}
-      <div className="flex justify-between items-center mb-4 mt-2">
-        <h1 className="text-xl sm:text-2xl font-bold">Color Memory Quest</h1>
-        <button
-          onClick={resetGame}
-          className="w-10 h-10 rounded-full bg-gray-500 hover:bg-gray-600 text-white flex items-center justify-center transition-colors"
-          title="New Game"
-        >
-          <RotateCcw className="w-5 h-5" />
+      <div className={styles.header}>
+        <h1 className={styles.title}>Color Memory</h1>
+        <button onClick={resetGame} className={styles.resetButton} title="New Game">
+          <RotateCcw className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Victory message */}
-      {winner && (
-        <div className="mb-4 text-lg sm:text-xl font-bold text-green-600">
-          🎉 Congratulations! Player {winner} Wins!
-        </div>
-      )}
-
-      {/* Game status */}
-      <div className="mb-4 text-sm sm:text-base">
-        <p>Current Player: Player {currentPlayer}</p>
-        <div className="flex items-center gap-2 h-8">
-          <span>Dice Color:</span>
-          <div className="w-6 h-6 flex items-center">
-            {currentDiceColor ? (
-              <ColorTile
-                color={currentDiceColor as TileColor}
-                isFlipped={true}
-              />
-            ) : (
-              <span className="whitespace-nowrap">Roll the dice</span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Dice button */}
-      <button
-        onClick={rollDice}
-        disabled={!!currentDiceColor || !!winner}
-        className="bg-blue-500 text-white px-3 py-1 sm:px-4 sm:py-2 rounded mb-4 disabled:bg-gray-400 text-sm sm:text-base"
-      >
-        Roll Dice
-      </button>
-
-      {/* Game board */}
-      <div className="w-full">
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-4">
-          {tiles.map((tile) => (
-            <ColorTile
-              key={tile.id}
-              color={tile.color as TileColor}
-              isFlipped={tile.isFlipped}
-              isCollected={tile.isCollected}
-              isMatched={tile.isMatched}
-              onClick={() => flipTile(tile.id)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Player scores */}
-      <div className="mt-4 text-sm sm:text-base">
+      {/* Players bar */}
+      <div className={styles.playersBar}>
         {players.map((player) => (
-          <div key={player.id} className="mb-2 flex items-center gap-4 h-8">
-            <span className="w-16">Player {player.id}</span>
-            <div className="flex gap-2">
+          <div
+            key={player.id}
+            className={cn(
+              styles.playerCard,
+              currentPlayer === player.id && !winner && styles.playerCardActive
+            )}
+          >
+            <div className={styles.playerHeader}>
+              <div
+                className={cn(
+                  styles.playerIndicator,
+                  currentPlayer === player.id && !winner && styles.playerIndicatorActive
+                )}
+              />
+              <span className={styles.playerName}>P{player.id}</span>
+              <span className={styles.playerName} style={{ marginLeft: 'auto', opacity: 0.5 }}>
+                {player.collectedTiles.length}/{GAME_CONFIG.TILES_TO_WIN}
+              </span>
+            </div>
+            <div className={styles.playerScore}>
               {player.collectedTiles.map((color, index) => (
-                <div key={index} className="w-6 h-6">
-                  <ColorTile
-                    color={color as TileColor}
-                    isFlipped={true}
-                    showColorOnly={true}
-                  />
-                </div>
+                <div key={index} className={cn(styles.scoreDot, getColorClass(color, 'scoreDot'))} />
               ))}
             </div>
           </div>
         ))}
       </div>
+
+      {/* Dice section */}
+      <div className={styles.diceSection}>
+        <button
+          onClick={rollDice}
+          disabled={!!currentDiceColor || !!winner}
+          className={styles.diceButton}
+        >
+          🎲 Roll
+        </button>
+        <div className={styles.diceResult}>
+          <span className={styles.diceLabel}>Find:</span>
+          {currentDiceColor ? (
+            <div className={cn(styles.diceColor, getColorClass(currentDiceColor, 'diceColor'))} />
+          ) : (
+            <div className={styles.diceEmpty} />
+          )}
+        </div>
+      </div>
+
+      {/* Game board */}
+      <div className={styles.board}>
+        <div className={styles.boardGrid}>
+          {tiles.map((tile) => (
+            <div
+              key={tile.id}
+              className={cn(
+                styles.tile,
+                tile.isFlipped && styles.tileFlipped,
+                tile.isCollected && styles.tileCollected,
+                tile.isMatched && styles.tileMatched
+              )}
+              onClick={() => flipTile(tile.id)}
+            >
+              <div className={styles.tileInner}>
+                <div className={cn(styles.tileFace, styles.tileFront)} />
+                <div
+                  className={cn(styles.tileFace, styles.tileBack, getColorClass(tile.color, 'tileBack'))}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Hint */}
+      <p className={styles.hint}>
+        {!currentDiceColor
+          ? 'Roll the dice to start'
+          : `Tap a tile to find the matching color`}
+      </p>
+
+      {/* Winner overlay */}
+      {winner && (
+        <div className={styles.winnerOverlay}>
+          <div className={styles.winnerCard}>
+            <div className={styles.winnerIcon}>🏆</div>
+            <h2 className={styles.winnerTitle}>Player {winner} Wins!</h2>
+            <p className={styles.winnerText}>Collected {GAME_CONFIG.TILES_TO_WIN} tiles first</p>
+            <button className={styles.playAgainButton} onClick={resetGame}>
+              🔄 Play Again
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
