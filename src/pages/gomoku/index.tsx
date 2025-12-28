@@ -2,8 +2,16 @@ import { useState, useCallback, useMemo } from 'react';
 import { useLocalStorageState } from 'ahooks';
 import { createStorageKey } from '@/constants/storage';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { RotateCcw, Undo2, History, Trash2, X, ChevronLeft } from 'lucide-react';
+import { RotateCcw, Undo2, History, Trash2, X, ChevronLeft, AlertTriangle } from 'lucide-react';
 
 // Board size: 15x15 is standard, but 11x11 is better for mobile
 const BOARD_SIZE = 11;
@@ -92,6 +100,7 @@ export function GomokuPage() {
 
   // View state
   const [showHistory, setShowHistory] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // History records
   const [gameRecords, setGameRecords] = useLocalStorageState<GameRecord[]>(createStorageKey('gomoku-history'), {
@@ -178,7 +187,18 @@ export function GomokuPage() {
     setWinner(null);
     setMoves([]);
     setLastMove(null);
+    setShowResetConfirm(false);
   }, []);
+
+  // Show reset confirmation (only if game has started)
+  const handleResetClick = useCallback(() => {
+    if (moves.length === 0) {
+      // No moves yet, no need to confirm
+      handleReset();
+    } else {
+      setShowResetConfirm(true);
+    }
+  }, [moves.length, handleReset]);
 
   // Delete a game record
   const handleDeleteRecord = useCallback(
@@ -343,7 +363,7 @@ export function GomokuPage() {
                   <Undo2 className='w-4 h-4' />
                   <span className='hidden sm:inline'>Undo</span>
                 </Button>
-                <Button variant='outline' size='sm' onClick={handleReset} className='gap-1'>
+                <Button variant='outline' size='sm' onClick={handleResetClick} className='gap-1'>
                   <RotateCcw className='w-4 h-4' />
                   <span className='hidden sm:inline'>Reset</span>
                 </Button>
@@ -438,6 +458,29 @@ export function GomokuPage() {
           {stats.draws > 0 && <span className='ml-3 text-gray-400'>({stats.draws} draws)</span>}
         </div>
       </div>
+
+      {/* Reset confirmation dialog */}
+      <Dialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+        <DialogContent className='sm:max-w-md'>
+          <DialogHeader>
+            <DialogTitle className='flex items-center gap-2'>
+              <AlertTriangle className='w-5 h-5 text-amber-500' />
+              Reset Game?
+            </DialogTitle>
+            <DialogDescription>
+              Current game progress will be lost. Are you sure you want to start a new game?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className='gap-2 sm:gap-0'>
+            <Button variant='outline' onClick={() => setShowResetConfirm(false)}>
+              Cancel
+            </Button>
+            <Button variant='destructive' onClick={handleReset}>
+              Reset
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
