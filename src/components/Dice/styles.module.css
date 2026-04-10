@@ -1,35 +1,39 @@
-/* 骰子容器 - 用于整体动画 */
+/* ── 骰子外层容器：负责甩动轨迹 ─────────────────────────────────── */
 .diceWrapper {
   padding: 20px;
 }
 
+/*
+  shake 动画：translate + rotate 混合，末帧回到 (0,0) rotate(0deg)
+  这样 class 被移除时不会有任何视觉跳变
+*/
 .diceWrapper.shaking {
-  animation: shake 1.2s ease-out;
+  animation: shake 1.2s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
 @keyframes shake {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  20% {
-    transform: translateY(-15px);
-  }
-  40% {
-    transform: translateY(0);
-  }
-  60% {
-    transform: translateY(-8px);
-  }
-  80% {
-    transform: translateY(0);
-  }
+  0%   { transform: translate(0, 0)      rotate(0deg); }
+  7%   { transform: translate(-8px, -5px)  rotate(-7deg); }
+  14%  { transform: translate(7px, -16px)  rotate(5deg); }
+  21%  { transform: translate(-11px, -9px) rotate(-9deg); }
+  28%  { transform: translate(9px, -20px)  rotate(8deg); }
+  35%  { transform: translate(-7px, -13px) rotate(-6deg); }
+  42%  { transform: translate(9px, -17px)  rotate(7deg); }
+  49%  { transform: translate(-5px, -8px)  rotate(-4deg); }
+  56%  { transform: translate(6px, -11px)  rotate(5deg); }
+  63%  { transform: translate(-3px, -5px)  rotate(-3deg); }
+  70%  { transform: translate(4px, -7px)   rotate(2deg); }
+  78%  { transform: translate(-2px, -3px)  rotate(-1.5deg); }
+  86%  { transform: translate(2px, -4px)   rotate(1deg); }
+  93%  { transform: translate(-1px, -1px)  rotate(-0.5deg); }
+  100% { transform: translate(0, 0)        rotate(0deg); }
 }
 
-/* 骰子本体 */
+/* ── 骰子主体 ────────────────────────────────────────────────────── */
 .dice {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
+  grid-template-rows: repeat(3, 1fr);
   align-items: center;
   justify-items: center;
   border-radius: 16%;
@@ -39,12 +43,11 @@
     0 5px 15px rgba(0, 0, 0, 0.2),
     inset 0 2px 4px rgba(255, 255, 255, 0.9),
     inset 0 -2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   position: relative;
 }
 
-/* 骰子边框光泽 */
+/* 高光覆层 */
 .dice::before {
   content: '';
   position: absolute;
@@ -60,7 +63,7 @@
   pointer-events: none;
 }
 
-/* 悬停效果 */
+/* 悬停、点击 —— 只在 idle 时生效 */
 .dice:hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow:
@@ -70,46 +73,56 @@
     inset 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 点击效果 */
 .dice:active {
   transform: translateY(-2px) scale(0.98);
+}
+
+/* ── 摇骰阶段：只用 opacity 闪烁，不用 transform ────────────────── */
+/*   去掉 transform 就彻底消灭了"结束时骤然归零"的跳帧问题          */
+.dice.rolling {
+  animation: rollPulse 0.16s ease-in-out infinite;
+  cursor: default;
+}
+
+.dice.rolling:hover,
+.dice.rolling:active {
+  transform: none;
   box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.25),
-    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    0 5px 15px rgba(0, 0, 0, 0.2),
     inset 0 2px 4px rgba(255, 255, 255, 0.9),
     inset 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 滚动动画 - 简单旋转 + 淡出淡入 */
-.rolling {
-  animation: roll 1.2s ease-out;
+@keyframes rollPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.68; }
 }
 
-@keyframes roll {
-  0% {
-    transform: rotate(0deg);
-    opacity: 1;
-  }
-  30% {
-    transform: rotate(180deg);
-    opacity: 0.3;
-  }
-  60% {
-    transform: rotate(540deg);
-    opacity: 0.3;
-  }
-  100% {
-    transform: rotate(720deg);
-    opacity: 1;
-  }
+/* ── 落地阶段：squish-bounce，末帧回到 scale(1) translateY(0) ───── */
+/*   animation-fill-mode: forwards 让动画完成后定格在末帧             */
+/*   末帧 = identity transform，class 移除后无任何跳变                */
+.dice.settling {
+  animation: settle 0.52s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+  cursor: default;
 }
 
-/* 滚动时点淡出 */
-.rolling .dot {
-  opacity: 0.4;
+.dice.settling:hover,
+.dice.settling:active {
+  transform: none;
 }
 
-/* 点样式 */
+@keyframes settle {
+  0%   { transform: scale(1, 1)       translateY(0); }
+  16%  { transform: scale(1.14, 0.87) translateY(10px); }   /* 落地压扁 */
+  32%  { transform: scale(0.88, 1.16) translateY(-14px); }  /* 弹起伸长 */
+  50%  { transform: scale(1.07, 0.94) translateY(5px); }    /* 二次压扁 */
+  66%  { transform: scale(0.96, 1.05) translateY(-3px); }   /* 小回弹 */
+  80%  { transform: scale(1.02, 0.99) translateY(1px); }    /* 微调 */
+  100% { transform: scale(1, 1)       translateY(0); }      /* 静止 */
+}
+
+/* ── 点子 ────────────────────────────────────────────────────────── */
 .dot {
   display: block;
   border-radius: 50%;
@@ -124,30 +137,11 @@
     inset 2px 2px 4px rgba(255, 255, 255, 0.15),
     inset -1px -1px 3px rgba(0, 0, 0, 0.4),
     0 2px 4px rgba(0, 0, 0, 0.3);
-  transition: opacity 0.3s ease;
+  /* idle 时平滑过渡 */
+  transition: opacity 0.08s linear;
 }
 
-/* 点的位置 */
-.dot[data-position="a"] { grid-area: a; }
-.dot[data-position="b"] { grid-area: b; }
-.dot[data-position="c"] { grid-area: c; }
-.dot[data-position="d"] { grid-area: d; }
-.dot[data-position="e"] { grid-area: e; }
-.dot[data-position="f"] { grid-area: f; }
-.dot[data-position="g"] { grid-area: g; }
-
-/* 结果展示动画 */
-.showResult {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0.5;
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* 摇动时加快 opacity 切换，增强"快速翻动"感 */
+.dot.dotRolling {
+  transition: opacity 0.04s linear;
 }

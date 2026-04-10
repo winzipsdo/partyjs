@@ -83,14 +83,14 @@ const ColorMemoryQuestIndexRoute = ColorMemoryQuestIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
-  '/color-memory-quest': typeof ColorMemoryQuestIndexRoute
-  '/crocodile-dentist': typeof CrocodileDentistIndexLazyRoute
-  '/dice-roll': typeof DiceRollIndexLazyRoute
-  '/gomoku': typeof GomokuIndexLazyRoute
-  '/home': typeof HomeIndexLazyRoute
-  '/liar-card': typeof LiarCardIndexLazyRoute
-  '/othello': typeof OthelloIndexLazyRoute
-  '/russian-roulette': typeof RussianRouletteIndexLazyRoute
+  '/color-memory-quest/': typeof ColorMemoryQuestIndexRoute
+  '/crocodile-dentist/': typeof CrocodileDentistIndexLazyRoute
+  '/dice-roll/': typeof DiceRollIndexLazyRoute
+  '/gomoku/': typeof GomokuIndexLazyRoute
+  '/home/': typeof HomeIndexLazyRoute
+  '/liar-card/': typeof LiarCardIndexLazyRoute
+  '/othello/': typeof OthelloIndexLazyRoute
+  '/russian-roulette/': typeof RussianRouletteIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
@@ -119,14 +119,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/color-memory-quest'
-    | '/crocodile-dentist'
-    | '/dice-roll'
-    | '/gomoku'
-    | '/home'
-    | '/liar-card'
-    | '/othello'
-    | '/russian-roulette'
+    | '/color-memory-quest/'
+    | '/crocodile-dentist/'
+    | '/dice-roll/'
+    | '/gomoku/'
+    | '/home/'
+    | '/liar-card/'
+    | '/othello/'
+    | '/russian-roulette/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -175,56 +175,56 @@ declare module '@tanstack/react-router' {
     '/russian-roulette/': {
       id: '/russian-roulette/'
       path: '/russian-roulette'
-      fullPath: '/russian-roulette'
+      fullPath: '/russian-roulette/'
       preLoaderRoute: typeof RussianRouletteIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/othello/': {
       id: '/othello/'
       path: '/othello'
-      fullPath: '/othello'
+      fullPath: '/othello/'
       preLoaderRoute: typeof OthelloIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/liar-card/': {
       id: '/liar-card/'
       path: '/liar-card'
-      fullPath: '/liar-card'
+      fullPath: '/liar-card/'
       preLoaderRoute: typeof LiarCardIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home/': {
       id: '/home/'
       path: '/home'
-      fullPath: '/home'
+      fullPath: '/home/'
       preLoaderRoute: typeof HomeIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gomoku/': {
       id: '/gomoku/'
       path: '/gomoku'
-      fullPath: '/gomoku'
+      fullPath: '/gomoku/'
       preLoaderRoute: typeof GomokuIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dice-roll/': {
       id: '/dice-roll/'
       path: '/dice-roll'
-      fullPath: '/dice-roll'
+      fullPath: '/dice-roll/'
       preLoaderRoute: typeof DiceRollIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crocodile-dentist/': {
       id: '/crocodile-dentist/'
       path: '/crocodile-dentist'
-      fullPath: '/crocodile-dentist'
+      fullPath: '/crocodile-dentist/'
       preLoaderRoute: typeof CrocodileDentistIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/color-memory-quest/': {
       id: '/color-memory-quest/'
       path: '/color-memory-quest'
-      fullPath: '/color-memory-quest'
+      fullPath: '/color-memory-quest/'
       preLoaderRoute: typeof ColorMemoryQuestIndexRouteImport
       parentRoute: typeof rootRouteImport
     }

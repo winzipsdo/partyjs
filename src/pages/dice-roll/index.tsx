@@ -31,6 +31,9 @@ export function DiceRollPage() {
   const handleClick = () => {
     if (isRolling) return;
 
+    // 开始摇骰：短促双震，模拟"抓起骰子"的触感
+    navigator.vibrate?.([12, 40, 12]);
+
     setIsRolling(true);
 
     setTimeout(() => {
@@ -45,6 +48,9 @@ export function DiceRollPage() {
         ...prev,
       ]);
       setIsRolling(false);
+
+      // 落地震动：稍微延迟让震感和骰子落地动画同步
+      setTimeout(() => navigator.vibrate?.([30, 20, 70]), 60);
     }, 1200);
   };
 
