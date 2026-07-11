@@ -8,7 +8,10 @@ export const MODE_META: Record<GameMode, { label: string; emoji: string; desc: s
   dynamic: { label: '转盘', emoji: '🌀', desc: '同心圆环缓慢旋转' },
 };
 
-export const SIZE_OPTIONS = [5, 6, 7] as const;
+// 各模式可选难度：蜂窝/转盘不提供 5×5
+export function sizesForMode(mode: GameMode): number[] {
+  return mode === 'standard' ? [5, 6, 7] : [6, 7];
+}
 
 // 生成 1..n 的数组
 export const range = (n: number): number[] => Array.from({ length: n }, (_, i) => i + 1);
@@ -35,10 +38,9 @@ export function timerColor(elapsedMs: number, count: number): string {
 export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
 // ===== 成绩评级 =====
-// 基准：广泛使用的成人舒尔特方格 5×5 参考标准
-//   <16s 顶尖 / <26s 优秀 / <36s 良好 / <50s 中等 / ≥50s 待提高
-// 换算为「每格平均用时」阈值（÷25），从而适配任意尺寸。
-export type Grade = 'S' | 'A' | 'B' | 'C' | 'D';
+// 阈值针对 5×5 制定：8s ACE / 10s SS / 12s S / 16s A / 25s B / 36s C / 其余 D，
+// 换算为「每格平均用时」（÷25）后等比适配任意尺寸。
+export type Grade = 'ACE' | 'SS' | 'S' | 'A' | 'B' | 'C' | 'D';
 
 export interface GradeStep {
   grade: Grade;
@@ -48,10 +50,12 @@ export interface GradeStep {
 }
 
 export const GRADE_STEPS: GradeStep[] = [
-  { grade: 'S', label: '顶尖', maxPerCellMs: 640, color: '#fbbf24' },
-  { grade: 'A', label: '优秀', maxPerCellMs: 1040, color: '#34d399' },
-  { grade: 'B', label: '良好', maxPerCellMs: 1440, color: '#38bdf8' },
-  { grade: 'C', label: '中等', maxPerCellMs: 2000, color: '#fb923c' },
+  { grade: 'ACE', label: '超凡', maxPerCellMs: 320, color: '#f0abfc' },
+  { grade: 'SS', label: '卓越', maxPerCellMs: 400, color: '#fbbf24' },
+  { grade: 'S', label: '顶尖', maxPerCellMs: 480, color: '#34d399' },
+  { grade: 'A', label: '优秀', maxPerCellMs: 640, color: '#38bdf8' },
+  { grade: 'B', label: '良好', maxPerCellMs: 1000, color: '#a78bfa' },
+  { grade: 'C', label: '中等', maxPerCellMs: 1440, color: '#fb923c' },
   { grade: 'D', label: '待提高', maxPerCellMs: null, color: '#94a3b8' },
 ];
 
@@ -61,6 +65,43 @@ export function gradeFor(totalMs: number, count: number): GradeStep {
     if (s.maxPerCellMs != null && perCell < s.maxPerCellMs) return s;
   }
   return GRADE_STEPS[GRADE_STEPS.length - 1];
+}
+
+// ===== 人群百分位估计 =====
+// 没有真实全网数据，用对数正态分布对成人 5×5 成绩做拟合：
+// ln(t) ~ N(ln 32, 0.38)，即中位数约 32s；
+// 该曲线下 <16s ≈ 前 3.4%、<12s ≈ 前 0.5%、<25s ≈ 前 26%、<36s ≈ 前 62%，
+// 与常见训练数据的分布大致吻合。其他尺寸先换算成 5×5 等效用时再查曲线。
+const POP_MEDIAN_S = 32;
+const POP_SIGMA = 0.38;
+
+function erf(x: number): number {
+  // Abramowitz–Stegun 近似，误差 < 1.5e-7
+  const sign = x < 0 ? -1 : 1;
+  const ax = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * ax);
+  const y =
+    1 -
+    ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) *
+      t *
+      Math.exp(-ax * ax);
+  return sign * y;
+}
+
+const normCdf = (z: number) => 0.5 * (1 + erf(z / Math.SQRT2));
+
+// 返回「位于前百分之几」（0~100）：值越小成绩越好
+export function topPercentFor(totalMs: number, count: number): number {
+  const t5 = ((totalMs / count) * 25) / 1000; // 5×5 等效秒数
+  if (t5 <= 0) return 0.01;
+  const z = (Math.log(t5) - Math.log(POP_MEDIAN_S)) / POP_SIGMA;
+  return normCdf(z) * 100;
+}
+
+export function formatTopPercent(p: number): string {
+  if (p < 0.01) return '前 0.01%';
+  if (p >= 99.99) return '前 99.99%';
+  return `前 ${p.toFixed(2)}%`;
 }
 
 // 用时格式化

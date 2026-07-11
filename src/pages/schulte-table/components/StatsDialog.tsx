@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, HelpCircle, RotateCcw, Trophy } from 'lucide-react';
-import { GRADE_STEPS, formatSeconds, formatSplit, gradeFor } from '../utils';
+import { GRADE_STEPS, formatSeconds, formatSplit, formatTopPercent, gradeFor, topPercentFor } from '../utils';
 import type { FindRecord } from '../useSchulteGame';
 
 interface Props {
@@ -31,6 +31,7 @@ export function StatsDialog({ open, onOpenChange, records, totalMs, errors, coun
   const avg = splits.length ? splits.reduce((s, r) => s + r.splitMs, 0) / splits.length : 0;
   const slowest = splits.reduce<FindRecord | null>((acc, r) => (!acc || r.splitMs > acc.splitMs ? r : acc), null);
   const grade = gradeFor(totalMs, count);
+  const topPercent = topPercentFor(totalMs, count);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -50,13 +51,14 @@ export function StatsDialog({ open, onOpenChange, records, totalMs, errors, coun
             {/* 评级 */}
             <div className='flex items-center justify-center gap-4'>
               <div
-                className='text-6xl font-black leading-none'
+                className={`${grade.grade.length > 1 ? 'text-5xl' : 'text-6xl'} font-black leading-none`}
                 style={{ color: grade.color, textShadow: `0 0 28px ${grade.color}66` }}
               >
                 {grade.grade}
               </div>
               <div className='text-left'>
                 <div className='text-lg font-bold text-slate-100'>{grade.label}</div>
+                <div className='text-xs tabular-nums text-slate-400'>约位于{formatTopPercent(topPercent)}</div>
                 <button
                   onClick={() => setShowRules(true)}
                   className='mt-0.5 flex items-center gap-1 text-xs text-slate-400 underline-offset-2 transition-colors hover:text-slate-200 hover:underline'
@@ -142,8 +144,11 @@ function RulesPanel({ count, onBack }: { count: number; onBack: () => void }) {
                 ? `< ${upper.toFixed(0)}s`
                 : `${lower.toFixed(0)} ~ ${upper.toFixed(0)}s`;
           return (
-            <div key={s.grade} className='glass flex items-center gap-3 rounded-lg px-3 py-2'>
-              <span className='w-8 text-center text-2xl font-black' style={{ color: s.color }}>
+            <div key={s.grade} className='glass flex items-center gap-3 rounded-lg px-3 py-1.5'>
+              <span
+                className={`w-12 text-center font-black ${s.grade.length > 1 ? 'text-lg' : 'text-2xl'}`}
+                style={{ color: s.color }}
+              >
                 {s.grade}
               </span>
               <span className='w-14 text-sm font-semibold text-slate-200'>{s.label}</span>
@@ -154,8 +159,11 @@ function RulesPanel({ count, onBack }: { count: number; onBack: () => void }) {
       </div>
 
       <p className='text-xs leading-relaxed text-slate-400'>
-        基于通行的成人舒尔特方格 5×5 参考基准（&lt;16s 顶尖、&lt;26s 优秀、&lt;36s 良好、&lt;50s
-        中等），按「每格平均用时」等比换算到当前难度。评级只依据总用时——点错不直接扣分，但会自然消耗时间。正序与倒式采用同一标准。
+        阈值针对 5×5 制定（8s ACE、10s SS、12s S、16s A、25s B、36s
+        C），按「每格平均用时」等比换算到当前难度。评级只依据总用时——点错不直接扣分，但会自然消耗时间。正序与倒式采用同一标准。
+        <br />
+        「约位于前 X%」为估算：以对数正态分布（中位数 32s、σ=0.38）拟合成人 5×5
+        成绩人群得出，并非真实排行榜数据。
       </p>
 
       <Button variant='outline' onClick={onBack} className='w-full'>

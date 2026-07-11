@@ -3,9 +3,9 @@ import { useLocalStorageState } from 'ahooks';
 import { createStorageKey } from '@/constants/storage';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ArrowDownUp, Contrast, RotateCcw, Target } from 'lucide-react';
+import { ArrowDownUp, RotateCcw, Target } from 'lucide-react';
 import { useSchulteGame } from './useSchulteGame';
-import { GameMode, MODE_META, SIZE_OPTIONS, formatSeconds } from './utils';
+import { GameMode, MODE_META, formatSeconds, sizesForMode } from './utils';
 import { StandardBoard } from './components/StandardBoard';
 import { HoneycombBoard } from './components/HoneycombBoard';
 import { DynamicBoard } from './components/DynamicBoard';
@@ -26,22 +26,23 @@ export function SchulteTablePage() {
     createStorageKey('schulte-best-v2'),
     { defaultValue: {} },
   );
-  const [highContrast, setHighContrast] = useLocalStorageState<boolean>(
-    createStorageKey('schulte-high-contrast'),
-    { defaultValue: false },
-  );
   const [descending, setDescending] = useLocalStorageState<boolean>(
     createStorageKey('schulte-descending'),
     { defaultValue: false },
   );
+  const [hellMode, setHellMode] = useLocalStorageState<boolean>(createStorageKey('schulte-hell'), {
+    defaultValue: false,
+  });
 
   const activeMode = mode ?? 'standard';
-  // 旧版本可能存了 3/4，已下线的尺寸回退到 5
+  // 各模式可选尺寸不同（蜂窝/转盘无 5×5）；存档里不可用的尺寸回退到该模式最小档
+  const sizeOptions = sizesForMode(activeMode);
   const storedSize = size ?? 5;
-  const activeSize = (SIZE_OPTIONS as readonly number[]).includes(storedSize) ? storedSize : 5;
+  const activeSize = sizeOptions.includes(storedSize) ? storedSize : sizeOptions[0];
   const isDesc = !!descending;
+  const isHell = activeMode === 'dynamic' && !!hellMode;
   const count = activeSize * activeSize;
-  const bestKey = `${activeMode}-${activeSize}${isDesc ? '-desc' : ''}`;
+  const bestKey = `${activeMode}-${activeSize}${isDesc ? '-desc' : ''}${isHell ? '-hell' : ''}`;
 
   const game = useSchulteGame(count, bestKey, isDesc);
 
@@ -89,11 +90,11 @@ export function SchulteTablePage() {
       case 'honeycomb':
         return <HoneycombBoard game={game} size={activeSize} />;
       case 'dynamic':
-        return <DynamicBoard game={game} />;
+        return <DynamicBoard game={game} hell={isHell} />;
       default:
         return <StandardBoard game={game} size={activeSize} />;
     }
-  }, [activeMode, activeSize, game]);
+  }, [activeMode, activeSize, game, isHell]);
 
   const handleReplay = () => {
     setStatsOpen(false);
@@ -141,7 +142,7 @@ export function SchulteTablePage() {
           {/* 尺寸 */}
           <div className='flex items-center justify-center gap-1.5'>
             <span className='mr-1 text-xs text-slate-400'>难度</span>
-            {SIZE_OPTIONS.map((s) => {
+            {sizeOptions.map((s) => {
               const active = s === activeSize;
               return (
                 <button
@@ -173,19 +174,21 @@ export function SchulteTablePage() {
               <ArrowDownUp className='h-3.5 w-3.5' />
               {isDesc ? `${count}→1` : `1→${count}`}
             </button>
-            <button
-              onClick={() => setHighContrast(!highContrast)}
-              title='高对比度'
-              aria-pressed={!!highContrast}
-              className={cn(
-                'flex h-8 w-9 items-center justify-center rounded-lg transition-all sm:h-9',
-                highContrast
-                  ? 'bg-slate-100 text-slate-900 shadow-[0_0_14px_-2px_rgba(241,245,249,0.6)]'
-                  : 'glass text-slate-400 hover:text-slate-200',
-              )}
-            >
-              <Contrast className='h-4 w-4' />
-            </button>
+            {activeMode === 'dynamic' && (
+              <button
+                onClick={() => setHellMode(!hellMode)}
+                title='地狱模式：数字也在自转翻滚'
+                aria-pressed={isHell}
+                className={cn(
+                  'flex h-8 items-center gap-0.5 rounded-lg px-2 text-[11px] font-bold transition-all sm:h-9',
+                  isHell
+                    ? 'border border-red-400/50 bg-red-500/20 text-red-200 shadow-[0_0_14px_-2px_rgba(248,113,113,0.6)]'
+                    : 'glass text-slate-400 hover:text-slate-200',
+                )}
+              >
+                🔥地狱
+              </button>
+            )}
           </div>
         </div>
 
@@ -218,7 +221,7 @@ export function SchulteTablePage() {
               'w-full transition-all duration-300',
               // 遮罩态：模糊 + 低透明度，格线融为柔和纹理，明确传达"盘面未揭示"
               game.status === 'idle' && 'pointer-events-none opacity-30 blur-[3px]',
-              highContrast && styles.hc,
+              styles.hc, // 高对比度亮底深字，默认且唯一的棋盘配色
             )}
           >
             {board}

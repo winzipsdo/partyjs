@@ -6,12 +6,15 @@ import { computeDynamicLayout } from '../utils';
 
 interface Props {
   game: SchulteGame;
+  hell?: boolean; // 地狱模式：数字不保持正立，各自以不同速度自转
 }
 
 // 转盘：数字分布在同心圆环上，各环缓慢反向旋转。
 // 旋转由 rAF 驱动：环转 +θ、数字内层转 -θ 在同一帧写入，
 // 严格同相抵消 —— 数字始终保持水平正立（CSS 双动画会漂相位）。
-export function DynamicBoard({ game }: Props) {
+// 地狱模式下内层改为独立自转（每个数字速度/方向不同），
+// 数字底部的下划线标记正面方向，避免 6/9 翻转后混淆。
+export function DynamicBoard({ game, hell = false }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [container, setContainer] = useState(360);
@@ -41,6 +44,10 @@ export function DynamicBoard({ game }: Props) {
     const ringEls = Array.from(stage.querySelectorAll<HTMLElement>('[data-ring]'));
     const speeds = ringEls.map((el) => Number(el.dataset.speed)); // 度/秒，带符号
     const spinEls = ringEls.map((el) => Array.from(el.querySelectorAll<HTMLElement>('[data-spin]')));
+    // 地狱模式：每个数字独立的自转速度（由索引确定，重挂载稳定复现）
+    const selfSpeeds = spinEls.map((ring, i) =>
+      ring.map((_, j) => ((i + j) % 2 === 0 ? 1 : -1) * (34 + ((i * 7 + j * 13) % 42))),
+    );
 
     let raf = 0;
     const t0 = performance.now();
@@ -49,13 +56,16 @@ export function DynamicBoard({ game }: Props) {
       for (let i = 0; i < ringEls.length; i++) {
         const a = speeds[i] * t;
         ringEls[i].style.transform = `rotate(${a}deg)`;
-        for (const s of spinEls[i]) s.style.transform = `rotate(${-a}deg)`;
+        for (let j = 0; j < spinEls[i].length; j++) {
+          // 正常：反向抵消保持正立；地狱：独立自转翻滚
+          spinEls[i][j].style.transform = hell ? `rotate(${selfSpeeds[i][j] * t}deg)` : `rotate(${-a}deg)`;
+        }
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [layout]);
+  }, [layout, hell]);
 
   return (
     <div ref={wrapRef} className='flex w-full max-w-full justify-center overflow-hidden'>
@@ -85,7 +95,13 @@ export function DynamicBoard({ game }: Props) {
                         className={cn(styles.dotFace, found && styles.found, game.wrong === n && styles.wrong)}
                         style={{ fontSize: cell * 0.4 }}
                       >
-                        {game.status === 'idle' ? '' : n}
+                        {game.status === 'idle' ? (
+                          ''
+                        ) : hell ? (
+                          <span className={styles.hellNum}>{n}</span>
+                        ) : (
+                          n
+                        )}
                       </span>
                     </span>
                   </button>

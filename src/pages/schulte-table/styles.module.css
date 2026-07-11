@@ -243,4 +243,13 @@
   border-color: #38bdf8;
 }
 
+/* 地狱模式：数字底部下划线标记正面方向（6/9 翻转时可辨） */
+.hellNum {
+  display: inline-block;
+  line-height: 1.05;
+  padding: 0 0.1em 0.06em;
+  border-bottom: 0.12em solid currentColor;
+  border-radius: 1px;
+}
+
 /* 减弱动态：rAF 旋转在 DynamicBoard 中通过 matchMedia 跳过 */
