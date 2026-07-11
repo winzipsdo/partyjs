@@ -69,11 +69,11 @@ export function SchulteTablePage() {
   };
 
   return (
-    <div className='flex min-h-[calc(100dvh-54px)] flex-col bg-gradient-to-b from-slate-50 to-slate-200'>
+    <div className='aurora flex min-h-[calc(100dvh-54px)] flex-col' style={{ '--ga': '199 90% 55%', '--gb': '258 90% 66%' } as React.CSSProperties}>
       <div className='mx-auto flex w-full max-w-2xl flex-1 flex-col px-3 pb-2 pt-2 sm:px-4 sm:pt-4'>
         {/* 标题 */}
         <div className='shrink-0 text-center'>
-          <h1 className='text-lg font-bold text-slate-800 sm:text-2xl'>🔢 舒尔特方格</h1>
+          <h1 className='text-lg font-bold text-white sm:text-2xl'>🔢 舒尔特方格</h1>
           <p className='hidden text-sm text-slate-500 sm:block'>按顺序从 1 找到 {count}，训练你的专注力</p>
         </div>
 
@@ -91,8 +91,8 @@ export function SchulteTablePage() {
                   className={cn(
                     'flex-1 max-w-[9rem] rounded-xl border px-3 py-2 text-sm font-medium transition-all',
                     active
-                      ? 'bg-slate-800 text-white border-slate-800 shadow'
-                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300',
+                      ? 'border-sky-400/60 bg-sky-400/15 text-sky-200 shadow-[0_0_16px_-4px_rgba(56,189,248,0.5)]'
+                      : 'glass text-slate-400 hover:text-slate-200',
                   )}
                   title={meta.desc}
                 >
@@ -115,8 +115,8 @@ export function SchulteTablePage() {
                   className={cn(
                     'h-8 w-9 rounded-lg text-xs font-semibold transition-all sm:h-9 sm:text-sm',
                     active
-                      ? 'bg-emerald-500 text-white shadow'
-                      : 'border border-slate-200 bg-white text-slate-500 hover:border-slate-300',
+                      ? 'bg-emerald-500 text-white shadow-[0_0_14px_-2px_rgba(16,185,129,0.6)]'
+                      : 'glass text-slate-400 hover:text-slate-200',
                   )}
                 >
                   {s}×{s}
@@ -134,10 +134,10 @@ export function SchulteTablePage() {
           </div>
 
           <div className='flex items-center gap-2'>
-            <div className='flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm'>
+            <div className='glass flex items-center gap-1.5 rounded-full px-3 py-1.5'>
               <Target className='h-4 w-4 text-slate-400' />
               <span className='hidden text-xs text-slate-500 sm:inline'>下一个</span>
-              <span className='min-w-[1.5rem] text-center text-lg font-bold tabular-nums text-slate-800'>
+              <span className='min-w-[1.5rem] text-center text-lg font-bold tabular-nums text-white'>
                 {game.status === 'finished' ? '✓' : game.nextTarget}
               </span>
             </div>

@@ -23,6 +23,22 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('[ErrorBoundary]', error, info);
   }
 
+  // 路由切换（hash 变化）时自动复位错误态，
+  // 否则一个页面崩溃后，导航到其他页面仍会停留在错误屏
+  componentDidMount() {
+    window.addEventListener('hashchange', this.handleRouteChange);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('hashchange', this.handleRouteChange);
+  }
+
+  handleRouteChange = () => {
+    if (this.state.hasError) {
+      this.setState({ hasError: false, message: undefined });
+    }
+  };
+
   handleReload = () => {
     window.location.reload();
   };
@@ -31,23 +47,23 @@ export class ErrorBoundary extends Component<Props, State> {
     if (!this.state.hasError) return this.props.children;
 
     return (
-      <div className='min-h-[100dvh] flex flex-col items-center justify-center gap-4 px-6 text-center bg-gradient-to-b from-slate-50 to-slate-200'>
+      <div className='min-h-[100dvh] flex flex-col items-center justify-center gap-4 px-6 text-center '>
         <div className='text-5xl'>😵‍💫</div>
-        <h1 className='text-xl font-bold text-slate-800'>页面出了点小问题</h1>
+        <h1 className='text-xl font-bold text-white'>页面出了点小问题</h1>
         <p className='max-w-sm text-sm text-slate-500'>
           页面渲染时发生了错误。如果你安装了 React 相关的浏览器扩展（如 LocatorJS、React DevTools 等），
           请尝试关闭后重试。
         </p>
         <button
           onClick={this.handleReload}
-          className='rounded-lg bg-slate-800 px-5 py-2.5 text-sm font-medium text-white shadow transition-colors hover:bg-slate-700'
+          className='glass rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10'
         >
           刷新重试
         </button>
         {this.state.message && (
           <details className='mt-2 max-w-sm text-left'>
             <summary className='cursor-pointer text-xs text-slate-400'>错误详情</summary>
-            <pre className='mt-1 overflow-x-auto rounded bg-slate-100 p-2 text-[11px] text-slate-500'>
+            <pre className='mt-1 overflow-x-auto rounded bg-white/[0.06] p-2 text-[11px] text-slate-400'>
               {this.state.message}
             </pre>
           </details>

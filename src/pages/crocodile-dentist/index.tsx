@@ -39,7 +39,7 @@ export function CrocodileDentistPage() {
   const lowerTeeth = teeth.slice(TEETH_COUNT / 2);
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-cyan-600 via-teal-500 to-emerald-600 flex flex-col items-center justify-center p-4 overflow-hidden'>
+    <div className='aurora min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden' style={{ '--ga': '172 70% 50%', '--gb': '199 89% 48%' } as React.CSSProperties}>
       {/* Decorative bubbles */}
       <div className={styles.bubbles}>
         {[...Array(8)].map((_, i) => (

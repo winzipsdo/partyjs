@@ -177,7 +177,7 @@ export function ColorMemoryQuestPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} aurora`} style={{ '--ga': '322 85% 62%', '--gb': '262 85% 66%' } as React.CSSProperties}>
       {/* Header */}
       <div className={styles.header}>
         <h1 className={styles.title}>Color Memory</h1>

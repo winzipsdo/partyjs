@@ -41,7 +41,7 @@ export function StatsDialog({ open, onOpenChange, records, totalMs, errors, best
         </div>
 
         {isNewBest ? (
-          <div className='text-center text-sm font-semibold text-emerald-600'>🎉 新纪录！</div>
+          <div className='text-center text-sm font-semibold text-emerald-400'>🎉 新纪录！</div>
         ) : bestMs != null ? (
           <div className='text-center text-xs text-muted-foreground'>历史最佳：{formatSeconds(bestMs)}</div>
         ) : null}
@@ -54,7 +54,7 @@ export function StatsDialog({ open, onOpenChange, records, totalMs, errors, best
             return (
               <div key={r.number} className='flex items-center gap-2 text-sm'>
                 <span className='w-7 shrink-0 text-right font-mono text-slate-500'>{r.number}</span>
-                <div className='flex-1 h-4 bg-slate-100 rounded-full overflow-hidden'>
+                <div className='flex-1 h-4 bg-white/[0.07] rounded-full overflow-hidden'>
                   <div
                     className='h-full rounded-full transition-all'
                     style={{
@@ -63,7 +63,7 @@ export function StatsDialog({ open, onOpenChange, records, totalMs, errors, best
                     }}
                   />
                 </div>
-                <span className='w-14 shrink-0 text-right font-mono tabular-nums text-slate-600'>
+                <span className='w-14 shrink-0 text-right font-mono tabular-nums text-slate-300'>
                   {formatSplit(r.splitMs)}
                 </span>
               </div>
@@ -82,9 +82,9 @@ export function StatsDialog({ open, onOpenChange, records, totalMs, errors, best
 
 function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className='rounded-lg bg-slate-50 border border-slate-100 py-2'>
-      <div className={`font-bold tabular-nums ${highlight ? 'text-emerald-600 text-lg' : 'text-slate-800'}`}>{value}</div>
-      <div className='text-[11px] text-slate-500'>{label}</div>
+    <div className='glass rounded-lg py-2'>
+      <div className={`font-bold tabular-nums ${highlight ? 'text-emerald-400 text-lg' : 'text-slate-100'}`}>{value}</div>
+      <div className='text-[11px] text-slate-400'>{label}</div>
     </div>
   );
 }

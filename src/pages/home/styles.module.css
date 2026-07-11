@@ -1,139 +1,138 @@
-@keyframes bounce-slow {
+/* ===== 品牌标题：流动的极光渐变 ===== */
+.brand {
+  background: linear-gradient(100deg, #a78bfa 0%, #67e8f9 30%, #f0abfc 60%, #a78bfa 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: brandFlow 7s ease-in-out infinite;
+  filter: drop-shadow(0 0 24px rgba(167, 139, 250, 0.35));
+}
+
+@keyframes brandFlow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* logo 缓浮 */
+.floatLogo {
+  animation: floatY 4.5s ease-in-out infinite;
+  filter: drop-shadow(0 6px 18px rgba(103, 232, 249, 0.35));
+}
+
+@keyframes floatY {
   0%,
   100% {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-20px);
+    transform: translateY(-10px);
   }
 }
-.animateBounce {
-  animation: bounce-slow 3s ease-in-out infinite;
-}
 
-.glitch {
+/* ===== 游戏卡片 ===== */
+.card {
+  --hue: 258 90% 66%;
   position: relative;
-  color: #2d3436;
-  text-shadow:
-    0.05em 0 0 #00fffc,
-    -0.03em -0.04em 0 #fc00ff,
-    0.025em 0.04em 0 #fffc00;
-  animation: glitch 725ms infinite;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  cursor: pointer;
+  background: hsl(228 25% 60% / 0.07);
+  border: 1px solid hsl(228 30% 80% / 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease,
+    background-color 0.25s ease,
+    box-shadow 0.25s ease;
+  animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--delay, 0s);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.glitch span {
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 主题色辉光：常驻微光，悬停增强 */
+.card::before {
+  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
+  width: 9rem;
+  height: 9rem;
+  left: -2.5rem;
+  top: -2.5rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle, hsl(var(--hue) / 0.32), transparent 70%);
+  filter: blur(14px);
+  opacity: 0.55;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  pointer-events: none;
 }
 
-.glitch::before,
-.glitch::after {
-  content: attr(data-text);
+.card:hover {
+  transform: translateY(-4px);
+  border-color: hsl(var(--hue) / 0.45);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    0 0 0 1px hsl(var(--hue) / 0.15),
+    0 0 40px -8px hsl(var(--hue) / 0.35);
+}
+.card:hover::before {
+  opacity: 1;
+  transform: scale(1.25);
+}
+.card:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.cardEmoji {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+}
+.card:hover .cardEmoji {
+  transform: scale(1.12) rotate(-4deg);
+}
+
+/* 卡片右下角主题色细线点缀 */
+.cardTick {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0.9rem;
+  bottom: 0.9rem;
+  width: 1.4rem;
+  height: 2px;
+  border-radius: 2px;
+  background: hsl(var(--hue) / 0.8);
+  box-shadow: 0 0 8px hsl(var(--hue) / 0.8);
+  opacity: 0.7;
+  transition:
+    width 0.25s ease,
+    opacity 0.25s ease;
+}
+.card:hover .cardTick {
+  width: 2.2rem;
+  opacity: 1;
 }
 
-.glitch::before {
-  left: 2px;
-  text-shadow: -2px 0 #ff00c1;
-  clip: rect(44px, 450px, 56px, 0);
-  animation: glitch-anim 5s infinite linear alternate-reverse;
-}
-
-.glitch::after {
-  left: -2px;
-  text-shadow: -2px 0 #00fff9;
-  clip: rect(44px, 450px, 56px, 0);
-  animation: glitch-anim2 1s infinite linear alternate-reverse;
-}
-
-@keyframes glitch {
-  0% {
-    text-shadow:
-      0.05em 0 0 #00fffc,
-      -0.03em -0.04em 0 #fc00ff,
-      0.025em 0.04em 0 #fffc00;
-  }
-  15% {
-    text-shadow:
-      0.05em 0 0 #00fffc,
-      -0.03em -0.04em 0 #fc00ff,
-      0.025em 0.04em 0 #fffc00;
-  }
-  16% {
-    text-shadow:
-      -0.05em -0.025em 0 #00fffc,
-      0.025em 0.035em 0 #fc00ff,
-      -0.05em -0.05em 0 #fffc00;
-  }
-  49% {
-    text-shadow:
-      -0.05em -0.025em 0 #00fffc,
-      0.025em 0.035em 0 #fc00ff,
-      -0.05em -0.05em 0 #fffc00;
-  }
-  50% {
-    text-shadow:
-      0.05em 0.035em 0 #00fffc,
-      0.03em 0 0 #fc00ff,
-      0 -0.04em 0 #fffc00;
-  }
-  99% {
-    text-shadow:
-      0.05em 0.035em 0 #00fffc,
-      0.03em 0 0 #fc00ff,
-      0 -0.04em 0 #fffc00;
-  }
-  100% {
-    text-shadow:
-      -0.05em 0 0 #00fffc,
-      -0.025em -0.04em 0 #fc00ff,
-      -0.04em -0.025em 0 #fffc00;
-  }
-}
-
-@keyframes glitch-anim {
-  0% {
-    clip: rect(15px, 9999px, 87px, 0);
-  }
-  20% {
-    clip: rect(45px, 9999px, 34px, 0);
-  }
-  40% {
-    clip: rect(23px, 9999px, 92px, 0);
-  }
-  60% {
-    clip: rect(64px, 9999px, 98px, 0);
-  }
-  80% {
-    clip: rect(32px, 9999px, 23px, 0);
-  }
-  100% {
-    clip: rect(12px, 9999px, 78px, 0);
-  }
-}
-
-@keyframes glitch-anim2 {
-  0% {
-    clip: rect(65px, 9999px, 32px, 0);
-  }
-  20% {
-    clip: rect(15px, 9999px, 84px, 0);
-  }
-  40% {
-    clip: rect(45px, 9999px, 46px, 0);
-  }
-  60% {
-    clip: rect(54px, 9999px, 12px, 0);
-  }
-  80% {
-    clip: rect(31px, 9999px, 88px, 0);
-  }
-  100% {
-    clip: rect(86px, 9999px, 62px, 0);
+@media (prefers-reduced-motion: reduce) {
+  .brand,
+  .floatLogo,
+  .card {
+    animation: none !important;
   }
 }

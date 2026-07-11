@@ -68,7 +68,7 @@ export function DiceRollPage() {
   );
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} aurora`} style={{ '--ga': '25 95% 60%', '--gb': '45 95% 55%' } as React.CSSProperties}>
       {/* 骰子区域 */}
       <div className={styles.diceArea}>
         <div

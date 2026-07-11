@@ -216,18 +216,18 @@ export function GomokuPage() {
   // Render history view
   if (showHistory) {
     return (
-      <div className='min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-4'>
+      <div className='aurora min-h-screen p-4' style={{ '--ga': '38 92% 55%', '--gb': '25 95% 60%' } as React.CSSProperties}>
         <div className='max-w-md mx-auto'>
           {/* Header */}
           <div className='flex items-center justify-between mb-4'>
             <button
               onClick={() => setShowHistory(false)}
-              className='flex items-center gap-1 text-gray-600 hover:text-gray-800'
+              className='flex items-center gap-1 text-slate-400 hover:text-white'
             >
               <ChevronLeft className='w-5 h-5' />
               <span>Back</span>
             </button>
-            <h1 className='text-xl font-bold text-gray-800'>Game History</h1>
+            <h1 className='text-xl font-bold text-white'>Game History</h1>
             <button onClick={handleClearHistory} className='text-red-500 hover:text-red-700 p-2' title='Clear all'>
               <Trash2 className='w-5 h-5' />
             </button>
@@ -260,7 +260,7 @@ export function GomokuPage() {
           {/* Records list */}
           <div className='space-y-2'>
             {(gameRecords ?? []).length === 0 ? (
-              <div className='text-center text-gray-500 py-8'>No game records yet</div>
+              <div className='text-center text-slate-500 py-8'>No game records yet</div>
             ) : (
               (gameRecords ?? []).map((record) => (
                 <div key={record.id} className='bg-white rounded-xl p-4 shadow-sm flex items-center justify-between'>
@@ -302,14 +302,14 @@ export function GomokuPage() {
 
   // Main game view
   return (
-    <div className='min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-2 sm:p-4'>
+    <div className='aurora min-h-screen p-2 sm:p-4' style={{ '--ga': '38 92% 55%', '--gb': '25 95% 60%' } as React.CSSProperties}>
       <div className='max-w-md mx-auto'>
         {/* Header */}
         <div className='flex items-center justify-between mb-2 sm:mb-4'>
-          <h1 className='text-xl sm:text-2xl font-bold text-gray-800'>Gomoku</h1>
+          <h1 className='text-xl sm:text-2xl font-bold text-white'>Gomoku</h1>
           <button
             onClick={() => setShowHistory(true)}
-            className='flex items-center gap-1 text-gray-600 hover:text-gray-800 p-2'
+            className='flex items-center gap-1 text-slate-400 hover:text-white p-2'
           >
             <History className='w-5 h-5' />
             <span className='text-sm hidden sm:inline'>History</span>
@@ -445,7 +445,7 @@ export function GomokuPage() {
         </div>
 
         {/* Quick stats */}
-        <div className='mt-2 sm:mt-4 text-center text-sm text-gray-500'>
+        <div className='mt-2 sm:mt-4 text-center text-sm text-slate-400'>
           <span className='inline-flex items-center gap-1'>
             <span className='w-3 h-3 rounded-full bg-gray-800'></span>
             {stats.blackWins}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Skull, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocalStorageState } from 'ahooks';
@@ -66,9 +66,15 @@ export function RussianRoulettePage() {
     }, 1000);
   };
 
-  if (bulletPosition === 0) {
-    resetGame();
-  }
+  // 首次进入（无存档）时初始化弹仓。
+  // 注意：必须放在 effect 里 —— 在渲染期间同步调用 setState 会触发
+  // 无限重渲染循环（React error #301，之前线上白屏的根因）。
+  useEffect(() => {
+    if (bulletPosition === 0) {
+      resetGame();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bulletPosition]);
 
   const getChamberState = (position: number) => {
     const fired = position <= (shotsFired ?? 0);
@@ -84,7 +90,7 @@ export function RussianRoulettePage() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} aurora`} style={{ '--ga': '0 85% 55%', '--gb': '350 70% 40%' } as React.CSSProperties}>
       {/* Background particles */}
       <div className={styles.particles}>
         {[...Array(20)].map((_, i) => (

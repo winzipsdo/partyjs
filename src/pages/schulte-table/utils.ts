@@ -29,7 +29,7 @@ export function timerColor(elapsedMs: number, count: number): string {
   const budgetMs = count * 1500; // 约每格 1.5s 的舒适区
   const frac = clamp(elapsedMs / (budgetMs * 1.6), 0, 1);
   const hue = 145 - 145 * frac; // 145°(绿) → 0°(红)，中途经过黄
-  return `hsl(${hue.toFixed(0)}, 82%, 46%)`;
+  return `hsl(${hue.toFixed(0)} 90% 58%)`;
 }
 
 export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));

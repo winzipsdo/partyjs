@@ -62,11 +62,11 @@ function RootComponent() {
     <>
       {/* Top navigation bar - only show when not on home page */}
       {!isHomePage && (
-        <div className='sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b'>
+        <div className='sticky top-0 z-50 border-b border-white/[0.08] bg-[#0a0b14]/70 backdrop-blur-md'>
           <div className='flex items-center justify-between px-2 py-2'>
             <button
               onClick={() => navigate({ to: '/home' })}
-              className='flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors'
+              className='flex items-center gap-2 rounded-lg px-3 py-2 text-slate-400 transition-colors hover:bg-white/[0.06] hover:text-white'
             >
               <Home className='w-5 h-5' />
               <span className='text-sm font-medium hidden sm:inline'>Home</span>
@@ -75,12 +75,12 @@ function RootComponent() {
             <div className='flex items-center gap-1'>
               <button
                 onClick={() => setOpen(true)}
-                className='flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors'
+                className='flex items-center gap-2 rounded-lg px-3 py-2 text-slate-400 transition-colors hover:bg-white/[0.06] hover:text-white'
                 title='Search games (⌘K)'
               >
                 <Search className='w-5 h-5' />
                 <span className='text-sm hidden sm:inline'>Search</span>
-                <kbd className='hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-xs text-gray-400 bg-gray-100 rounded'>
+                <kbd className='hidden sm:inline-flex items-center gap-1 rounded bg-white/[0.07] px-2 py-0.5 text-xs text-slate-500'>
                   ⌘K
                 </kbd>
               </button>
@@ -89,10 +89,10 @@ function RootComponent() {
                 href='https://github.com/winzipsdo/partyjs'
                 target='_blank'
                 rel='noopener noreferrer'
-                className='p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors'
+                className='rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/[0.06] hover:text-white'
                 title='View on GitHub'
               >
-                <img src={GithubIcon} alt='GitHub' width={20} height={20} />
+                <img src={GithubIcon} alt='GitHub' width={20} height={20} className='invert opacity-70' />
               </a>
             </div>
           </div>

@@ -7,7 +7,7 @@ interface GameCard {
   title: string;
   description: string;
   path: string;
-  color: string;
+  hue: string; // HSL 三元组，作为该游戏的主题色
 }
 
 const games: GameCard[] = [
@@ -16,56 +16,56 @@ const games: GameCard[] = [
     title: 'Dice Roll',
     description: 'Roll the dice and test your luck',
     path: '/dice-roll',
-    color: 'from-red-400 to-orange-500',
+    hue: '25 95% 60%',
   },
   {
     emoji: '🔫',
     title: 'Russian Roulette',
     description: 'Dare to pull the trigger?',
     path: '/russian-roulette',
-    color: 'from-gray-600 to-gray-800',
+    hue: '0 85% 60%',
   },
   {
     emoji: '🃏',
     title: 'Liar Card',
     description: 'Draw a card, bluff your way',
     path: '/liar-card',
-    color: 'from-purple-400 to-indigo-600',
+    hue: '262 85% 66%',
   },
   {
     emoji: '🦷',
     title: 'Crocodile Dentist',
     description: "Don't get bitten!",
     path: '/crocodile-dentist',
-    color: 'from-green-400 to-emerald-600',
+    hue: '172 70% 50%',
   },
   {
     emoji: '🎨',
     title: 'Color Memory',
     description: 'Match colors to win',
     path: '/color-memory-quest',
-    color: 'from-pink-400 to-rose-500',
+    hue: '322 85% 62%',
   },
   {
     emoji: '⚫',
     title: 'Gomoku',
     description: 'Five in a row wins',
     path: '/gomoku',
-    color: 'from-amber-400 to-orange-500',
+    hue: '38 92% 55%',
   },
   {
     emoji: '⚪',
     title: 'Othello',
     description: 'Flip to conquer',
     path: '/othello',
-    color: 'from-teal-400 to-emerald-600',
+    hue: '152 70% 45%',
   },
   {
     emoji: '🔢',
     title: 'Schulte Table',
     description: 'Focus training, 1 to 25',
     path: '/schulte-table',
-    color: 'from-sky-400 to-blue-600',
+    hue: '199 90% 55%',
   },
 ];
 
@@ -73,65 +73,55 @@ export function HomePage() {
   const navigate = useNavigate();
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'>
+    <div className='min-h-[100dvh]'>
       {/* Header */}
-      <div className='pt-8 pb-6 px-4 text-center relative'>
+      <div className='relative px-4 pb-8 pt-12 text-center sm:pt-16'>
         {/* GitHub Button */}
         <a
           href='https://github.com/winzipsdo/partyjs'
           target='_blank'
           rel='noopener noreferrer'
-          className='absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors'
+          className='glass absolute right-4 top-4 rounded-full p-2 transition-colors hover:bg-white/10'
           title='View on GitHub'
         >
-          <img src={githubIcon} alt='GitHub' className='w-6 h-6 invert' />
+          <img src={githubIcon} alt='GitHub' className='h-5 w-5 invert opacity-80' />
         </a>
 
-        <div className='flex items-center justify-center gap-3 mb-2'>
-          <img src='/partyjs/partyjs.svg' alt='PartyJS Logo' className={`w-12 h-12 ${styles.animateBounce}`} />
-          <h1 className={`text-3xl sm:text-4xl font-bold font-mono tracking-wide ${styles.glitch}`} data-text='PartyJS'>
-            PartyJS
-          </h1>
+        <div className='mb-3 flex items-center justify-center gap-3'>
+          <img
+            src='/partyjs/partyjs.svg'
+            alt='PartyJS Logo'
+            className={`h-12 w-12 sm:h-14 sm:w-14 ${styles.floatLogo}`}
+          />
+          <h1 className={`font-mono text-4xl font-bold tracking-wide sm:text-5xl ${styles.brand}`}>PartyJS</h1>
         </div>
-        <p className='text-slate-400 text-sm'>Pick a game and have fun!</p>
+        <p className='text-sm tracking-wide text-slate-400'>Pick a game and have fun!</p>
       </div>
 
       {/* Game Grid */}
-      <div className='px-4 pb-8 max-w-2xl mx-auto'>
-        <div className='grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4'>
-          {games.map((game) => (
+      <div className='mx-auto max-w-2xl px-4 pb-10'>
+        <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4'>
+          {games.map((game, i) => (
             <div
               key={game.path}
               onClick={() => navigate({ to: game.path })}
-              className={`
-                relative overflow-hidden rounded-2xl cursor-pointer
-                bg-gradient-to-br ${game.color}
-                transform transition-all duration-200
-                hover:scale-105 hover:shadow-xl hover:shadow-black/30
-                active:scale-95
-                group
-              `}
+              className={styles.card}
+              style={{ '--hue': game.hue, '--delay': `${i * 0.055}s` } as React.CSSProperties}
             >
-              {/* Card content */}
-              <div className='p-4 sm:p-5'>
-                <div className='text-4xl sm:text-5xl mb-2 transform group-hover:scale-110 transition-transform'>
-                  {game.emoji}
-                </div>
-                <h3 className='text-white font-bold text-sm sm:text-base leading-tight'>{game.title}</h3>
-                <p className='text-white/70 text-xs mt-1 leading-tight hidden sm:block'>{game.description}</p>
+              <div className='relative p-4 sm:p-5'>
+                <div className={`mb-2 text-4xl sm:text-5xl ${styles.cardEmoji}`}>{game.emoji}</div>
+                <h3 className='text-sm font-bold leading-tight text-white sm:text-base'>{game.title}</h3>
+                <p className='mt-1 hidden text-xs leading-tight text-slate-400 sm:block'>{game.description}</p>
               </div>
-
-              {/* Decorative elements */}
-              <div className='absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl' />
-              <div className='absolute -right-2 -top-2 w-12 h-12 bg-white/5 rounded-full' />
+              <div className={styles.cardTick} />
             </div>
           ))}
         </div>
       </div>
 
       {/* Footer hint */}
-      <div className='text-center pb-8'>
-        <p className='text-slate-500 text-xs'>More games coming soon...</p>
+      <div className='pb-10 text-center'>
+        <p className='text-xs tracking-wider text-slate-600'>More games coming soon...</p>
       </div>
     </div>
   );

@@ -58,7 +58,15 @@ export function LiarCardPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-gray-100">
+    <div
+      className='aurora flex min-h-screen flex-col items-center justify-center gap-6'
+      style={{ '--ga': '262 85% 66%', '--gb': '322 85% 62%' } as React.CSSProperties}
+    >
+      <div className='text-center'>
+        <div className='mb-2 text-5xl drop-shadow-[0_4px_12px_rgba(167,139,250,0.4)]'>🃏</div>
+        <h1 className='text-2xl font-bold text-white'>Liar Card</h1>
+        <p className='mt-1 text-sm text-slate-400'>Draw a card, bluff your way</p>
+      </div>
       <Button onClick={drawCard} disabled={isAnimating}>
         Draw Liar Card
       </Button>
@@ -77,7 +85,7 @@ export function LiarCardPage() {
             <PlayingCard suit={selectedCard.suit} rank={selectedCard.rank} />
           </div>
         ) : (
-          <div className="w-24 h-36 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-400 text-center">
+          <div className='glass flex h-36 w-24 items-center justify-center rounded-lg border-2 border-dashed !border-white/20 text-center text-slate-500'>
             Waiting
           </div>
         )}
