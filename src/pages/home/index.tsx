@@ -60,6 +60,13 @@ const games: GameCard[] = [
     path: '/othello',
     color: 'from-teal-400 to-emerald-600',
   },
+  {
+    emoji: '🔢',
+    title: 'Schulte Table',
+    description: 'Focus training, 1 to 25',
+    path: '/schulte-table',
+    color: 'from-sky-400 to-blue-600',
+  },
 ];
 
 export function HomePage() {

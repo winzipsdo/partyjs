@@ -1,0 +1,196 @@
+/* ===== 通用格子 ===== */
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+  cursor: pointer;
+  color: #1e293b;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  transition:
+    transform 0.12s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cell:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+  border-color: #cbd5e1;
+}
+.cell:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* 已找到 */
+.found {
+  background: linear-gradient(135deg, #34d399, #10b981);
+  color: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+  cursor: default;
+  animation: pop 0.28s ease;
+}
+.found:hover {
+  transform: none;
+}
+
+/* 点错闪红 */
+.wrong {
+  animation: shake 0.32s ease;
+  background: linear-gradient(135deg, #f87171, #ef4444) !important;
+  color: #fff !important;
+  border-color: #ef4444 !important;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.7);
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+/* ===== 标准方格 ===== */
+.standardGrid {
+  display: grid;
+  gap: clamp(4px, 1.4vw, 10px);
+  width: min(92vw, 460px);
+  margin: 0 auto;
+}
+.standardCell {
+  aspect-ratio: 1 / 1;
+  border-radius: clamp(8px, 2vw, 14px);
+  font-size: clamp(1rem, 5vw, 1.9rem);
+}
+
+/* ===== 蜂窝方格 ===== */
+.honeycomb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(94vw, 480px);
+  margin: 0 auto;
+}
+.hexRow {
+  display: flex;
+  justify-content: center;
+}
+/* 行与行之间纵向交叠（六边形上下咬合） */
+.hexRow + .hexRow {
+  margin-top: calc(var(--hex) * -0.26);
+}
+/* 奇数行水平错位半格 */
+.hexRowOdd {
+  transform: translateX(calc(var(--hex) * 0.55));
+}
+.hexCell {
+  width: var(--hex);
+  height: calc(var(--hex) * 1.1);
+  margin: 0 calc(var(--hex) * 0.03);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  border: none;
+  border-radius: 0;
+  font-size: calc(var(--hex) * 0.34);
+  box-shadow: none;
+}
+.hexCell:hover {
+  transform: scale(1.06);
+  box-shadow: none;
+}
+.hexCell.found {
+  box-shadow: none;
+}
+
+/* ===== 转盘（动态） ===== */
+.dynamicStage {
+  position: relative;
+  margin: 0 auto;
+}
+.ring {
+  position: absolute;
+  inset: 0;
+  transform-origin: center;
+  animation: spin 30s linear infinite;
+  will-change: transform;
+  /* 环容器透明区域不拦截点击，只有圆点本身可点 */
+  pointer-events: none;
+}
+.dot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  font-size: clamp(0.8rem, 3.4vw, 1.4rem);
+  pointer-events: auto;
+}
+/* 数字内层反向旋转以保持正立 */
+.dotInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  animation: spin 30s linear infinite reverse;
+  will-change: transform;
+}
+.dynamicCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #f8fafc, #e2e8f0);
+  border: 1px dashed #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring,
+  .dotInner {
+    animation: none !important;
+  }
+}

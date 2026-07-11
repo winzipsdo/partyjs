@@ -14,6 +14,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ColorMemoryQuestIndexRouteImport } from './routes/color-memory-quest/index'
 
 const IndexLazyRouteImport = createFileRoute('/')()
+const SchulteTableIndexLazyRouteImport = createFileRoute('/schulte-table/')()
 const RussianRouletteIndexLazyRouteImport =
   createFileRoute('/russian-roulette/')()
 const OthelloIndexLazyRouteImport = createFileRoute('/othello/')()
@@ -30,6 +31,13 @@ const IndexLazyRoute = IndexLazyRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+const SchulteTableIndexLazyRoute = SchulteTableIndexLazyRouteImport.update({
+  id: '/schulte-table/',
+  path: '/schulte-table/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/schulte-table/index.lazy').then((d) => d.Route),
+)
 const RussianRouletteIndexLazyRoute =
   RussianRouletteIndexLazyRouteImport.update({
     id: '/russian-roulette/',
@@ -91,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/liar-card/': typeof LiarCardIndexLazyRoute
   '/othello/': typeof OthelloIndexLazyRoute
   '/russian-roulette/': typeof RussianRouletteIndexLazyRoute
+  '/schulte-table/': typeof SchulteTableIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
@@ -102,6 +111,7 @@ export interface FileRoutesByTo {
   '/liar-card': typeof LiarCardIndexLazyRoute
   '/othello': typeof OthelloIndexLazyRoute
   '/russian-roulette': typeof RussianRouletteIndexLazyRoute
+  '/schulte-table': typeof SchulteTableIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -114,6 +124,7 @@ export interface FileRoutesById {
   '/liar-card/': typeof LiarCardIndexLazyRoute
   '/othello/': typeof OthelloIndexLazyRoute
   '/russian-roulette/': typeof RussianRouletteIndexLazyRoute
+  '/schulte-table/': typeof SchulteTableIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/liar-card/'
     | '/othello/'
     | '/russian-roulette/'
+    | '/schulte-table/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
     | '/liar-card'
     | '/othello'
     | '/russian-roulette'
+    | '/schulte-table'
   id:
     | '__root__'
     | '/'
@@ -149,6 +162,7 @@ export interface FileRouteTypes {
     | '/liar-card/'
     | '/othello/'
     | '/russian-roulette/'
+    | '/schulte-table/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -161,6 +175,7 @@ export interface RootRouteChildren {
   LiarCardIndexLazyRoute: typeof LiarCardIndexLazyRoute
   OthelloIndexLazyRoute: typeof OthelloIndexLazyRoute
   RussianRouletteIndexLazyRoute: typeof RussianRouletteIndexLazyRoute
+  SchulteTableIndexLazyRoute: typeof SchulteTableIndexLazyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -170,6 +185,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/schulte-table/': {
+      id: '/schulte-table/'
+      path: '/schulte-table'
+      fullPath: '/schulte-table/'
+      preLoaderRoute: typeof SchulteTableIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/russian-roulette/': {
@@ -241,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   LiarCardIndexLazyRoute: LiarCardIndexLazyRoute,
   OthelloIndexLazyRoute: OthelloIndexLazyRoute,
   RussianRouletteIndexLazyRoute: RussianRouletteIndexLazyRoute,
+  SchulteTableIndexLazyRoute: SchulteTableIndexLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
