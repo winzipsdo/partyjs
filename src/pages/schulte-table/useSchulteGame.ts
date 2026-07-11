@@ -24,11 +24,14 @@ export interface SchulteGame {
 }
 
 // 标准舒尔特规则：开始前数字不可见，按下开始的瞬间揭示盘面并起表。
-// 这样寻找「1」的耗时同样被计入，玩家无法先扫盘记位再起跑。
-export function useSchulteGame(count: number, resetKey: string): SchulteGame {
+// 这样寻找首个目标的耗时同样被计入，玩家无法先扫盘记位再起跑。
+// descending = true 为倒式舒尔特：从 count 倒数到 1。
+export function useSchulteGame(count: number, resetKey: string, descending = false): SchulteGame {
+  const firstTarget = descending ? count : 1;
+  const lastTarget = descending ? 1 : count;
   const [cells, setCells] = useState<number[]>(() => shuffle(range(count)));
   const [status, setStatus] = useState<GameStatus>('idle');
-  const [nextTarget, setNextTarget] = useState(1);
+  const [nextTarget, setNextTarget] = useState(firstTarget);
   const [records, setRecords] = useState<FindRecord[]>([]);
   const [errors, setErrors] = useState(0);
   const [wrong, setWrong] = useState<number | null>(null);
@@ -41,14 +44,14 @@ export function useSchulteGame(count: number, resetKey: string): SchulteGame {
   const reset = useCallback(() => {
     setCells(shuffle(range(count)));
     setStatus('idle');
-    setNextTarget(1);
+    setNextTarget(firstTarget);
     setRecords([]);
     setErrors(0);
     setWrong(null);
     setTotalMs(0);
     setStartTime(null);
     lastRef.current = 0;
-  }, [count]);
+  }, [count, firstTarget]);
 
   // 数量或模式变化时重置（resetKey 编码了 mode 与 size）
   useEffect(() => {
@@ -80,26 +83,27 @@ export function useSchulteGame(count: number, resetKey: string): SchulteGame {
       if (status !== 'playing') return;
       const now = performance.now();
 
+      const found = descending ? n > nextTarget : n < nextTarget;
       if (n === nextTarget) {
         setRecords((r) => [...r, { number: n, splitMs: now - lastRef.current }]);
         lastRef.current = now;
-        if (n === count) {
+        if (n === lastTarget) {
           setTotalMs(now - (startTime ?? now));
-          setNextTarget(count + 1); // 全部找到
+          setNextTarget(descending ? 0 : count + 1); // 全部找到
           setStatus('finished');
         } else {
-          setNextTarget(n + 1);
+          setNextTarget(descending ? n - 1 : n + 1);
         }
-      } else if (n > nextTarget) {
-        // 点错（点小于 nextTarget 的已找到数字则忽略）
+      } else if (!found) {
+        // 点错（点已找到的数字则忽略）
         flashWrong(n);
         setErrors((e) => e + 1);
       }
     },
-    [status, nextTarget, count, startTime, flashWrong],
+    [status, nextTarget, lastTarget, count, descending, startTime, flashWrong],
   );
 
-  const isFound = useCallback((n: number) => n < nextTarget, [nextTarget]);
+  const isFound = useCallback((n: number) => (descending ? n > nextTarget : n < nextTarget), [nextTarget, descending]);
 
   return {
     cells,

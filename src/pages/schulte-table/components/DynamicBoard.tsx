@@ -8,9 +8,12 @@ interface Props {
   game: SchulteGame;
 }
 
-// 转盘：数字分布在同心圆环上，各环缓慢反向旋转，数字反向自转保持正立
+// 转盘：数字分布在同心圆环上，各环缓慢反向旋转。
+// 旋转由 rAF 驱动：环转 +θ、数字内层转 -θ 在同一帧写入，
+// 严格同相抵消 —— 数字始终保持水平正立（CSS 双动画会漂相位）。
 export function DynamicBoard({ game }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const [container, setContainer] = useState(360);
 
   useEffect(() => {
@@ -29,22 +32,39 @@ export function DynamicBoard({ game }: Props) {
   const { cell, rings } = layout;
   const c = container / 2;
 
+  // rAF 旋转驱动
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const ringEls = Array.from(stage.querySelectorAll<HTMLElement>('[data-ring]'));
+    const speeds = ringEls.map((el) => Number(el.dataset.speed)); // 度/秒，带符号
+    const spinEls = ringEls.map((el) => Array.from(el.querySelectorAll<HTMLElement>('[data-spin]')));
+
+    let raf = 0;
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const t = (now - t0) / 1000;
+      for (let i = 0; i < ringEls.length; i++) {
+        const a = speeds[i] * t;
+        ringEls[i].style.transform = `rotate(${a}deg)`;
+        for (const s of spinEls[i]) s.style.transform = `rotate(${-a}deg)`;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [layout]);
+
   return (
     <div ref={wrapRef} className='flex w-full max-w-full justify-center overflow-hidden'>
-      <div className={styles.dynamicStage} style={{ width: container, height: container }}>
-        <div
-          className={styles.dynamicCenter}
-          style={{ width: cell * 0.9, height: cell * 0.9, fontSize: cell * 0.32 }}
-        >
-          {game.status === 'finished' ? '✓' : game.status === 'idle' ? '?' : game.nextTarget}
-        </div>
-
+      <div ref={stageRef} className={styles.dynamicStage} style={{ width: container, height: container }}>
         {rings.map((ring, ri) => {
           const duration = 22 + ri * 7; // 外圈更慢
-          const direction = ri % 2 === 0 ? 'normal' : 'reverse';
-          const counterDirection = ri % 2 === 0 ? 'reverse' : 'normal';
+          const speed = (360 / duration) * (ri % 2 === 0 ? 1 : -1); // 相邻环反向
           return (
-            <div key={ri} className={styles.ring} style={{ animationDuration: `${duration}s`, animationDirection: direction }}>
+            <div key={ri} className={styles.ring} data-ring data-speed={speed}>
               {Array.from({ length: ring.cap }).map((_, i) => {
                 const n = game.cells[ring.start + i];
                 if (n === undefined) return null;
@@ -60,10 +80,7 @@ export function DynamicBoard({ game }: Props) {
                     className={styles.dot}
                     style={{ left: x, top: y, width: cell, height: cell }}
                   >
-                    <span
-                      className={styles.dotSpin}
-                      style={{ animationDuration: `${duration}s`, animationDirection: counterDirection }}
-                    >
+                    <span className={styles.dotSpin} data-spin>
                       <span
                         className={cn(styles.dotFace, found && styles.found, game.wrong === n && styles.wrong)}
                         style={{ fontSize: cell * 0.4 }}

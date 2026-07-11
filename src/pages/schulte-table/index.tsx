@@ -3,7 +3,7 @@ import { useLocalStorageState } from 'ahooks';
 import { createStorageKey } from '@/constants/storage';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Contrast, RotateCcw, Target } from 'lucide-react';
+import { ArrowDownUp, Contrast, RotateCcw, Target } from 'lucide-react';
 import { useSchulteGame } from './useSchulteGame';
 import { GameMode, MODE_META, SIZE_OPTIONS, formatSeconds } from './utils';
 import { StandardBoard } from './components/StandardBoard';
@@ -30,13 +30,18 @@ export function SchulteTablePage() {
     createStorageKey('schulte-high-contrast'),
     { defaultValue: false },
   );
+  const [descending, setDescending] = useLocalStorageState<boolean>(
+    createStorageKey('schulte-descending'),
+    { defaultValue: false },
+  );
 
   const activeMode = mode ?? 'standard';
   const activeSize = size ?? 5;
+  const isDesc = !!descending;
   const count = activeSize * activeSize;
-  const bestKey = `${activeMode}-${activeSize}`;
+  const bestKey = `${activeMode}-${activeSize}${isDesc ? '-desc' : ''}`;
 
-  const game = useSchulteGame(count, bestKey);
+  const game = useSchulteGame(count, bestKey, isDesc);
 
   const [statsOpen, setStatsOpen] = useState(false);
   const [isNewBest, setIsNewBest] = useState(false);
@@ -102,7 +107,7 @@ export function SchulteTablePage() {
         {/* 标题 */}
         <div className='shrink-0 text-center'>
           <h1 className='text-lg font-bold text-white sm:text-2xl'>🔢 舒尔特方格</h1>
-          <p className='hidden text-sm text-slate-500 sm:block'>按顺序从 1 找到 {count}，训练你的专注力</p>
+          <p className='hidden text-sm text-slate-500 sm:block'>{isDesc ? `倒式：从 ${count} 数回 1` : `按顺序从 1 找到 ${count}`}，训练你的专注力</p>
         </div>
 
         {/* 配置区 */}
@@ -152,6 +157,20 @@ export function SchulteTablePage() {
               );
             })}
             <span className='mx-0.5 h-5 w-px bg-white/10' />
+            <button
+              onClick={() => setDescending(!isDesc)}
+              title={isDesc ? '倒式（点击切回正序）' : '正序（点击切换倒式）'}
+              aria-pressed={isDesc}
+              className={cn(
+                'flex h-8 items-center gap-1 rounded-lg px-2 text-[11px] font-bold tabular-nums transition-all sm:h-9',
+                isDesc
+                  ? 'bg-violet-500/25 text-violet-200 shadow-[0_0_14px_-2px_rgba(167,139,250,0.6)] border border-violet-400/50'
+                  : 'glass text-slate-400 hover:text-slate-200',
+              )}
+            >
+              <ArrowDownUp className='h-3.5 w-3.5' />
+              {isDesc ? `${count}→1` : `1→${count}`}
+            </button>
             <button
               onClick={() => setHighContrast(!highContrast)}
               title='高对比度'
@@ -209,7 +228,7 @@ export function SchulteTablePage() {
               >
                 ▶ 开始挑战
               </button>
-              <p className='px-6 text-center text-xs text-slate-400'>点击后立即计时，按顺序找到 1 ~ {count}</p>
+              <p className='px-6 text-center text-xs text-slate-400'>点击后立即计时，按顺序找到 {isDesc ? `${count} → 1` : `1 → ${count}`}</p>
             </div>
           )}
         </div>
