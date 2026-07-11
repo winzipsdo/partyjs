@@ -38,6 +38,26 @@ export function SchulteTablePage() {
 
   const bestMs = bestTimes?.[bestKey];
 
+  // 锁定页面滚动：移动端上下滑动手势会把 tap 判成 scroll 导致点击丢失。
+  // 挂载期间禁掉 html/body 滚动与橡皮筋回弹，离开页面时恢复。
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prev = {
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+      overscroll: body.style.overscrollBehavior,
+    };
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    body.style.overscrollBehavior = 'none';
+    return () => {
+      html.style.overflow = prev.htmlOverflow;
+      body.style.overflow = prev.bodyOverflow;
+      body.style.overscrollBehavior = prev.overscroll;
+    };
+  }, []);
+
   // 完成时：记录最佳成绩、弹出统计
   useEffect(() => {
     if (game.status === 'finished') {
@@ -69,7 +89,10 @@ export function SchulteTablePage() {
   };
 
   return (
-    <div className='aurora flex min-h-[calc(100dvh-54px)] flex-col' style={{ '--ga': '199 90% 55%', '--gb': '258 90% 66%' } as React.CSSProperties}>
+    <div
+      className='aurora flex h-[calc(100dvh-54px)] touch-none select-none flex-col overflow-hidden'
+      style={{ '--ga': '199 90% 55%', '--gb': '258 90% 66%' } as React.CSSProperties}
+    >
       <div className='mx-auto flex w-full max-w-2xl flex-1 flex-col px-3 pb-2 pt-2 sm:px-4 sm:pt-4'>
         {/* 标题 */}
         <div className='shrink-0 text-center'>
