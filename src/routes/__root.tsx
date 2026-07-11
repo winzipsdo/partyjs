@@ -23,6 +23,7 @@ const gameRoutes = [
   { label: '🎨 Color Memory Quest', path: '/color-memory-quest' },
   { label: '⚫ Gomoku', path: '/gomoku' },
   { label: '⚪ Othello', path: '/othello' },
+  { label: '🔢 Schulte Table', path: '/schulte-table' },
 ];
 
 function RootComponent() {
