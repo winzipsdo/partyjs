@@ -45,7 +45,7 @@ export function StatsDialog({ open, onOpenChange, records, totalMs, errors, coun
                 <Trophy className='w-5 h-5 text-amber-500' />
                 完成！
               </DialogTitle>
-              <DialogDescription>每个数字的查找用时（含找到 1 的耗时，越长的条代表停顿越久）</DialogDescription>
+              <DialogDescription>每个数字的查找用时（虚线为平均值，橙色为最慢的一格）</DialogDescription>
             </DialogHeader>
 
             {/* 评级 */}
@@ -82,32 +82,8 @@ export function StatsDialog({ open, onOpenChange, records, totalMs, errors, coun
               <div className='text-center text-xs text-muted-foreground'>历史最佳：{formatSeconds(bestMs)}</div>
             ) : null}
 
-            {/* 逐格明细 */}
-            <div className='max-h-44 overflow-y-auto pr-1 -mr-1 space-y-1'>
-              {splits.map((r) => {
-                const pct = (r.splitMs / maxSplit) * 100;
-                const isSlow = slowest != null && r.number === slowest.number;
-                return (
-                  <div key={r.number} className='flex items-center gap-2 text-sm'>
-                    <span className='w-7 shrink-0 text-right font-mono text-slate-500'>{r.number}</span>
-                    <div className='flex-1 h-4 bg-white/[0.07] rounded-full overflow-hidden'>
-                      <div
-                        className='h-full rounded-full transition-all'
-                        style={{
-                          width: `${pct}%`,
-                          background: isSlow
-                            ? 'linear-gradient(90deg,#fb923c,#ef4444)'
-                            : 'linear-gradient(90deg,#34d399,#10b981)',
-                        }}
-                      />
-                    </div>
-                    <span className='w-14 shrink-0 text-right font-mono tabular-nums text-slate-300'>
-                      {formatSplit(r.splitMs)}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            {/* 逐格明细：柱形图 + 平均线，一屏看全 */}
+            <SplitsChart splits={splits} maxSplit={maxSplit} avg={avg} slowest={slowest} />
 
             <Button onClick={onReplay} className='w-full'>
               <RotateCcw className='w-4 h-4' />
@@ -117,6 +93,83 @@ export function StatsDialog({ open, onOpenChange, records, totalMs, errors, coun
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+// 逐格用时柱形图：按点击顺序排列，虚线为平均值，最慢一格橙色高亮并直接标注数值
+function SplitsChart({
+  splits,
+  maxSplit,
+  avg,
+  slowest,
+}: {
+  splits: FindRecord[];
+  maxSplit: number;
+  avg: number;
+  slowest: FindRecord | null;
+}) {
+  const W = 344;
+  const H = 150;
+  const padTop = 18; // 给最慢柱的数值标签留空间
+  const padBottom = 16; // x 轴数字刻度
+  const plotH = H - padTop - padBottom;
+  const n = splits.length;
+  if (n === 0) return null;
+
+  const pitch = W / n;
+  const barW = Math.max(2, pitch - 2); // 柱间保留 2px 表面间隙
+  const yOf = (v: number) => padTop + plotH * (1 - v / maxSplit);
+  const avgY = yOf(avg);
+  // x 轴刻度：首、尾 + 均匀取样，标注该位置的数字（倒式时顺序自然反向）
+  const tickStep = Math.max(1, Math.ceil(n / 6));
+  const slowestIdx = slowest ? splits.findIndex((r) => r.number === slowest.number) : -1;
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className='w-full select-none' role='img' aria-label='每个数字的查找用时柱形图'>
+      {/* 基线 */}
+      <line x1={0} x2={W} y1={padTop + plotH} y2={padTop + plotH} stroke='rgba(255,255,255,0.12)' strokeWidth={1} />
+
+      {splits.map((r, i) => {
+        const isSlow = i === slowestIdx;
+        const barH = Math.max(1.5, plotH * (r.splitMs / maxSplit));
+        const x = i * pitch + (pitch - barW) / 2;
+        const y = padTop + plotH - barH;
+        return (
+          <g key={r.number}>
+            <rect x={x} y={y} width={barW} height={barH} rx={Math.min(2, barW / 2)} fill={isSlow ? '#fb923c' : '#34d399'} />
+            {/* 命中区大于柱本身，桌面端悬停可读具体数值 */}
+            <rect x={i * pitch} y={padTop} width={pitch} height={plotH} fill='transparent'>
+              <title>
+                {r.number}：{formatSplit(r.splitMs)}
+              </title>
+            </rect>
+            {isSlow && (
+              <text
+                x={Math.min(W - 30, Math.max(30, x + barW / 2))}
+                y={y - 5}
+                textAnchor='middle'
+                fontSize={10}
+                fill='#e2e8f0'
+                fontWeight={600}
+              >
+                {r.number}·{formatSplit(r.splitMs)}
+              </text>
+            )}
+            {(i % tickStep === 0 || i === n - 1) && (
+              <text x={x + barW / 2} y={H - 4} textAnchor='middle' fontSize={9} fill='#64748b'>
+                {r.number}
+              </text>
+            )}
+          </g>
+        );
+      })}
+
+      {/* 平均线（虚线）+ 标签 */}
+      <line x1={0} x2={W} y1={avgY} y2={avgY} stroke='#94a3b8' strokeWidth={1} strokeDasharray='4 3' />
+      <text x={W - 2} y={avgY - 4} textAnchor='end' fontSize={10} fill='#94a3b8'>
+        平均 {formatSplit(avg)}
+      </text>
+    </svg>
   );
 }
 
