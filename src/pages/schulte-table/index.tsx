@@ -3,7 +3,7 @@ import { useLocalStorageState } from 'ahooks';
 import { createStorageKey } from '@/constants/storage';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { RotateCcw, Target } from 'lucide-react';
+import { Contrast, RotateCcw, Target } from 'lucide-react';
 import { useSchulteGame } from './useSchulteGame';
 import { GameMode, MODE_META, SIZE_OPTIONS, formatSeconds } from './utils';
 import { StandardBoard } from './components/StandardBoard';
@@ -11,6 +11,7 @@ import { HoneycombBoard } from './components/HoneycombBoard';
 import { DynamicBoard } from './components/DynamicBoard';
 import { TimerDisplay } from './components/TimerDisplay';
 import { StatsDialog } from './components/StatsDialog';
+import styles from './styles.module.css';
 
 const MODES: GameMode[] = ['standard', 'honeycomb', 'dynamic'];
 
@@ -24,6 +25,10 @@ export function SchulteTablePage() {
   const [bestTimes, setBestTimes] = useLocalStorageState<Record<string, number>>(
     createStorageKey('schulte-best-v2'),
     { defaultValue: {} },
+  );
+  const [highContrast, setHighContrast] = useLocalStorageState<boolean>(
+    createStorageKey('schulte-high-contrast'),
+    { defaultValue: false },
   );
 
   const activeMode = mode ?? 'standard';
@@ -146,6 +151,20 @@ export function SchulteTablePage() {
                 </button>
               );
             })}
+            <span className='mx-0.5 h-5 w-px bg-white/10' />
+            <button
+              onClick={() => setHighContrast(!highContrast)}
+              title='高对比度'
+              aria-pressed={!!highContrast}
+              className={cn(
+                'flex h-8 w-9 items-center justify-center rounded-lg transition-all sm:h-9',
+                highContrast
+                  ? 'bg-slate-100 text-slate-900 shadow-[0_0_14px_-2px_rgba(241,245,249,0.6)]'
+                  : 'glass text-slate-400 hover:text-slate-200',
+              )}
+            >
+              <Contrast className='h-4 w-4' />
+            </button>
           </div>
         </div>
 
@@ -177,6 +196,7 @@ export function SchulteTablePage() {
             className={cn(
               'w-full transition-opacity duration-300',
               game.status === 'idle' && 'pointer-events-none opacity-45',
+              highContrast && styles.hc,
             )}
           >
             {board}

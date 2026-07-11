@@ -247,6 +247,35 @@
   }
 }
 
+
+/* ===== 高对比度模式 =====
+   亮底深字，弱视环境/强光下更易读。
+   注意：必须排除 .found/.wrong，两级选择器会压过单类状态色 */
+.hc .cell:not(.found):not(.wrong) {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+.hc .cell:not(.found):not(.wrong):hover {
+  background: #ffffff;
+  border-color: #38bdf8;
+}
+.hc .dotFace:not(.found):not(.wrong) {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+.hc .dot:hover .dotFace:not(.found):not(.wrong) {
+  background: #ffffff;
+  border-color: #38bdf8;
+}
+.hc .dynamicCenter {
+  background: radial-gradient(circle at 50% 40%, #f8fafc, #e2e8f0);
+  border-color: #94a3b8;
+  color: #0369a1;
+  text-shadow: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ring,
   .dotInner {
