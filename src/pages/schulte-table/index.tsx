@@ -69,16 +69,16 @@ export function SchulteTablePage() {
   };
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-slate-50 to-slate-200'>
-      <div className='max-w-2xl mx-auto px-4 py-4 sm:py-6'>
+    <div className='flex min-h-[calc(100dvh-54px)] flex-col bg-gradient-to-b from-slate-50 to-slate-200'>
+      <div className='mx-auto flex w-full max-w-2xl flex-1 flex-col px-3 pb-2 pt-2 sm:px-4 sm:pt-4'>
         {/* 标题 */}
-        <div className='text-center mb-4'>
-          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800'>🔢 舒尔特方格</h1>
-          <p className='text-slate-500 text-sm mt-1'>按顺序从 1 找到 {count}，训练你的专注力</p>
+        <div className='shrink-0 text-center'>
+          <h1 className='text-lg font-bold text-slate-800 sm:text-2xl'>🔢 舒尔特方格</h1>
+          <p className='hidden text-sm text-slate-500 sm:block'>按顺序从 1 找到 {count}，训练你的专注力</p>
         </div>
 
         {/* 配置区 */}
-        <div className='flex flex-col gap-3 mb-4'>
+        <div className='mt-2 flex shrink-0 flex-col gap-2 sm:mt-3 sm:gap-3'>
           {/* 模式 */}
           <div className='flex justify-center gap-2'>
             {MODES.map((m) => {
@@ -104,8 +104,8 @@ export function SchulteTablePage() {
           </div>
 
           {/* 尺寸 */}
-          <div className='flex justify-center items-center gap-1.5'>
-            <span className='text-xs text-slate-400 mr-1'>难度</span>
+          <div className='flex items-center justify-center gap-1.5'>
+            <span className='mr-1 text-xs text-slate-400'>难度</span>
             {SIZE_OPTIONS.map((s) => {
               const active = s === activeSize;
               return (
@@ -113,10 +113,10 @@ export function SchulteTablePage() {
                   key={s}
                   onClick={() => setSize(s)}
                   className={cn(
-                    'w-9 h-9 rounded-lg text-sm font-semibold transition-all',
+                    'h-8 w-9 rounded-lg text-xs font-semibold transition-all sm:h-9 sm:text-sm',
                     active
                       ? 'bg-emerald-500 text-white shadow'
-                      : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300',
+                      : 'border border-slate-200 bg-white text-slate-500 hover:border-slate-300',
                   )}
                 >
                   {s}×{s}
@@ -127,35 +127,36 @@ export function SchulteTablePage() {
         </div>
 
         {/* 状态栏：计时器 + 目标 + 重置 */}
-        <div className='flex items-center justify-between gap-3 mb-4 px-1'>
-          <div className='flex-1'>
+        <div className='mt-2 flex shrink-0 items-center justify-between gap-3 px-1 sm:mt-3'>
+          <div className='min-w-0'>
             <TimerDisplay status={game.status} startTime={game.startTime} totalMs={game.totalMs} count={count} />
-            {bestMs != null && (
-              <div className='text-xs text-slate-400 mt-1'>最佳 {formatSeconds(bestMs)}</div>
-            )}
+            {bestMs != null && <div className='text-xs text-slate-400'>最佳 {formatSeconds(bestMs)}</div>}
           </div>
 
-          <div className='flex flex-col items-end gap-2'>
-            <div className='flex items-center gap-1.5 rounded-full bg-white border border-slate-200 px-3 py-1.5 shadow-sm'>
-              <Target className='w-4 h-4 text-slate-400' />
-              <span className='text-xs text-slate-500'>下一个</span>
-              <span className='text-lg font-bold tabular-nums text-slate-800 min-w-[1.5rem] text-center'>
+          <div className='flex items-center gap-2'>
+            <div className='flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm'>
+              <Target className='h-4 w-4 text-slate-400' />
+              <span className='hidden text-xs text-slate-500 sm:inline'>下一个</span>
+              <span className='min-w-[1.5rem] text-center text-lg font-bold tabular-nums text-slate-800'>
                 {game.status === 'finished' ? '✓' : game.nextTarget}
               </span>
             </div>
             <Button variant='outline' size='sm' onClick={game.reset}>
-              <RotateCcw className='w-4 h-4' />
-              重置
+              <RotateCcw className='h-4 w-4' />
+              <span className='hidden sm:inline'>重置</span>
             </Button>
           </div>
         </div>
 
-        {/* 棋盘 */}
-        <div className='py-2'>{board}</div>
-
-        {game.status === 'idle' && (
-          <p className='text-center text-slate-400 text-sm mt-4 animate-pulse'>点击数字「1」开始计时</p>
-        )}
+        {/* 棋盘：占据剩余空间并居中 */}
+        <div className='relative flex min-h-0 flex-1 items-center justify-center py-2'>
+          {board}
+          {game.status === 'idle' && (
+            <p className='pointer-events-none absolute bottom-1 left-0 right-0 animate-pulse text-center text-xs text-slate-400'>
+              点击数字「1」开始计时
+            </p>
+          )}
+        </div>
       </div>
 
       <StatsDialog

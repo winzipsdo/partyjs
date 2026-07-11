@@ -34,7 +34,7 @@ export function TimerDisplay({ status, startTime, totalMs, count }: Props) {
   return (
     <div
       className='font-mono font-extrabold tabular-nums leading-none transition-colors'
-      style={{ color, fontSize: 'clamp(2.5rem, 12vw, 4rem)', textShadow: `0 2px 18px ${color}55` }}
+      style={{ color, fontSize: 'clamp(1.75rem, 9vw, 3.5rem)', textShadow: `0 2px 18px ${color}55` }}
     >
       {formatSeconds(shown)}
     </div>

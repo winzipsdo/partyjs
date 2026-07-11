@@ -14,8 +14,10 @@ export function HoneycombBoard({ game, size }: Props) {
     rows.push(game.cells.slice(r * size, r * size + size));
   }
 
-  // 六边形边长随 size 自适应
-  const hex = `clamp(38px, ${Math.min(80, Math.floor(420 / (size + 0.5)))}px, ${Math.floor(560 / (size + 0.5))}px)`;
+  // 六边形边长同时受可用宽度(vw)与视口高度(dvh)约束，移动端不横向溢出、一屏放得下
+  const wDiv = (1.06 * size + 0.55).toFixed(2); // 整体宽度 ≈ hex * wDiv
+  const hDiv = (0.924 * size + 0.18).toFixed(2); // 整体高度 ≈ hex * hDiv
+  const hex = `min(90vw / ${wDiv}, 54dvh / ${hDiv}, 84px)`;
 
   return (
     <div className={styles.honeycomb} style={{ ['--hex' as string]: hex }}>

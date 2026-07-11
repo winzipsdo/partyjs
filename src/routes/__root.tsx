@@ -13,6 +13,7 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { useState, useRef, useEffect } from 'react';
 import GithubIcon from '@/assets/github.svg';
 import { Home, Search } from 'lucide-react';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const gameRoutes = [
   { label: '🏠 Home', path: '/home' },
@@ -121,7 +122,9 @@ function RootComponent() {
         </Command>
       </CommandDialog>
 
-      <Outlet />
+      <ErrorBoundary>
+        <Outlet />
+      </ErrorBoundary>
       {import.meta.env.DEV && <TanStackRouterDevtools />}
     </>
   );

@@ -15,8 +15,10 @@ export function DynamicBoard({ game }: Props) {
 
   useEffect(() => {
     const measure = () => {
-      const w = wrapRef.current?.clientWidth ?? 360;
-      setContainer(Math.max(240, Math.min(w, 460)));
+      const w = (wrapRef.current?.clientWidth ?? 360) - 12; // 留一点安全边距，避免圆点溢出
+      // 同时受可用宽度与视口高度约束，保证移动端一屏放得下
+      const hCap = window.innerHeight * 0.54;
+      setContainer(Math.max(220, Math.min(w, 460, hCap)));
     };
     measure();
     window.addEventListener('resize', measure);
@@ -28,7 +30,7 @@ export function DynamicBoard({ game }: Props) {
   const c = container / 2;
 
   return (
-    <div ref={wrapRef} className='w-full flex justify-center'>
+    <div ref={wrapRef} className='flex w-full max-w-full justify-center overflow-hidden'>
       <div className={styles.dynamicStage} style={{ width: container, height: container }}>
         <div
           className={styles.dynamicCenter}
@@ -55,14 +57,19 @@ export function DynamicBoard({ game }: Props) {
                     key={n}
                     onClick={() => game.clickCell(n)}
                     disabled={found}
-                    className={cn(styles.cell, styles.dot, found && styles.found, game.wrong === n && styles.wrong)}
+                    className={styles.dot}
                     style={{ left: x, top: y, width: cell, height: cell }}
                   >
                     <span
-                      className={styles.dotInner}
+                      className={styles.dotSpin}
                       style={{ animationDuration: `${duration}s`, animationDirection: counterDirection }}
                     >
-                      {n}
+                      <span
+                        className={cn(styles.dotFace, found && styles.found, game.wrong === n && styles.wrong)}
+                        style={{ fontSize: cell * 0.4 }}
+                      >
+                        {n}
+                      </span>
                     </span>
                   </button>
                 );
