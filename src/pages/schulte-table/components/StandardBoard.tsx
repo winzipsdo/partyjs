@@ -19,7 +19,7 @@ export function StandardBoard({ game, size }: Props) {
             disabled={found}
             className={cn(styles.cell, styles.standardCell, found && styles.found, game.wrong === n && styles.wrong)}
           >
-            {n}
+            {game.status === 'idle' ? '' : n}
           </button>
         );
       })}

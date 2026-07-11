@@ -16,8 +16,8 @@ interface Props {
 }
 
 export function StatsDialog({ open, onOpenChange, records, totalMs, errors, bestMs, isNewBest, onReplay }: Props) {
-  // 逐个数字用时（跳过 1，因为它是起点，用时为 0）
-  const splits = records.filter((r) => r.number > 1);
+  // 逐个数字用时（含 1：从开始揭示盘面到找到 1 的耗时）
+  const splits = records;
   const maxSplit = Math.max(1, ...splits.map((r) => r.splitMs));
   const avg = splits.length ? splits.reduce((s, r) => s + r.splitMs, 0) / splits.length : 0;
   const slowest = splits.reduce<FindRecord | null>((acc, r) => (!acc || r.splitMs > acc.splitMs ? r : acc), null);
@@ -30,7 +30,7 @@ export function StatsDialog({ open, onOpenChange, records, totalMs, errors, best
             <Trophy className='w-5 h-5 text-amber-500' />
             完成！
           </DialogTitle>
-          <DialogDescription>每个数字的查找用时（越长的条代表停顿越久）</DialogDescription>
+          <DialogDescription>每个数字的查找用时（含找到 1 的耗时，越长的条代表停顿越久）</DialogDescription>
         </DialogHeader>
 
         {/* 概览 */}

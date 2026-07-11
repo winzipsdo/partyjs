@@ -5,23 +5,26 @@ export type GameStatus = 'idle' | 'playing' | 'finished';
 
 export interface FindRecord {
   number: number;
-  splitMs: number; // 距离上一个数字被找到的用时
+  splitMs: number; // 距离上一个数字被找到的用时（1 号是从开始到点中的用时）
 }
 
 export interface SchulteGame {
   cells: number[]; // 打乱后的数字序列（视觉位置由各棋盘自行映射）
   status: GameStatus;
-  nextTarget: number; // 当前需要点击的数字（idle 时为 1）
+  nextTarget: number; // 当前需要点击的数字
   records: FindRecord[];
   errors: number;
   wrong: number | null; // 正在闪红的错误数字
   totalMs: number; // 完成后的总用时
   isFound: (n: number) => boolean;
+  start: () => void; // 揭示盘面并立即开始计时
   clickCell: (n: number) => void;
   reset: () => void;
   startTime: number | null; // performance.now() 起点，供计时器组件使用
 }
 
+// 标准舒尔特规则：开始前数字不可见，按下开始的瞬间揭示盘面并起表。
+// 这样寻找「1」的耗时同样被计入，玩家无法先扫盘记位再起跑。
 export function useSchulteGame(count: number, resetKey: string): SchulteGame {
   const [cells, setCells] = useState<number[]>(() => shuffle(range(count)));
   const [status, setStatus] = useState<GameStatus>('idle');
@@ -63,26 +66,20 @@ export function useSchulteGame(count: number, resetKey: string): SchulteGame {
     wrongTimer.current = setTimeout(() => setWrong(null), 320);
   }, []);
 
+  const start = useCallback(() => {
+    if (status !== 'idle') return;
+    const now = performance.now();
+    setStartTime(now);
+    lastRef.current = now;
+    setStatus('playing');
+  }, [status]);
+
   const clickCell = useCallback(
     (n: number) => {
-      if (status === 'finished') return;
+      // 未开始时盘面不可见，点击无效
+      if (status !== 'playing') return;
       const now = performance.now();
 
-      if (status === 'idle') {
-        if (n !== 1) {
-          flashWrong(n);
-          return;
-        }
-        // 点击 1 开始计时
-        setStartTime(now);
-        lastRef.current = now;
-        setRecords([{ number: 1, splitMs: 0 }]);
-        setNextTarget(2);
-        setStatus('playing');
-        return;
-      }
-
-      // playing
       if (n === nextTarget) {
         setRecords((r) => [...r, { number: n, splitMs: now - lastRef.current }]);
         lastRef.current = now;
@@ -113,6 +110,7 @@ export function useSchulteGame(count: number, resetKey: string): SchulteGame {
     wrong,
     totalMs,
     isFound,
+    start,
     clickCell,
     reset,
     startTime,

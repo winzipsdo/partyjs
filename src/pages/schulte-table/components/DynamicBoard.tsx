@@ -36,7 +36,7 @@ export function DynamicBoard({ game }: Props) {
           className={styles.dynamicCenter}
           style={{ width: cell * 0.9, height: cell * 0.9, fontSize: cell * 0.32 }}
         >
-          {game.status === 'finished' ? '✓' : game.nextTarget <= game.cells.length ? game.nextTarget : ''}
+          {game.status === 'finished' ? '✓' : game.status === 'idle' ? '?' : game.nextTarget}
         </div>
 
         {rings.map((ring, ri) => {
@@ -68,7 +68,7 @@ export function DynamicBoard({ game }: Props) {
                         className={cn(styles.dotFace, found && styles.found, game.wrong === n && styles.wrong)}
                         style={{ fontSize: cell * 0.4 }}
                       >
-                        {n}
+                        {game.status === 'idle' ? '' : n}
                       </span>
                     </span>
                   </button>

@@ -22,7 +22,7 @@ export function SchulteTablePage() {
     defaultValue: 5,
   });
   const [bestTimes, setBestTimes] = useLocalStorageState<Record<string, number>>(
-    createStorageKey('schulte-best'),
+    createStorageKey('schulte-best-v2'),
     { defaultValue: {} },
   );
 
@@ -148,13 +148,26 @@ export function SchulteTablePage() {
           </div>
         </div>
 
-        {/* 棋盘：占据剩余空间并居中 */}
+        {/* 棋盘：占据剩余空间并居中；开始前数字不可见（标准舒尔特规则） */}
         <div className='relative flex min-h-0 flex-1 items-center justify-center py-2'>
-          {board}
+          <div
+            className={cn(
+              'w-full transition-opacity duration-300',
+              game.status === 'idle' && 'pointer-events-none opacity-45',
+            )}
+          >
+            {board}
+          </div>
           {game.status === 'idle' && (
-            <p className='pointer-events-none absolute bottom-1 left-0 right-0 animate-pulse text-center text-xs text-slate-400'>
-              点击数字「1」开始计时
-            </p>
+            <div className='absolute inset-0 z-10 flex flex-col items-center justify-center gap-3'>
+              <button
+                onClick={game.start}
+                className='glass rounded-2xl px-8 py-4 text-lg font-bold text-white shadow-[0_0_28px_-6px_rgba(56,189,248,0.55)] transition-all hover:scale-105 hover:bg-white/10 active:scale-95'
+              >
+                ▶ 开始挑战
+              </button>
+              <p className='px-6 text-center text-xs text-slate-400'>点击后立即计时，按顺序找到 1 ~ {count}</p>
+            </div>
           )}
         </div>
       </div>
