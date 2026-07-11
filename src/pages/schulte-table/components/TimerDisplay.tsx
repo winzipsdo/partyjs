@@ -7,10 +7,11 @@ interface Props {
   startTime: number | null;
   totalMs: number;
   count: number;
+  factor?: number; // 盘面难度系数，放宽变色预算
 }
 
 // 独立计时器：自带 rAF，避免每帧重渲染整个棋盘
-export function TimerDisplay({ status, startTime, totalMs, count }: Props) {
+export function TimerDisplay({ status, startTime, totalMs, count, factor = 1 }: Props) {
   const [elapsed, setElapsed] = useState(0);
   const rafRef = useRef<number>();
 
@@ -29,7 +30,7 @@ export function TimerDisplay({ status, startTime, totalMs, count }: Props) {
   }, [status, startTime]);
 
   const shown = status === 'finished' ? totalMs : elapsed;
-  const color = timerColor(shown, count);
+  const color = timerColor(shown, count, factor);
 
   return (
     <div

@@ -12,12 +12,13 @@ interface Props {
   totalMs: number;
   errors: number;
   count: number; // 格子总数，用于评级换算
+  factor?: number; // 盘面难度系数（转盘/地狱放宽阈值）
   bestMs?: number;
   isNewBest: boolean;
   onReplay: () => void;
 }
 
-export function StatsDialog({ open, onOpenChange, records, totalMs, errors, count, bestMs, isNewBest, onReplay }: Props) {
+export function StatsDialog({ open, onOpenChange, records, totalMs, errors, count, factor = 1, bestMs, isNewBest, onReplay }: Props) {
   const [showRules, setShowRules] = useState(false);
 
   // 每次打开都回到成绩页
@@ -30,14 +31,14 @@ export function StatsDialog({ open, onOpenChange, records, totalMs, errors, coun
   const maxSplit = Math.max(1, ...splits.map((r) => r.splitMs));
   const avg = splits.length ? splits.reduce((s, r) => s + r.splitMs, 0) / splits.length : 0;
   const slowest = splits.reduce<FindRecord | null>((acc, r) => (!acc || r.splitMs > acc.splitMs ? r : acc), null);
-  const grade = gradeFor(totalMs, count);
-  const topPercent = topPercentFor(totalMs, count);
+  const grade = gradeFor(totalMs, count, factor);
+  const topPercent = topPercentFor(totalMs, count, factor);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-md'>
         {showRules ? (
-          <RulesPanel count={count} onBack={() => setShowRules(false)} />
+          <RulesPanel count={count} factor={factor} onBack={() => setShowRules(false)} />
         ) : (
           <>
             <DialogHeader>
@@ -173,8 +174,8 @@ function SplitsChart({
   );
 }
 
-// 评分规则：按当前尺寸换算的档位阈值 + 基准说明
-function RulesPanel({ count, onBack }: { count: number; onBack: () => void }) {
+// 评分规则：按当前尺寸与难度系数换算的档位阈值 + 基准说明
+function RulesPanel({ count, factor, onBack }: { count: number; factor: number; onBack: () => void }) {
   const size = Math.round(Math.sqrt(count));
   return (
     <>
@@ -187,9 +188,9 @@ function RulesPanel({ count, onBack }: { count: number; onBack: () => void }) {
 
       <div className='space-y-1.5'>
         {GRADE_STEPS.map((s, i) => {
-          const upper = s.maxPerCellMs != null ? (s.maxPerCellMs * count) / 1000 : null;
+          const upper = s.maxPerCellMs != null ? (s.maxPerCellMs * count * factor) / 1000 : null;
           const prev = i > 0 ? GRADE_STEPS[i - 1].maxPerCellMs : null;
-          const lower = prev != null ? (prev * count) / 1000 : null;
+          const lower = prev != null ? (prev * count * factor) / 1000 : null;
           const rangeText =
             upper == null
               ? `≥ ${lower?.toFixed(0)}s`
@@ -212,8 +213,10 @@ function RulesPanel({ count, onBack }: { count: number; onBack: () => void }) {
       </div>
 
       <p className='text-xs leading-relaxed text-slate-400'>
-        阈值针对 5×5 制定（8s ACE、10s SS、12s S、16s A、25s B、36s
-        C），按「每格平均用时」等比换算到当前难度。评级只依据总用时——点错不直接扣分，但会自然消耗时间。正序与倒式采用同一标准。
+        阈值针对标准 5×5 制定（8s ACE、10s SS、12s S、16s A、25s B、36s
+        C），按「每格平均用时」等比换算到当前尺寸。
+        {factor !== 1 && `当前盘面难度系数 ×${factor}（转盘搜索更慢${factor > 1.2 ? '，地狱模式数字还在翻滚' : ''}），阈值已相应放宽。`}
+        评级只依据总用时——点错不直接扣分，但会自然消耗时间。正序与倒式采用同一标准。
         <br />
         「约位于前 X%」为估算：以对数正态分布（中位数 32s、σ=0.38）拟合成人 5×5
         成绩人群得出，并非真实排行榜数据。

@@ -28,8 +28,8 @@ export function shuffle<T>(arr: T[]): T[] {
 
 // 计时器颜色：随用时增加由绿 → 黄 → 红（HSL 色相插值，天然经过黄色）
 // budget 依据格子数量估算一个"理想用时"，越接近/超过越偏红
-export function timerColor(elapsedMs: number, count: number): string {
-  const budgetMs = count * 1500; // 约每格 1.5s 的舒适区
+export function timerColor(elapsedMs: number, count: number, factor = 1): string {
+  const budgetMs = count * 1500 * factor; // 约每格 1.5s 的舒适区（按盘面难度放宽）
   const frac = clamp(elapsedMs / (budgetMs * 1.6), 0, 1);
   const hue = 145 - 145 * frac; // 145°(绿) → 0°(红)，中途经过黄
   return `hsl(${hue.toFixed(0)} 90% 58%)`;
@@ -59,8 +59,15 @@ export const GRADE_STEPS: GradeStep[] = [
   { grade: 'D', label: '待提高', maxPerCellMs: null, color: '#94a3b8' },
 ];
 
-export function gradeFor(totalMs: number, count: number): GradeStep {
-  const perCell = totalMs / count;
+// 盘面难度系数：更难的盘面放宽时间预算（评级与百分位共用）。
+// 标准/蜂窝 ×1.0，转盘 ×1.2（环在转，搜索更慢），转盘地狱 ×1.6（数字还在翻滚）。
+export function difficultyFactor(mode: GameMode, hell: boolean): number {
+  if (mode === 'dynamic') return hell ? 1.6 : 1.2;
+  return 1;
+}
+
+export function gradeFor(totalMs: number, count: number, factor = 1): GradeStep {
+  const perCell = totalMs / count / factor;
   for (const s of GRADE_STEPS) {
     if (s.maxPerCellMs != null && perCell < s.maxPerCellMs) return s;
   }
@@ -91,8 +98,8 @@ function erf(x: number): number {
 const normCdf = (z: number) => 0.5 * (1 + erf(z / Math.SQRT2));
 
 // 返回「位于前百分之几」（0~100）：值越小成绩越好
-export function topPercentFor(totalMs: number, count: number): number {
-  const t5 = ((totalMs / count) * 25) / 1000; // 5×5 等效秒数
+export function topPercentFor(totalMs: number, count: number, factor = 1): number {
+  const t5 = ((totalMs / count / factor) * 25) / 1000; // 折算难度后的 5×5 等效秒数
   if (t5 <= 0) return 0.01;
   const z = (Math.log(t5) - Math.log(POP_MEDIAN_S)) / POP_SIGMA;
   return normCdf(z) * 100;

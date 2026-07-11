@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ArrowDownUp, RotateCcw, Target } from 'lucide-react';
 import { useSchulteGame } from './useSchulteGame';
-import { GameMode, MODE_META, formatSeconds, sizesForMode } from './utils';
+import { GameMode, MODE_META, difficultyFactor, formatSeconds, sizesForMode } from './utils';
 import { StandardBoard } from './components/StandardBoard';
 import { HoneycombBoard } from './components/HoneycombBoard';
 import { DynamicBoard } from './components/DynamicBoard';
@@ -42,6 +42,7 @@ export function SchulteTablePage() {
   const isDesc = !!descending;
   const isHell = activeMode === 'dynamic' && !!hellMode;
   const count = activeSize * activeSize;
+  const factor = difficultyFactor(activeMode, isHell);
   const bestKey = `${activeMode}-${activeSize}${isDesc ? '-desc' : ''}${isHell ? '-hell' : ''}`;
 
   const game = useSchulteGame(count, bestKey, isDesc);
@@ -195,7 +196,7 @@ export function SchulteTablePage() {
         {/* 状态栏：计时器 + 目标 + 重置 */}
         <div className='mt-2 flex shrink-0 items-center justify-between gap-3 px-1 sm:mt-3'>
           <div className='min-w-0'>
-            <TimerDisplay status={game.status} startTime={game.startTime} totalMs={game.totalMs} count={count} />
+            <TimerDisplay status={game.status} startTime={game.startTime} totalMs={game.totalMs} count={count} factor={factor} />
             {bestMs != null && <div className='text-xs text-slate-400'>最佳 {formatSeconds(bestMs)}</div>}
           </div>
 
@@ -247,6 +248,7 @@ export function SchulteTablePage() {
         totalMs={game.totalMs}
         errors={game.errors}
         count={count}
+        factor={factor}
         bestMs={bestMs}
         isNewBest={isNewBest}
         onReplay={handleReplay}
