@@ -8,7 +8,7 @@ export const MODE_META: Record<GameMode, { label: string; emoji: string; desc: s
   dynamic: { label: '转盘', emoji: '🌀', desc: '同心圆环缓慢旋转' },
 };
 
-export const SIZE_OPTIONS = [3, 4, 5, 6, 7] as const;
+export const SIZE_OPTIONS = [5, 6, 7] as const;
 
 // 生成 1..n 的数组
 export const range = (n: number): number[] => Array.from({ length: n }, (_, i) => i + 1);

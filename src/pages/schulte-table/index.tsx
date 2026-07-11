@@ -36,7 +36,9 @@ export function SchulteTablePage() {
   );
 
   const activeMode = mode ?? 'standard';
-  const activeSize = size ?? 5;
+  // 旧版本可能存了 3/4，已下线的尺寸回退到 5
+  const storedSize = size ?? 5;
+  const activeSize = (SIZE_OPTIONS as readonly number[]).includes(storedSize) ? storedSize : 5;
   const isDesc = !!descending;
   const count = activeSize * activeSize;
   const bestKey = `${activeMode}-${activeSize}${isDesc ? '-desc' : ''}`;
@@ -213,8 +215,9 @@ export function SchulteTablePage() {
         <div className='relative flex min-h-0 flex-1 items-center justify-center py-2'>
           <div
             className={cn(
-              'w-full transition-opacity duration-300',
-              game.status === 'idle' && 'pointer-events-none opacity-45',
+              'w-full transition-all duration-300',
+              // 遮罩态：模糊 + 低透明度，格线融为柔和纹理，明确传达"盘面未揭示"
+              game.status === 'idle' && 'pointer-events-none opacity-30 blur-[3px]',
               highContrast && styles.hc,
             )}
           >
