@@ -34,6 +34,35 @@ export function timerColor(elapsedMs: number, count: number): string {
 
 export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
+// ===== 成绩评级 =====
+// 基准：广泛使用的成人舒尔特方格 5×5 参考标准
+//   <16s 顶尖 / <26s 优秀 / <36s 良好 / <50s 中等 / ≥50s 待提高
+// 换算为「每格平均用时」阈值（÷25），从而适配任意尺寸。
+export type Grade = 'S' | 'A' | 'B' | 'C' | 'D';
+
+export interface GradeStep {
+  grade: Grade;
+  label: string;
+  maxPerCellMs: number | null; // null 表示兜底档
+  color: string;
+}
+
+export const GRADE_STEPS: GradeStep[] = [
+  { grade: 'S', label: '顶尖', maxPerCellMs: 640, color: '#fbbf24' },
+  { grade: 'A', label: '优秀', maxPerCellMs: 1040, color: '#34d399' },
+  { grade: 'B', label: '良好', maxPerCellMs: 1440, color: '#38bdf8' },
+  { grade: 'C', label: '中等', maxPerCellMs: 2000, color: '#fb923c' },
+  { grade: 'D', label: '待提高', maxPerCellMs: null, color: '#94a3b8' },
+];
+
+export function gradeFor(totalMs: number, count: number): GradeStep {
+  const perCell = totalMs / count;
+  for (const s of GRADE_STEPS) {
+    if (s.maxPerCellMs != null && perCell < s.maxPerCellMs) return s;
+  }
+  return GRADE_STEPS[GRADE_STEPS.length - 1];
+}
+
 // 用时格式化
 export function formatSeconds(ms: number): string {
   const s = ms / 1000;

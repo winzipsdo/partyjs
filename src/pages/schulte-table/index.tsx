@@ -243,6 +243,7 @@ export function SchulteTablePage() {
         records={game.records}
         totalMs={game.totalMs}
         errors={game.errors}
+        count={count}
         bestMs={bestMs}
         isNewBest={isNewBest}
         onReplay={handleReplay}
