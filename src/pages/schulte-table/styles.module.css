@@ -20,13 +20,15 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.cell:hover {
+/* 悬停/按下只作用于未找到的格子 —— .cell:hover 优先级高于 .found，
+   若不排除会在指针停留时盖住绿色（表现为"点下一个，上一个才变色"） */
+.cell:not(.found):hover {
   transform: translateY(-2px);
   background: hsl(228 25% 60% / 0.14);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   border-color: hsl(199 90% 60% / 0.4);
 }
-.cell:active {
+.cell:not(.found):active {
   transform: translateY(0) scale(0.96);
 }
 
@@ -40,9 +42,6 @@
     0 0 20px -4px rgba(52, 211, 153, 0.5);
   cursor: default;
   animation: pop 0.28s ease;
-}
-.found:hover {
-  transform: none;
 }
 
 /* 点错闪红 */
@@ -128,7 +127,7 @@
   font-size: calc(var(--hex) * 0.34);
   box-shadow: none;
 }
-.hexCell:hover {
+.hexCell:not(.found):hover {
   transform: scale(1.06);
   box-shadow: none;
 }
