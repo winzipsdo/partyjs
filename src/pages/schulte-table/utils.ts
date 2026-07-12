@@ -1,16 +1,21 @@
 // 舒尔特方格工具函数
 
-export type GameMode = 'standard' | 'honeycomb' | 'dynamic' | 'triangle' | 'random';
+// random 是元模式：每局从 CONCRETE_MODES 中随机抽一种盘面
+export type GameMode = 'standard' | 'honeycomb' | 'dynamic' | 'triangle' | 'scatter' | 'random';
+
+export const CONCRETE_MODES: GameMode[] = ['standard', 'honeycomb', 'dynamic', 'triangle', 'scatter'];
 
 export const MODE_META: Record<GameMode, { label: string; emoji: string; desc: string }> = {
   standard: { label: '标准', emoji: '🔢', desc: '经典方格，从 1 数到底' },
   honeycomb: { label: '蜂窝', emoji: '⬡', desc: '六边形蜂巢排列' },
   dynamic: { label: '转盘', emoji: '🌀', desc: '同心圆环缓慢旋转' },
   triangle: { label: '三角', emoji: '🔺', desc: '大三角切割为小三角' },
-  random: { label: '随机', emoji: '🎯', desc: '数字随机散布，无网格' },
+  scatter: { label: '散布', emoji: '🎯', desc: '数字随机散布，无网格' },
+  random: { label: '随机', emoji: '🎲', desc: '每局随机抽一种盘面' },
 };
 
-// 各模式可选难度：标准/三角提供 5 档起步，其余从 6 档起
+// 各模式可选难度：标准/三角提供 5 档起步，其余从 6 档起；
+// 随机模式取全体形态的交集（6/7），保证抽到任何形态尺寸都可用
 export function sizesForMode(mode: GameMode): number[] {
   return mode === 'standard' || mode === 'triangle' ? [5, 6, 7] : [6, 7];
 }
@@ -66,7 +71,7 @@ export const GRADE_STEPS: GradeStep[] = [
 // 转盘 ×1.2（环在转，搜索更慢）；转盘地狱 ×1.6（数字还在翻滚）。
 export function difficultyFactor(mode: GameMode, hell: boolean): number {
   if (mode === 'dynamic') return hell ? 1.6 : 1.2;
-  if (mode === 'triangle' || mode === 'random') return 1.1;
+  if (mode === 'triangle' || mode === 'scatter') return 1.1;
   return 1;
 }
 
@@ -79,7 +84,7 @@ export interface RandomLayout {
   points: { x: number; y: number }[];
 }
 
-export function computeRandomLayout(count: number, container: number): RandomLayout {
+export function computeScatterLayout(count: number, container: number): RandomLayout {
   let cell = container * (count <= 36 ? 0.145 : 0.125);
   // 放不下时逐步缩小圆点重试
   for (let attempt = 0; attempt < 8; attempt++) {

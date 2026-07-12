@@ -2,15 +2,15 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import styles from '../styles.module.css';
 import type { SchulteGame } from '../useSchulteGame';
-import { computeRandomLayout } from '../utils';
+import { computeScatterLayout } from '../utils';
 
 interface Props {
   game: SchulteGame;
   numColor?: (n: number) => string;
 }
 
-// 随机舒尔特：数字在方形区域内随机散布（每局重新采样，互不重叠）
-export function RandomBoard({ game, numColor }: Props) {
+// 散布舒尔特：数字在方形区域内随机散布（每局重新采样，互不重叠）
+export function ScatterBoard({ game, numColor }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [container, setContainer] = useState(360);
 
@@ -26,7 +26,7 @@ export function RandomBoard({ game, numColor }: Props) {
   }, []);
 
   // 依赖 cells 的数组身份：每次洗牌都会重新采样位置
-  const layout = useMemo(() => computeRandomLayout(game.cells.length, container), [game.cells, container]);
+  const layout = useMemo(() => computeScatterLayout(game.cells.length, container), [game.cells, container]);
 
   return (
     <div ref={wrapRef} className='flex w-full max-w-full justify-center overflow-hidden'>

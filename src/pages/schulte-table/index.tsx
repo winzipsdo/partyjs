@@ -3,19 +3,22 @@ import { useLocalStorageState } from 'ahooks';
 import { createStorageKey } from '@/constants/storage';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ArrowDownUp, RotateCcw, Target } from 'lucide-react';
+import { ArrowDownUp, ChevronDown, RotateCcw, Target } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useSchulteGame } from './useSchulteGame';
-import { FOUR_COLORS, GameMode, MODE_META, difficultyFactor, formatSeconds, sizesForMode } from './utils';
+import { CONCRETE_MODES, FOUR_COLORS, GameMode, MODE_META, difficultyFactor, formatSeconds, sizesForMode } from './utils';
 import { StandardBoard } from './components/StandardBoard';
 import { HoneycombBoard } from './components/HoneycombBoard';
 import { DynamicBoard } from './components/DynamicBoard';
 import { TriangleBoard } from './components/TriangleBoard';
-import { RandomBoard } from './components/RandomBoard';
+import { ScatterBoard } from './components/ScatterBoard';
 import { TimerDisplay } from './components/TimerDisplay';
 import { StatsDialog } from './components/StatsDialog';
 import styles from './styles.module.css';
 
-const MODES: GameMode[] = ['standard', 'honeycomb', 'dynamic', 'triangle', 'random'];
+// 首屏只露出标准/随机两个入口，其余形态收进「更多」弹出层
+const PRIMARY_MODES: GameMode[] = ['standard', 'random'];
+const MORE_MODES: GameMode[] = ['honeycomb', 'dynamic', 'triangle', 'scatter'];
 
 export function SchulteTablePage() {
   const [mode, setMode] = useLocalStorageState<GameMode>(createStorageKey('schulte-mode'), {
@@ -40,18 +43,30 @@ export function SchulteTablePage() {
   });
 
   const activeMode = mode ?? 'standard';
-  // 各模式可选尺寸不同（蜂窝/转盘无 5×5）；存档里不可用的尺寸回退到该模式最小档
+  const isRandomMode = activeMode === 'random';
+  // 随机元模式：每局抽一种实际盘面
+  const [pick, setPick] = useState<GameMode>('standard');
+  const [moreOpen, setMoreOpen] = useState(false);
+  const boardMode = isRandomMode ? pick : activeMode; // 实际渲染的盘面形态
+  // 各模式可选尺寸不同；存档里不可用的尺寸回退到该模式最小档
   const sizeOptions = sizesForMode(activeMode);
   const storedSize = size ?? 5;
   const activeSize = sizeOptions.includes(storedSize) ? storedSize : sizeOptions[0];
   const isDesc = !!descending;
-  const isHell = activeMode === 'dynamic' && !!hellMode;
+  const isHell = activeMode === 'dynamic' && !!hellMode; // 地狱仅在显式选择转盘时可用
   const count = activeSize * activeSize;
-  const factor = difficultyFactor(activeMode, isHell);
+  const factor = difficultyFactor(boardMode, isHell); // 评级按实际盘面折算
   const isFourColor = !!fourColor;
   const bestKey = `${activeMode}-${activeSize}${isDesc ? '-desc' : ''}${isHell ? '-hell' : ''}${isFourColor ? '-4c' : ''}`;
 
   const game = useSchulteGame(count, bestKey, isDesc);
+
+  // 随机模式：每次洗牌（新局）重新抽一种盘面
+  useEffect(() => {
+    if (isRandomMode) {
+      setPick(CONCRETE_MODES[Math.floor(Math.random() * CONCRETE_MODES.length)]);
+    }
+  }, [isRandomMode, game.cells]);
 
   const [statsOpen, setStatsOpen] = useState(false);
   const [isNewBest, setIsNewBest] = useState(false);
@@ -99,19 +114,19 @@ export function SchulteTablePage() {
   }, [isFourColor, game.cells]);
 
   const board = useMemo(() => {
-    switch (activeMode) {
+    switch (boardMode) {
       case 'honeycomb':
         return <HoneycombBoard game={game} size={activeSize} numColor={numColor} />;
       case 'dynamic':
         return <DynamicBoard game={game} hell={isHell} numColor={numColor} />;
       case 'triangle':
         return <TriangleBoard game={game} size={activeSize} numColor={numColor} />;
-      case 'random':
-        return <RandomBoard game={game} numColor={numColor} />;
+      case 'scatter':
+        return <ScatterBoard game={game} numColor={numColor} />;
       default:
         return <StandardBoard game={game} size={activeSize} numColor={numColor} />;
     }
-  }, [activeMode, activeSize, game, isHell, numColor]);
+  }, [boardMode, activeSize, game, isHell, numColor]);
 
   const handleReplay = () => {
     setStatsOpen(false);
@@ -132,9 +147,9 @@ export function SchulteTablePage() {
 
         {/* 配置区 */}
         <div className='mt-2 flex shrink-0 flex-col gap-2 sm:mt-3 sm:gap-3'>
-          {/* 模式 */}
+          {/* 模式：标准 / 随机 + 更多形态弹出层 */}
           <div className='flex justify-center gap-1.5 sm:gap-2'>
-            {MODES.map((m) => {
+            {PRIMARY_MODES.map((m) => {
               const meta = MODE_META[m];
               const active = m === activeMode;
               return (
@@ -154,6 +169,49 @@ export function SchulteTablePage() {
                 </button>
               );
             })}
+            <Popover open={moreOpen} onOpenChange={setMoreOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  className={cn(
+                    'flex flex-1 max-w-[9rem] items-center justify-center gap-1 rounded-xl border px-1 py-2 text-xs font-medium transition-all sm:px-3 sm:text-sm',
+                    MORE_MODES.includes(activeMode)
+                      ? 'border-sky-400/60 bg-sky-400/15 text-sky-200 shadow-[0_0_16px_-4px_rgba(56,189,248,0.5)]'
+                      : 'glass text-slate-400 hover:text-slate-200',
+                  )}
+                >
+                  {MORE_MODES.includes(activeMode) ? (
+                    <>
+                      <span>{MODE_META[activeMode].emoji}</span>
+                      {MODE_META[activeMode].label}
+                    </>
+                  ) : (
+                    '更多'
+                  )}
+                  <ChevronDown className='h-3.5 w-3.5' />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align='end' className='w-40 p-1.5'>
+                <div className='grid gap-1'>
+                  {MORE_MODES.map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => {
+                        setMode(m);
+                        setMoreOpen(false);
+                      }}
+                      title={MODE_META[m].desc}
+                      className={cn(
+                        'flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors',
+                        activeMode === m ? 'bg-sky-400/15 text-sky-200' : 'text-slate-300 hover:bg-white/[0.06]',
+                      )}
+                    >
+                      <span>{MODE_META[m].emoji}</span>
+                      {MODE_META[m].label}
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* 尺寸 */}
@@ -264,7 +322,10 @@ export function SchulteTablePage() {
               >
                 ▶ 开始挑战
               </button>
-              <p className='px-6 text-center text-xs text-slate-400'>点击后立即计时，按顺序找到 {isDesc ? `${count} → 1` : `1 → ${count}`}</p>
+              <p className='px-6 text-center text-xs text-slate-400'>
+                {isRandomMode && `本局盘面：${MODE_META[boardMode].emoji} ${MODE_META[boardMode].label} · `}
+                点击后立即计时，按顺序找到 {isDesc ? `${count} → 1` : `1 → ${count}`}
+              </p>
             </div>
           )}
         </div>
