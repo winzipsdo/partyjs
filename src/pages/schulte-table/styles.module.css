@@ -243,6 +243,30 @@
   border-color: #38bdf8;
 }
 
+/* ===== 三角舒尔特 ===== */
+.triCell {
+  position: absolute;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  justify-content: center;
+  /* 微缩留出三角形之间的表面间隙 */
+  transform: scale(0.96);
+}
+.triCell:not(.found):hover {
+  transform: scale(0.96);
+  box-shadow: none;
+}
+.triCell:not(.found):active {
+  transform: scale(0.92);
+}
+
+/* ===== 随机舒尔特 ===== */
+.randCell {
+  position: absolute;
+  border-radius: 50%;
+}
+
 /* 地狱模式：数字底部下划线标记正面方向（6/9 翻转时可辨） */
 .hellNum {
   display: inline-block;

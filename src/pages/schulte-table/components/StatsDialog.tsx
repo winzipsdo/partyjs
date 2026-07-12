@@ -215,7 +215,7 @@ function RulesPanel({ count, factor, onBack }: { count: number; factor: number; 
       <p className='text-xs leading-relaxed text-slate-400'>
         阈值针对标准 5×5 制定（8s ACE、10s SS、12s S、16s A、25s B、36s
         C），按「每格平均用时」等比换算到当前尺寸。
-        {factor !== 1 && `当前盘面难度系数 ×${factor}（转盘搜索更慢${factor > 1.2 ? '，地狱模式数字还在翻滚' : ''}），阈值已相应放宽。`}
+        {factor !== 1 && `当前盘面难度系数 ×${factor}，阈值已相应放宽。`}
         评级只依据总用时——点错不直接扣分，但会自然消耗时间。正序与倒式采用同一标准。
         <br />
         「约位于前 X%」为估算：以对数正态分布（中位数 32s、σ=0.38）拟合成人 5×5

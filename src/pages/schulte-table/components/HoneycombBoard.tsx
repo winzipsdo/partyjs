@@ -5,10 +5,11 @@ import type { SchulteGame } from '../useSchulteGame';
 interface Props {
   game: SchulteGame;
   size: number;
+  numColor?: (n: number) => string;
 }
 
 // 将打乱后的数字按 size 行 x size 列切分为蜂窝行
-export function HoneycombBoard({ game, size }: Props) {
+export function HoneycombBoard({ game, size, numColor }: Props) {
   const rows: number[][] = [];
   for (let r = 0; r < size; r++) {
     rows.push(game.cells.slice(r * size, r * size + size));
@@ -25,12 +26,14 @@ export function HoneycombBoard({ game, size }: Props) {
         <div key={ri} className={cn(styles.hexRow, ri % 2 === 1 && styles.hexRowOdd)}>
           {row.map((n) => {
             const found = game.isFound(n);
+            const isWrong = game.wrong === n;
             return (
               <button
                 key={n}
                 onClick={() => game.clickCell(n)}
                 disabled={found}
-                className={cn(styles.cell, styles.hexCell, found && styles.found, game.wrong === n && styles.wrong)}
+                className={cn(styles.cell, styles.hexCell, found && styles.found, isWrong && styles.wrong)}
+                style={{ color: !found && !isWrong && numColor ? numColor(n) : undefined }}
               >
                 {game.status === 'idle' ? '' : n}
               </button>

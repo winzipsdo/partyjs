@@ -5,15 +5,17 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ArrowDownUp, RotateCcw, Target } from 'lucide-react';
 import { useSchulteGame } from './useSchulteGame';
-import { GameMode, MODE_META, difficultyFactor, formatSeconds, sizesForMode } from './utils';
+import { FOUR_COLORS, GameMode, MODE_META, difficultyFactor, formatSeconds, sizesForMode } from './utils';
 import { StandardBoard } from './components/StandardBoard';
 import { HoneycombBoard } from './components/HoneycombBoard';
 import { DynamicBoard } from './components/DynamicBoard';
+import { TriangleBoard } from './components/TriangleBoard';
+import { RandomBoard } from './components/RandomBoard';
 import { TimerDisplay } from './components/TimerDisplay';
 import { StatsDialog } from './components/StatsDialog';
 import styles from './styles.module.css';
 
-const MODES: GameMode[] = ['standard', 'honeycomb', 'dynamic'];
+const MODES: GameMode[] = ['standard', 'honeycomb', 'dynamic', 'triangle', 'random'];
 
 export function SchulteTablePage() {
   const [mode, setMode] = useLocalStorageState<GameMode>(createStorageKey('schulte-mode'), {
@@ -33,6 +35,9 @@ export function SchulteTablePage() {
   const [hellMode, setHellMode] = useLocalStorageState<boolean>(createStorageKey('schulte-hell'), {
     defaultValue: false,
   });
+  const [fourColor, setFourColor] = useLocalStorageState<boolean>(createStorageKey('schulte-four-color'), {
+    defaultValue: false,
+  });
 
   const activeMode = mode ?? 'standard';
   // 各模式可选尺寸不同（蜂窝/转盘无 5×5）；存档里不可用的尺寸回退到该模式最小档
@@ -43,7 +48,8 @@ export function SchulteTablePage() {
   const isHell = activeMode === 'dynamic' && !!hellMode;
   const count = activeSize * activeSize;
   const factor = difficultyFactor(activeMode, isHell);
-  const bestKey = `${activeMode}-${activeSize}${isDesc ? '-desc' : ''}${isHell ? '-hell' : ''}`;
+  const isFourColor = !!fourColor;
+  const bestKey = `${activeMode}-${activeSize}${isDesc ? '-desc' : ''}${isHell ? '-hell' : ''}${isFourColor ? '-4c' : ''}`;
 
   const game = useSchulteGame(count, bestKey, isDesc);
 
@@ -86,16 +92,26 @@ export function SchulteTablePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.status]);
 
+  // 四色：每个数字按其在本局洗牌序列中的位置取色（每局重新分配）
+  const numColor = useMemo(() => {
+    if (!isFourColor) return undefined;
+    return (n: number) => FOUR_COLORS[game.cells.indexOf(n) % FOUR_COLORS.length];
+  }, [isFourColor, game.cells]);
+
   const board = useMemo(() => {
     switch (activeMode) {
       case 'honeycomb':
-        return <HoneycombBoard game={game} size={activeSize} />;
+        return <HoneycombBoard game={game} size={activeSize} numColor={numColor} />;
       case 'dynamic':
-        return <DynamicBoard game={game} hell={isHell} />;
+        return <DynamicBoard game={game} hell={isHell} numColor={numColor} />;
+      case 'triangle':
+        return <TriangleBoard game={game} size={activeSize} numColor={numColor} />;
+      case 'random':
+        return <RandomBoard game={game} numColor={numColor} />;
       default:
-        return <StandardBoard game={game} size={activeSize} />;
+        return <StandardBoard game={game} size={activeSize} numColor={numColor} />;
     }
-  }, [activeMode, activeSize, game, isHell]);
+  }, [activeMode, activeSize, game, isHell, numColor]);
 
   const handleReplay = () => {
     setStatsOpen(false);
@@ -117,7 +133,7 @@ export function SchulteTablePage() {
         {/* 配置区 */}
         <div className='mt-2 flex shrink-0 flex-col gap-2 sm:mt-3 sm:gap-3'>
           {/* 模式 */}
-          <div className='flex justify-center gap-2'>
+          <div className='flex justify-center gap-1.5 sm:gap-2'>
             {MODES.map((m) => {
               const meta = MODE_META[m];
               const active = m === activeMode;
@@ -126,7 +142,7 @@ export function SchulteTablePage() {
                   key={m}
                   onClick={() => setMode(m)}
                   className={cn(
-                    'flex-1 max-w-[9rem] rounded-xl border px-3 py-2 text-sm font-medium transition-all',
+                    'flex-1 max-w-[9rem] rounded-xl border px-1 py-2 text-xs font-medium transition-all sm:px-3 sm:text-sm',
                     active
                       ? 'border-sky-400/60 bg-sky-400/15 text-sky-200 shadow-[0_0_16px_-4px_rgba(56,189,248,0.5)]'
                       : 'glass text-slate-400 hover:text-slate-200',
@@ -174,6 +190,19 @@ export function SchulteTablePage() {
             >
               <ArrowDownUp className='h-3.5 w-3.5' />
               {isDesc ? `${count}→1` : `1→${count}`}
+            </button>
+            <button
+              onClick={() => setFourColor(!isFourColor)}
+              title='数字四色：颜色噪声干扰，搜索更考验专注'
+              aria-pressed={isFourColor}
+              className={cn(
+                'flex h-8 w-9 items-center justify-center rounded-lg text-sm transition-all sm:h-9',
+                isFourColor
+                  ? 'border border-fuchsia-400/50 bg-fuchsia-500/20 shadow-[0_0_14px_-2px_rgba(232,121,249,0.6)]'
+                  : 'glass opacity-60 grayscale hover:opacity-100 hover:grayscale-0',
+              )}
+            >
+              🎨
             </button>
             {activeMode === 'dynamic' && (
               <button

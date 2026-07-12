@@ -7,6 +7,7 @@ import { computeDynamicLayout } from '../utils';
 interface Props {
   game: SchulteGame;
   hell?: boolean; // 地狱模式：数字不保持正立，各自以不同速度自转
+  numColor?: (n: number) => string;
 }
 
 // 转盘：数字分布在同心圆环上，各环缓慢反向旋转。
@@ -14,7 +15,7 @@ interface Props {
 // 严格同相抵消 —— 数字始终保持水平正立（CSS 双动画会漂相位）。
 // 地狱模式下内层改为独立自转（每个数字速度/方向不同），
 // 数字底部的下划线标记正面方向，避免 6/9 翻转后混淆。
-export function DynamicBoard({ game, hell = false }: Props) {
+export function DynamicBoard({ game, hell = false, numColor }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [container, setContainer] = useState(360);
@@ -65,7 +66,10 @@ export function DynamicBoard({ game, hell = false }: Props) {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [layout, hell]);
+    // 注意必须依赖 cells 本身（而非长度）：洗牌后数字会跨环迁移，React 会
+    // 重建那些按钮的 DOM，旧的 spinEls 列表不再覆盖它们 —— 若不重新绑定，
+    // 迁移的数字失去反向抵消，会跟着环一起转（曾是线上 bug）
+  }, [layout, hell, game.cells]);
 
   return (
     <div ref={wrapRef} className='flex w-full max-w-full justify-center overflow-hidden'>
@@ -82,6 +86,7 @@ export function DynamicBoard({ game, hell = false }: Props) {
                 const x = c + ring.radius * Math.cos(angle);
                 const y = c + ring.radius * Math.sin(angle);
                 const found = game.isFound(n);
+                const isWrong = game.wrong === n;
                 return (
                   <button
                     key={n}
@@ -92,8 +97,11 @@ export function DynamicBoard({ game, hell = false }: Props) {
                   >
                     <span className={styles.dotSpin} data-spin>
                       <span
-                        className={cn(styles.dotFace, found && styles.found, game.wrong === n && styles.wrong)}
-                        style={{ fontSize: cell * 0.4 }}
+                        className={cn(styles.dotFace, found && styles.found, isWrong && styles.wrong)}
+                        style={{
+                          fontSize: cell * 0.4,
+                          color: !found && !isWrong && numColor ? numColor(n) : undefined,
+                        }}
                       >
                         {game.status === 'idle' ? (
                           ''

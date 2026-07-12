@@ -1,16 +1,18 @@
 // 舒尔特方格工具函数
 
-export type GameMode = 'standard' | 'honeycomb' | 'dynamic';
+export type GameMode = 'standard' | 'honeycomb' | 'dynamic' | 'triangle' | 'random';
 
 export const MODE_META: Record<GameMode, { label: string; emoji: string; desc: string }> = {
   standard: { label: '标准', emoji: '🔢', desc: '经典方格，从 1 数到底' },
   honeycomb: { label: '蜂窝', emoji: '⬡', desc: '六边形蜂巢排列' },
   dynamic: { label: '转盘', emoji: '🌀', desc: '同心圆环缓慢旋转' },
+  triangle: { label: '三角', emoji: '🔺', desc: '大三角切割为小三角' },
+  random: { label: '随机', emoji: '🎯', desc: '数字随机散布，无网格' },
 };
 
-// 各模式可选难度：蜂窝/转盘不提供 5×5
+// 各模式可选难度：标准/三角提供 5 档起步，其余从 6 档起
 export function sizesForMode(mode: GameMode): number[] {
-  return mode === 'standard' ? [5, 6, 7] : [6, 7];
+  return mode === 'standard' || mode === 'triangle' ? [5, 6, 7] : [6, 7];
 }
 
 // 生成 1..n 的数组
@@ -60,10 +62,55 @@ export const GRADE_STEPS: GradeStep[] = [
 ];
 
 // 盘面难度系数：更难的盘面放宽时间预算（评级与百分位共用）。
-// 标准/蜂窝 ×1.0，转盘 ×1.2（环在转，搜索更慢），转盘地狱 ×1.6（数字还在翻滚）。
+// 标准/蜂窝 ×1.0；三角/随机 ×1.1（朝向噪声/无网格结构）；
+// 转盘 ×1.2（环在转，搜索更慢）；转盘地狱 ×1.6（数字还在翻滚）。
 export function difficultyFactor(mode: GameMode, hell: boolean): number {
   if (mode === 'dynamic') return hell ? 1.6 : 1.2;
+  if (mode === 'triangle' || mode === 'random') return 1.1;
   return 1;
+}
+
+// 数字四色：亮底格子上可读的四个深色
+export const FOUR_COLORS = ['#dc2626', '#2563eb', '#047857', '#7e22ce'];
+
+// 随机模式：在正方形容器内为 count 个圆点生成互不重叠的随机位置
+export interface RandomLayout {
+  cell: number;
+  points: { x: number; y: number }[];
+}
+
+export function computeRandomLayout(count: number, container: number): RandomLayout {
+  let cell = container * (count <= 36 ? 0.145 : 0.125);
+  // 放不下时逐步缩小圆点重试
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const pts: { x: number; y: number }[] = [];
+    const minDist = cell * 1.06;
+    const lo = cell / 2 + 2;
+    const hi = container - cell / 2 - 2;
+    let tries = 0;
+    while (pts.length < count && tries < 4000) {
+      tries++;
+      const x = lo + Math.random() * (hi - lo);
+      const y = lo + Math.random() * (hi - lo);
+      if (pts.every((p) => Math.hypot(p.x - x, p.y - y) >= minDist)) {
+        pts.push({ x, y });
+      }
+    }
+    if (pts.length === count) return { cell, points: pts };
+    cell *= 0.93;
+  }
+  // 兜底：退化为网格抖动布局，保证一定能放下
+  const side = Math.ceil(Math.sqrt(count));
+  const step = container / side;
+  cell = Math.min(cell, step * 0.8);
+  const pts: { x: number; y: number }[] = [];
+  for (let i = 0; i < count; i++) {
+    const r = Math.floor(i / side);
+    const c = i % side;
+    const jitter = () => (Math.random() - 0.5) * step * 0.25;
+    pts.push({ x: (c + 0.5) * step + jitter(), y: (r + 0.5) * step + jitter() });
+  }
+  return { cell, points: pts };
 }
 
 export function gradeFor(totalMs: number, count: number, factor = 1): GradeStep {
