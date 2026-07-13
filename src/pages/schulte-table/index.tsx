@@ -20,6 +20,18 @@ import styles from './styles.module.css';
 const PRIMARY_MODES: GameMode[] = ['standard', 'random'];
 const MORE_MODES: GameMode[] = ['honeycomb', 'dynamic', 'triangle', 'scatter'];
 
+// 随机模式抽签：形态、该形态下合法的尺寸、四色开关、（转盘时）地狱开关
+function randomDraw() {
+  const form = CONCRETE_MODES[Math.floor(Math.random() * CONCRETE_MODES.length)];
+  const sizes = sizesForMode(form);
+  return {
+    form,
+    size: sizes[Math.floor(Math.random() * sizes.length)],
+    fourColor: Math.random() < 0.5,
+    hell: form === 'dynamic' && Math.random() < 0.5,
+  };
+}
+
 export function SchulteTablePage() {
   const [mode, setMode] = useLocalStorageState<GameMode>(createStorageKey('schulte-mode'), {
     defaultValue: 'standard',
@@ -44,29 +56,32 @@ export function SchulteTablePage() {
 
   const activeMode = mode ?? 'standard';
   const isRandomMode = activeMode === 'random';
-  // 随机元模式：每局抽一种实际盘面
-  const [pick, setPick] = useState<GameMode>('standard');
+  // 随机元模式：每局抽「形态 + 尺寸 + 四色 + 地狱」的完整组合
+  const [draw, setDraw] = useState(randomDraw);
   const [moreOpen, setMoreOpen] = useState(false);
-  const boardMode = isRandomMode ? pick : activeMode; // 实际渲染的盘面形态
+  const redraw = () => setDraw(randomDraw());
+
+  const boardMode = isRandomMode ? draw.form : activeMode; // 实际渲染的盘面形态
   // 各模式可选尺寸不同；存档里不可用的尺寸回退到该模式最小档
   const sizeOptions = sizesForMode(activeMode);
   const storedSize = size ?? 5;
   const activeSize = sizeOptions.includes(storedSize) ? storedSize : sizeOptions[0];
-  const isDesc = !!descending;
-  const isHell = activeMode === 'dynamic' && !!hellMode; // 地狱仅在显式选择转盘时可用
-  const count = activeSize * activeSize;
+  const boardSize = isRandomMode ? draw.size : activeSize;
+  const isDesc = isRandomMode ? false : !!descending; // 随机模式固定正序
+  const isHell = isRandomMode ? draw.hell : activeMode === 'dynamic' && !!hellMode;
+  const isFourColor = isRandomMode ? draw.fourColor : !!fourColor;
+  const count = boardSize * boardSize;
   const factor = difficultyFactor(boardMode, isHell); // 评级按实际盘面折算
-  const isFourColor = !!fourColor;
-  const bestKey = `${activeMode}-${activeSize}${isDesc ? '-desc' : ''}${isHell ? '-hell' : ''}${isFourColor ? '-4c' : ''}`;
+  // 成绩记入实际组合名下：随机抽到的组合与手动选择的同一组合共用记录
+  const bestKey = `${boardMode}-${boardSize}${isDesc ? '-desc' : ''}${isHell ? '-hell' : ''}${isFourColor ? '-4c' : ''}`;
 
   const game = useSchulteGame(count, bestKey, isDesc);
 
-  // 随机模式：每次洗牌（新局）重新抽一种盘面
+  // 进入随机模式时抽一次（之后由重置/再来一局触发 redraw）
   useEffect(() => {
-    if (isRandomMode) {
-      setPick(CONCRETE_MODES[Math.floor(Math.random() * CONCRETE_MODES.length)]);
-    }
-  }, [isRandomMode, game.cells]);
+    if (isRandomMode) redraw();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRandomMode]);
 
   const [statsOpen, setStatsOpen] = useState(false);
   const [isNewBest, setIsNewBest] = useState(false);
@@ -116,20 +131,21 @@ export function SchulteTablePage() {
   const board = useMemo(() => {
     switch (boardMode) {
       case 'honeycomb':
-        return <HoneycombBoard game={game} size={activeSize} numColor={numColor} />;
+        return <HoneycombBoard game={game} size={boardSize} numColor={numColor} />;
       case 'dynamic':
         return <DynamicBoard game={game} hell={isHell} numColor={numColor} />;
       case 'triangle':
-        return <TriangleBoard game={game} size={activeSize} numColor={numColor} />;
+        return <TriangleBoard game={game} size={boardSize} numColor={numColor} />;
       case 'scatter':
         return <ScatterBoard game={game} numColor={numColor} />;
       default:
-        return <StandardBoard game={game} size={activeSize} numColor={numColor} />;
+        return <StandardBoard game={game} size={boardSize} numColor={numColor} />;
     }
-  }, [boardMode, activeSize, game, isHell, numColor]);
+  }, [boardMode, boardSize, game, isHell, numColor]);
 
   const handleReplay = () => {
     setStatsOpen(false);
+    if (isRandomMode) redraw(); // 组合变化会经由 resetKey 自动重置；组合未变时下面的 reset 负责洗牌
     game.reset();
   };
 
@@ -214,7 +230,8 @@ export function SchulteTablePage() {
             </Popover>
           </div>
 
-          {/* 尺寸 */}
+          {/* 尺寸与开关：随机模式下全部由抽签决定，不显示 */}
+          {!isRandomMode && (
           <div className='flex items-center justify-center gap-1.5'>
             <span className='mr-1 text-xs text-slate-400'>难度</span>
             {sizeOptions.map((s) => {
@@ -278,6 +295,7 @@ export function SchulteTablePage() {
               </button>
             )}
           </div>
+          )}
         </div>
 
         {/* 状态栏：计时器 + 目标 + 重置 */}
@@ -295,7 +313,14 @@ export function SchulteTablePage() {
                 {game.status === 'finished' ? '✓' : game.nextTarget}
               </span>
             </div>
-            <Button variant='outline' size='sm' onClick={game.reset}>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => {
+                if (isRandomMode) redraw();
+                game.reset();
+              }}
+            >
               <RotateCcw className='h-4 w-4' />
               <span className='hidden sm:inline'>重置</span>
             </Button>
@@ -307,8 +332,9 @@ export function SchulteTablePage() {
           <div
             className={cn(
               'w-full transition-all duration-300',
-              // 遮罩态：模糊 + 低透明度，格线融为柔和纹理，明确传达"盘面未揭示"
-              game.status === 'idle' && 'pointer-events-none opacity-30 blur-[3px]',
+              game.status === 'idle' && 'pointer-events-none',
+              // 遮罩态：普通模式模糊可见轮廓；随机模式完全隐藏，形态开局才揭晓
+              game.status === 'idle' && (isRandomMode ? 'opacity-0' : 'opacity-30 blur-[3px]'),
               styles.hc, // 高对比度亮底深字，默认且唯一的棋盘配色
             )}
           >
@@ -316,6 +342,7 @@ export function SchulteTablePage() {
           </div>
           {game.status === 'idle' && (
             <div className='absolute inset-0 z-10 flex flex-col items-center justify-center gap-3'>
+              {isRandomMode && <div className='mb-1 text-6xl drop-shadow-[0_4px_16px_rgba(56,189,248,0.35)]'>🎲</div>}
               <button
                 onClick={game.start}
                 className='glass rounded-2xl px-8 py-4 text-lg font-bold text-white shadow-[0_0_28px_-6px_rgba(56,189,248,0.55)] transition-all hover:scale-105 hover:bg-white/10 active:scale-95'
@@ -323,8 +350,9 @@ export function SchulteTablePage() {
                 ▶ 开始挑战
               </button>
               <p className='px-6 text-center text-xs text-slate-400'>
-                {isRandomMode && `本局盘面：${MODE_META[boardMode].emoji} ${MODE_META[boardMode].label} · `}
-                点击后立即计时，按顺序找到 {isDesc ? `${count} → 1` : `1 → ${count}`}
+                {isRandomMode
+                  ? '盘面、尺寸与玩法开局才揭晓 — 点击后立即计时'
+                  : `点击后立即计时，按顺序找到 ${isDesc ? `${count} → 1` : `1 → ${count}`}`}
               </p>
             </div>
           )}
