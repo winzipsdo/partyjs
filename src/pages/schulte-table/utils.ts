@@ -7,7 +7,7 @@ export const CONCRETE_MODES: GameMode[] = ['standard', 'honeycomb', 'dynamic', '
 
 export const MODE_META: Record<GameMode, { label: string; emoji: string; desc: string }> = {
   standard: { label: '标准', emoji: '🔢', desc: '经典方格，从 1 数到底' },
-  honeycomb: { label: '蜂窝', emoji: '⬡', desc: '六边形蜂巢排列' },
+  honeycomb: { label: '蜂窝', emoji: '🐝', desc: '六边形蜂巢排列' },
   dynamic: { label: '转盘', emoji: '🌀', desc: '同心圆环缓慢旋转' },
   triangle: { label: '三角', emoji: '🔺', desc: '大三角切割为小三角' },
   scatter: { label: '散布', emoji: '🎯', desc: '数字随机散布，无网格' },
@@ -36,7 +36,8 @@ export function shuffle<T>(arr: T[]): T[] {
 // 计时器颜色：随用时增加由绿 → 黄 → 红（HSL 色相插值，天然经过黄色）
 // budget 依据格子数量估算一个"理想用时"，越接近/超过越偏红
 export function timerColor(elapsedMs: number, count: number, factor = 1): string {
-  const budgetMs = count * 1500 * factor; // 约每格 1.5s 的舒适区（按盘面难度放宽）
+  // 5×5 约 37.5s 的舒适预算，按尺寸超线性与盘面难度放宽
+  const budgetMs = 25 * 1500 * Math.pow(count / 25, 1.53) * factor;
   const frac = clamp(elapsedMs / (budgetMs * 1.6), 0, 1);
   const hue = 145 - 145 * frac; // 145°(绿) → 0°(红)，中途经过黄
   return `hsl(${hue.toFixed(0)} 90% 58%)`;
@@ -45,8 +46,9 @@ export function timerColor(elapsedMs: number, count: number, factor = 1): string
 export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
 // ===== 成绩评级 =====
-// 阈值针对 5×5 制定：8s ACE / 10s SS / 12s S / 16s A / 25s B / 36s C / 其余 D，
-// 换算为「每格平均用时」（÷25）后等比适配任意尺寸。
+// 阈值针对 5×5 制定：8s ACE / 10s SS / 12s S / 16s A / 25s B / 36s C / 其余 D。
+// 其他尺寸按超线性缩放：盘越大每格搜索越慢（视觉搜索复杂度超线性），
+// T(count) = T(25) × (count/25)^1.53 —— 使 6×6 的 A 档 ≈ 28s、7×7 ≈ 45s。
 export type Grade = 'ACE' | 'SS' | 'S' | 'A' | 'B' | 'C' | 'D';
 
 export interface GradeStep {
@@ -73,6 +75,11 @@ export function difficultyFactor(mode: GameMode, hell: boolean): number {
   if (mode === 'dynamic') return hell ? 1.6 : 1.2;
   if (mode === 'triangle' || mode === 'scatter') return 1.1;
   return 1;
+}
+
+// 尺寸缩放：相对 5×5 的时间倍率（超线性指数 1.53）
+export function sizeScale(count: number): number {
+  return Math.pow(count / 25, 1.53);
 }
 
 // 数字四色：亮底格子上可读的四个深色
@@ -119,7 +126,8 @@ export function computeScatterLayout(count: number, container: number): RandomLa
 }
 
 export function gradeFor(totalMs: number, count: number, factor = 1): GradeStep {
-  const perCell = totalMs / count / factor;
+  // 折算回 5×5 等效每格用时后查表
+  const perCell = totalMs / factor / sizeScale(count) / 25;
   for (const s of GRADE_STEPS) {
     if (s.maxPerCellMs != null && perCell < s.maxPerCellMs) return s;
   }
@@ -151,7 +159,7 @@ const normCdf = (z: number) => 0.5 * (1 + erf(z / Math.SQRT2));
 
 // 返回「位于前百分之几」（0~100）：值越小成绩越好
 export function topPercentFor(totalMs: number, count: number, factor = 1): number {
-  const t5 = ((totalMs / count / factor) * 25) / 1000; // 折算难度后的 5×5 等效秒数
+  const t5 = totalMs / factor / sizeScale(count) / 1000; // 折算难度与尺寸后的 5×5 等效秒数
   if (t5 <= 0) return 0.01;
   const z = (Math.log(t5) - Math.log(POP_MEDIAN_S)) / POP_SIGMA;
   return normCdf(z) * 100;

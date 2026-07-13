@@ -221,7 +221,7 @@ export function SchulteTablePage() {
                         activeMode === m ? 'bg-sky-400/15 text-sky-200' : 'text-slate-300 hover:bg-white/[0.06]',
                       )}
                     >
-                      <span>{MODE_META[m].emoji}</span>
+                      <span className='inline-block w-5 text-center'>{MODE_META[m].emoji}</span>
                       {MODE_META[m].label}
                     </button>
                   ))}

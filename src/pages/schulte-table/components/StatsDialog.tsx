@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, HelpCircle, RotateCcw, Trophy } from 'lucide-react';
-import { GRADE_STEPS, formatSeconds, formatSplit, formatTopPercent, gradeFor, topPercentFor } from '../utils';
+import { GRADE_STEPS, formatSeconds, formatSplit, formatTopPercent, gradeFor, sizeScale, topPercentFor } from '../utils';
 import type { FindRecord } from '../useSchulteGame';
 
 interface Props {
@@ -188,9 +188,10 @@ function RulesPanel({ count, factor, onBack }: { count: number; factor: number; 
 
       <div className='space-y-1.5'>
         {GRADE_STEPS.map((s, i) => {
-          const upper = s.maxPerCellMs != null ? (s.maxPerCellMs * count * factor) / 1000 : null;
+          const scale = (sizeScale(count) * factor * 25) / 1000;
+          const upper = s.maxPerCellMs != null ? s.maxPerCellMs * scale : null;
           const prev = i > 0 ? GRADE_STEPS[i - 1].maxPerCellMs : null;
-          const lower = prev != null ? (prev * count * factor) / 1000 : null;
+          const lower = prev != null ? prev * scale : null;
           const rangeText =
             upper == null
               ? `≥ ${lower?.toFixed(0)}s`
@@ -214,7 +215,7 @@ function RulesPanel({ count, factor, onBack }: { count: number; factor: number; 
 
       <p className='text-xs leading-relaxed text-slate-400'>
         阈值针对标准 5×5 制定（8s ACE、10s SS、12s S、16s A、25s B、36s
-        C），按「每格平均用时」等比换算到当前尺寸。
+        C），按尺寸超线性换算到当前难度（盘越大每格搜索越慢，6×6 的 A 档约 28s）。
         {factor !== 1 && `当前盘面难度系数 ×${factor}，阈值已相应放宽。`}
         评级只依据总用时——点错不直接扣分，但会自然消耗时间。正序与倒式采用同一标准。
         <br />
