@@ -20,13 +20,14 @@ import styles from './styles.module.css';
 const PRIMARY_MODES: GameMode[] = ['standard', 'random'];
 const MORE_MODES: GameMode[] = ['honeycomb', 'dynamic', 'triangle', 'scatter'];
 
-// 随机模式抽签：形态、该形态下合法的尺寸、四色开关、（转盘时）地狱开关
+// 随机模式抽签：形态、该形态下合法的尺寸、方向、四色开关、（转盘时）地狱开关
 function randomDraw() {
   const form = CONCRETE_MODES[Math.floor(Math.random() * CONCRETE_MODES.length)];
   const sizes = sizesForMode(form);
   return {
     form,
     size: sizes[Math.floor(Math.random() * sizes.length)],
+    descending: Math.random() < 0.5,
     fourColor: Math.random() < 0.5,
     hell: form === 'dynamic' && Math.random() < 0.5,
   };
@@ -67,7 +68,7 @@ export function SchulteTablePage() {
   const storedSize = size ?? 5;
   const activeSize = sizeOptions.includes(storedSize) ? storedSize : sizeOptions[0];
   const boardSize = isRandomMode ? draw.size : activeSize;
-  const isDesc = isRandomMode ? false : !!descending; // 随机模式固定正序
+  const isDesc = isRandomMode ? draw.descending : !!descending;
   const isHell = isRandomMode ? draw.hell : activeMode === 'dynamic' && !!hellMode;
   const isFourColor = isRandomMode ? draw.fourColor : !!fourColor;
   const count = boardSize * boardSize;
@@ -158,7 +159,11 @@ export function SchulteTablePage() {
         {/* 标题 */}
         <div className='shrink-0 text-center'>
           <h1 className='text-lg font-bold text-white sm:text-2xl'>🔢 舒尔特方格</h1>
-          <p className='hidden text-sm text-slate-500 sm:block'>{isDesc ? `倒式：从 ${count} 数回 1` : `按顺序从 1 找到 ${count}`}，训练你的专注力</p>
+          <p className='hidden text-sm text-slate-500 sm:block'>
+            {isRandomMode
+              ? '随机盲盒：形态与玩法开局才揭晓'
+              : `${isDesc ? `倒式：从 ${count} 数回 1` : `按顺序从 1 找到 ${count}`}，训练你的专注力`}
+          </p>
         </div>
 
         {/* 配置区 */}
@@ -310,7 +315,7 @@ export function SchulteTablePage() {
               <Target className='h-4 w-4 text-slate-400' />
               <span className='hidden text-xs text-slate-500 sm:inline'>下一个</span>
               <span className='min-w-[1.5rem] text-center text-lg font-bold tabular-nums text-white'>
-                {game.status === 'finished' ? '✓' : game.nextTarget}
+                {game.status === 'finished' ? '✓' : isRandomMode && game.status === 'idle' ? '?' : game.nextTarget}
               </span>
             </div>
             <Button
