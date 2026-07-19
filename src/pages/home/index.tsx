@@ -67,6 +67,13 @@ const games: GameCard[] = [
     path: '/schulte-table',
     hue: '199 90% 55%',
   },
+  {
+    emoji: '⚔️',
+    title: 'Schulte Battle',
+    description: 'Two-player number duel',
+    path: '/schulte-battle',
+    hue: '349 90% 60%',
+  },
 ];
 
 export function HomePage() {

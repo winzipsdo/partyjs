@@ -25,6 +25,7 @@ const gameRoutes = [
   { label: '⚫ Gomoku', path: '/gomoku' },
   { label: '⚪ Othello', path: '/othello' },
   { label: '🔢 Schulte Table', path: '/schulte-table' },
+  { label: '⚔️ Schulte Battle', path: '/schulte-battle' },
 ];
 
 function RootComponent() {
