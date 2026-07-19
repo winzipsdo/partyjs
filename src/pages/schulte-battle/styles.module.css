@@ -116,13 +116,13 @@
   align-items: center;
   justify-content: center;
   aspect-ratio: 1 / 1;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  font-size: 0.9rem;
+  font-size: clamp(1rem, 4.5vw, 1.25rem);
   background: hsl(228 22% 55% / 0.1);
-  border: 1px solid hsl(228 30% 80% / 0.12);
-  color: #cbd5e1;
+  border: 1px solid hsl(228 30% 80% / 0.14);
+  color: #e2e8f0;
   cursor: pointer;
   transition:
     background-color 0.12s ease,

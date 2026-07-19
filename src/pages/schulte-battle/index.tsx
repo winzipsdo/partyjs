@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { formatSeconds } from '../schulte-table/utils';
+import { formatSeconds, range } from '../schulte-table/utils';
 import { BattleBoard } from './BattleBoard';
-import { range } from '../schulte-table/utils';
-import { BATTLE_COUNT, ItemUse, Player, START_LIFE_MS, useSchulteBattle } from './useSchulteBattle';
+import {
+  BATTLE_COUNT,
+  Debuff,
+  ItemSet,
+  ItemUse,
+  Player,
+  START_LIFE_MS,
+  useSchulteBattle,
+} from './useSchulteBattle';
 import styles from './styles.module.css';
 
 const PLAYERS = [
   { name: '蓝方', color: '#3b82f6' },
   { name: '红方', color: '#f43f5e' },
 ] as const;
-
-const ITEMS: { key: keyof ItemUse; emoji: string; label: string }[] = [
-  { key: 'fourColor', emoji: '🎨', label: '四色' },
-  { key: 'rotate', emoji: '🔄', label: '旋转' },
-  { key: 'shuffle', emoji: '🔀', label: '洗牌' },
-];
 
 export function SchulteBattlePage() {
   const battle = useSchulteBattle();
@@ -67,7 +68,13 @@ export function SchulteBattlePage() {
     >
       <div className='mx-auto flex w-full max-w-lg flex-1 flex-col px-3 py-2'>
         {/* 红方 HUD（上） */}
-        <PlayerHud player={1} life={liveLife[1]} active={finder === 1 && phase === 'search'} used={battle.used[1]} />
+        <PlayerHud
+          player={1}
+          life={liveLife[1]}
+          active={finder === 1 && phase === 'search'}
+          items={battle.used[1]}
+          debuff={battle.debuff[1]}
+        />
 
         {/* 中部：目标 + 棋盘 */}
         <div className='relative flex min-h-0 flex-1 flex-col items-center justify-center gap-2 py-1'>
@@ -91,7 +98,13 @@ export function SchulteBattlePage() {
         </div>
 
         {/* 蓝方 HUD（下） */}
-        <PlayerHud player={0} life={liveLife[0]} active={finder === 0 && phase === 'search'} used={battle.used[0]} />
+        <PlayerHud
+          player={0}
+          life={liveLife[0]}
+          active={finder === 0 && phase === 'search'}
+          items={battle.used[0]}
+          debuff={battle.debuff[0]}
+        />
       </div>
 
       {phase === 'lobby' && <LobbyOverlay onStart={battle.startMatch} />}
@@ -100,12 +113,20 @@ export function SchulteBattlePage() {
           assigner={assigner}
           finder={finder}
           foundBy={battle.foundBy}
-          used={battle.used[assigner]}
+          items={battle.used[assigner]}
           onAssign={battle.assign}
         />
       )}
       {phase === 'ready' && (
-        <ReadyOverlay finder={finder} sabotage={battle.sabotage} onReady={battle.confirmReady} />
+        <ReadyOverlay
+          finder={finder}
+          incoming={{
+            fourColor: battle.debuff[finder].fourColor,
+            rotate: battle.debuff[finder].rotate,
+            shuffled: battle.lastShuffle,
+          }}
+          onReady={battle.confirmReady}
+        />
       )}
       {phase === 'over' && battle.winner != null && (
         <OverOverlay
@@ -122,20 +143,23 @@ export function SchulteBattlePage() {
   );
 }
 
-// ===== 玩家 HUD：名字 + 道具 + 生命条 =====
+// ===== 玩家 HUD：名字 + 道具库存 + 身上 debuff + 生命条 =====
 function PlayerHud({
   player,
   life,
   active,
-  used,
+  items,
+  debuff,
 }: {
   player: Player;
   life: number;
   active: boolean;
-  used: { fourColor: boolean; rotate: boolean; shuffle: boolean };
+  items: ItemSet;
+  debuff: Debuff;
 }) {
   const meta = PLAYERS[player];
   const pct = Math.max(0, Math.min(100, (life / START_LIFE_MS) * 100));
+  const cursed = debuff.fourColor > 0 || debuff.rotate > 0;
   return (
     <div
       className={cn(
@@ -144,18 +168,23 @@ function PlayerHud({
       )}
       style={active ? { boxShadow: `0 0 20px -6px ${meta.color}` } : undefined}
     >
-      <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-2'>
-          <span className='inline-block h-3 w-3 rounded-full' style={{ background: meta.color }} />
+      <div className='flex items-center justify-between gap-2'>
+        <div className='flex min-w-0 items-center gap-2'>
+          <span className='inline-block h-3 w-3 shrink-0 rounded-full' style={{ background: meta.color }} />
           <span className='text-sm font-bold text-slate-100'>{meta.name}</span>
           {active && <span className='animate-pulse text-[11px] text-slate-400'>寻找中…</span>}
-        </div>
-        <div className='flex items-center gap-1.5'>
-          {ITEMS.map((it) => (
-            <span key={it.key} className={cn('text-sm transition-opacity', used[it.key] ? 'opacity-20 grayscale' : 'opacity-90')}>
-              {it.emoji}
+          {cursed && (
+            <span className='flex items-center gap-1 rounded-full bg-fuchsia-500/20 px-1.5 py-0.5 text-[10px] text-fuchsia-200'>
+              受扰
+              {debuff.fourColor > 0 && <span>🎨{debuff.fourColor}</span>}
+              {debuff.rotate > 0 && <span>🔄{debuff.rotate}</span>}
             </span>
-          ))}
+          )}
+        </div>
+        <div className='flex shrink-0 items-center gap-1.5'>
+          <ItemDot emoji='🎨' spent={items.fourColor} />
+          <ItemDot emoji='🔄' spent={items.rotate} />
+          <ItemDot emoji='🔀' spent={items.shuffleLeft <= 0} count={items.shuffleLeft} />
           <span className='ml-1 w-14 text-right font-mono text-sm font-bold tabular-nums' style={{ color: meta.color }}>
             {formatSeconds(life)}
           </span>
@@ -165,6 +194,19 @@ function PlayerHud({
         <div className={styles.lifeFill} style={{ width: `${pct}%`, background: meta.color }} />
       </div>
     </div>
+  );
+}
+
+function ItemDot({ emoji, spent, count }: { emoji: string; spent: boolean; count?: number }) {
+  return (
+    <span className={cn('relative text-sm transition-opacity', spent ? 'opacity-20 grayscale' : 'opacity-90')}>
+      {emoji}
+      {count != null && count > 0 && (
+        <span className='absolute -right-1.5 -top-1 rounded-full bg-slate-900 px-1 text-[9px] font-bold text-slate-200'>
+          {count}
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -178,7 +220,8 @@ function LobbyOverlay({ onStart }: { onStart: () => void }) {
         <li>· 每人 30 秒生命，轮到你找时你的时钟倒扣</li>
         <li>· 对手指定你要找的数字，找到才停表</li>
         <li>· 找完你再给对手出题，如此轮流</li>
-        <li>· 🎨四色 / 🔄旋转 / 🔀洗牌 各一次，出题时甩给对手</li>
+        <li>· 🎨四色 / 🔄旋转各 1 次，命中对手后持续 3 回合</li>
+        <li>· 🔀洗牌 3 次，出题时打乱对手记忆</li>
         <li>· 谁先耗光 30 秒谁输</li>
       </ul>
       <p className='text-xs text-slate-500'>红方先出题，蓝方先找</p>
@@ -194,13 +237,13 @@ function AssignOverlay({
   assigner,
   finder,
   foundBy,
-  used,
+  items,
   onAssign,
 }: {
   assigner: Player;
   finder: Player;
   foundBy: Record<number, Player>;
-  used: { fourColor: boolean; rotate: boolean; shuffle: boolean };
+  items: ItemSet;
   onAssign: (target: number, use: ItemUse) => void;
 }) {
   const [sel, setSel] = useState<number | null>(null);
@@ -208,9 +251,15 @@ function AssignOverlay({
   const aMeta = PLAYERS[assigner];
   const fMeta = PLAYERS[finder];
 
+  const toggles: { key: keyof ItemUse; emoji: string; label: string; spent: boolean }[] = [
+    { key: 'fourColor', emoji: '🎨', label: '四色·3回合', spent: items.fourColor },
+    { key: 'rotate', emoji: '🔄', label: '旋转·3回合', spent: items.rotate },
+    { key: 'shuffle', emoji: '🔀', label: `洗牌×${items.shuffleLeft}`, spent: items.shuffleLeft <= 0 },
+  ];
+
   return (
-    <Overlay>
-      <div className='text-sm'>
+    <Overlay wide>
+      <div className='text-base'>
         <span style={{ color: aMeta.color }} className='font-bold'>
           {aMeta.name}
         </span>{' '}
@@ -222,7 +271,7 @@ function AssignOverlay({
       <div className='text-xs text-slate-400'>选一个数字（凭记忆挑个刁钻的位置）</div>
 
       {/* 始终 7×7 全盘，位置固定；已被找到的显示为占领态、不可选 */}
-      <div className='grid grid-cols-7 gap-1.5 px-0.5'>
+      <div className='grid w-full grid-cols-7 gap-1.5'>
         {range(BATTLE_COUNT).map((n) => {
           const owner = foundBy[n];
           if (owner !== undefined) {
@@ -244,17 +293,16 @@ function AssignOverlay({
       </div>
 
       <div className='flex items-center justify-center gap-2'>
-        {ITEMS.map((it) => {
-          const spent = used[it.key];
+        {toggles.map((it) => {
           const on = staged[it.key];
           return (
             <button
               key={it.key}
-              disabled={spent}
+              disabled={it.spent}
               onClick={() => setStaged((s) => ({ ...s, [it.key]: !s[it.key] }))}
               className={cn(
                 'flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all',
-                spent
+                it.spent
                   ? 'cursor-not-allowed border-white/5 text-slate-600 opacity-40'
                   : on
                     ? 'border-fuchsia-400/60 bg-fuchsia-500/20 text-fuchsia-100 shadow-[0_0_12px_-3px_rgba(232,121,249,0.7)]'
@@ -277,26 +325,27 @@ function AssignOverlay({
 // ===== 准备 =====
 function ReadyOverlay({
   finder,
-  sabotage,
+  incoming,
   onReady,
 }: {
   finder: Player;
-  sabotage: { fourColor: boolean; rotate: boolean };
+  incoming: { fourColor: number; rotate: number; shuffled: boolean };
   onReady: () => void;
 }) {
   const meta = PLAYERS[finder];
-  const hasSab = sabotage.fourColor || sabotage.rotate;
+  const anySab = incoming.fourColor > 0 || incoming.rotate > 0 || incoming.shuffled;
   return (
     <Overlay>
       <div className='text-lg font-bold' style={{ color: meta.color }}>
         轮到 {meta.name}
       </div>
       <p className='text-sm text-slate-300'>点「开始」后立即计时并亮题</p>
-      {hasSab && (
-        <div className='flex items-center gap-2 text-sm text-fuchsia-200'>
-          对手甩来：
-          {sabotage.fourColor && <span>🎨四色</span>}
-          {sabotage.rotate && <span>🔄旋转</span>}
+      {anySab && (
+        <div className='flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-fuchsia-200'>
+          <span className='text-slate-400'>本次干扰：</span>
+          {incoming.fourColor > 0 && <span>🎨四色（还剩{incoming.fourColor}回合）</span>}
+          {incoming.rotate > 0 && <span>🔄旋转（还剩{incoming.rotate}回合）</span>}
+          {incoming.shuffled && <span>🔀已洗牌</span>}
         </div>
       )}
       <BigButton color={meta.color} onClick={onReady}>
@@ -347,10 +396,22 @@ function OverOverlay({
 }
 
 // ===== 通用碎片 =====
-function Overlay({ children }: { children: React.ReactNode }) {
+function Overlay({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
   return (
-    <div className='absolute inset-0 z-20 flex items-center justify-center bg-black/55 px-5 backdrop-blur-sm'>
-      <div className='glass flex w-full max-w-md flex-col items-center gap-3 rounded-2xl p-5 text-center'>{children}</div>
+    <div
+      className={cn(
+        'absolute inset-0 z-20 flex items-center justify-center bg-black/55 backdrop-blur-sm',
+        wide ? 'px-2' : 'px-5',
+      )}
+    >
+      <div
+        className={cn(
+          'glass flex w-full flex-col items-center gap-3 rounded-2xl text-center',
+          wide ? 'max-w-xl p-3 sm:p-4' : 'max-w-md p-5',
+        )}
+      >
+        {children}
+      </div>
     </div>
   );
 }

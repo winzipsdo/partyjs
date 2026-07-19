@@ -5,46 +5,55 @@ import { range, shuffle } from '../schulte-table/utils';
 export const BATTLE_SIZE = 7;
 export const BATTLE_COUNT = BATTLE_SIZE * BATTLE_SIZE; // 49
 export const START_LIFE_MS = 30000; // 每人 30 秒生命
+export const SHUFFLE_CHARGES = 3; // 洗牌次数
+export const DEBUFF_ROUNDS = 3; // 四色/旋转持续的（对手）寻找次数
 
 export type Player = 0 | 1; // 0 = 蓝方(先找)，1 = 红方(先出题)
 export type BattlePhase = 'lobby' | 'assign' | 'ready' | 'search' | 'over';
 
-// 每人的道具使用情况：true = 已用掉
+// 每人手里的道具：四色/旋转各一次（布尔=已用），洗牌 3 次消耗品
 export interface ItemSet {
   fourColor: boolean;
   rotate: boolean;
-  shuffle: boolean;
+  shuffleLeft: number;
 }
 export interface ItemUse {
   fourColor: boolean;
   rotate: boolean;
   shuffle: boolean;
 }
+// 施加在某玩家身上、按其寻找次数递减的 debuff
+export interface Debuff {
+  fourColor: number;
+  rotate: number;
+}
 
-const freshItems = (): ItemSet => ({ fourColor: false, rotate: false, shuffle: false });
+const freshItems = (): ItemSet => ({ fourColor: false, rotate: false, shuffleLeft: SHUFFLE_CHARGES });
+const freshDebuff = (): Debuff => ({ fourColor: 0, rotate: 0 });
 const initialPositions = () => shuffle(range(BATTLE_COUNT)); // index = 格位，value = 数字
 
 export interface SchulteBattle {
   positions: number[];
   foundBy: Record<number, Player>;
   phase: BattlePhase;
-  finder: Player; // 当前（即将/正在）寻找的人
-  assigner: Player; // 出题方 = 对手
+  finder: Player;
+  assigner: Player;
   target: number | null;
-  lifeMs: [number, number]; // 已提交的剩余生命
-  used: [ItemSet, ItemSet];
-  sabotage: { fourColor: boolean; rotate: boolean }; // 本次寻找生效的视觉破坏
-  searchStart: number | null; // performance.now()，寻找计时起点
+  lifeMs: [number, number];
+  used: [ItemSet, ItemSet]; // 各自的道具库存
+  debuff: [Debuff, Debuff]; // 各自身上残留的 debuff（按其寻找次数递减）
+  sabotage: { fourColor: boolean; rotate: boolean }; // 当前寻找方生效的视觉破坏
+  lastShuffle: boolean; // 本回合出题方是否刚洗过牌（供就绪面板提示）
+  searchStart: number | null;
   winner: Player | null;
   wrong: number | null;
-  remaining: number[]; // 剩余未找到的数字
+  remaining: number[];
   foundCount: [number, number];
-  // actions
   startMatch: () => void;
   assign: (target: number, use: ItemUse) => void;
   confirmReady: () => void;
   tapCell: (n: number) => void;
-  expire: () => void; // 当前寻找方生命耗尽（由页面 rAF 触发）
+  expire: () => void;
   reset: () => void;
 }
 
@@ -56,7 +65,8 @@ export function useSchulteBattle(): SchulteBattle {
   const [target, setTarget] = useState<number | null>(null);
   const [lifeMs, setLifeMs] = useState<[number, number]>([START_LIFE_MS, START_LIFE_MS]);
   const [used, setUsed] = useState<[ItemSet, ItemSet]>([freshItems(), freshItems()]);
-  const [sabotage, setSabotage] = useState({ fourColor: false, rotate: false });
+  const [debuff, setDebuff] = useState<[Debuff, Debuff]>([freshDebuff(), freshDebuff()]);
+  const [lastShuffle, setLastShuffle] = useState(false);
   const [searchStart, setSearchStart] = useState<number | null>(null);
   const [winner, setWinner] = useState<Player | null>(null);
   const [wrong, setWrong] = useState<number | null>(null);
@@ -74,6 +84,12 @@ export function useSchulteBattle(): SchulteBattle {
     return [a, b];
   }, [foundBy]);
 
+  // 当前寻找方生效的破坏，由「其身上的 debuff」推导 —— 天然不会影响施法者自己
+  const sabotage = useMemo(
+    () => ({ fourColor: debuff[finder].fourColor > 0, rotate: debuff[finder].rotate > 0 }),
+    [debuff, finder],
+  );
+
   const flashWrong = useCallback((n: number) => {
     setWrong(n);
     if (wrongTimer.current) clearTimeout(wrongTimer.current);
@@ -88,29 +104,39 @@ export function useSchulteBattle(): SchulteBattle {
     setTarget(null);
     setLifeMs([START_LIFE_MS, START_LIFE_MS]);
     setUsed([freshItems(), freshItems()]);
-    setSabotage({ fourColor: false, rotate: false });
+    setDebuff([freshDebuff(), freshDebuff()]);
+    setLastShuffle(false);
     setSearchStart(null);
     setWinner(null);
   }, []);
 
-  // 红方(1)先给蓝方(0)出题
   const startMatch = useCallback(() => {
-    setFinder(0);
+    setFinder(0); // 红方(1)先给蓝方(0)出题
     setPhase('assign');
   }, []);
 
   const assign = useCallback(
     (t: number, use: ItemUse) => {
       const a = (1 - finder) as Player; // 出题方
+      const v = finder; // 受害方 = 即将寻找的人
       setUsed((u) => {
-        const copy: [ItemSet, ItemSet] = [{ ...u[0] }, { ...u[1] }];
-        if (use.fourColor) copy[a].fourColor = true;
-        if (use.rotate) copy[a].rotate = true;
-        if (use.shuffle) copy[a].shuffle = true;
-        return copy;
+        const c: [ItemSet, ItemSet] = [{ ...u[0] }, { ...u[1] }];
+        if (use.fourColor && !c[a].fourColor) c[a].fourColor = true;
+        if (use.rotate && !c[a].rotate) c[a].rotate = true;
+        if (use.shuffle && c[a].shuffleLeft > 0) c[a].shuffleLeft -= 1;
+        return c;
       });
+      // 四色/旋转：给受害方挂上 3 回合 debuff（覆盖为满，不叠加超过 3）
+      if (use.fourColor || use.rotate) {
+        setDebuff((d) => {
+          const nd: [Debuff, Debuff] = [{ ...d[0] }, { ...d[1] }];
+          if (use.fourColor) nd[v].fourColor = DEBUFF_ROUNDS;
+          if (use.rotate) nd[v].rotate = DEBUFF_ROUNDS;
+          return nd;
+        });
+      }
+      // 洗牌：立即把未找到的数字在其格位间重排
       if (use.shuffle) {
-        // 把「未找到的数字」在它们所处的格位之间重新打乱
         setPositions((pos) => {
           const slots: number[] = [];
           const nums: number[] = [];
@@ -128,7 +154,7 @@ export function useSchulteBattle(): SchulteBattle {
           return next;
         });
       }
-      setSabotage({ fourColor: use.fourColor, rotate: use.rotate });
+      setLastShuffle(!!use.shuffle);
       setTarget(t);
       setPhase('ready');
     },
@@ -143,9 +169,9 @@ export function useSchulteBattle(): SchulteBattle {
   const tapCell = useCallback(
     (n: number) => {
       if (phase !== 'search') return;
-      if (foundBy[n] !== undefined) return; // 已找到的忽略
+      if (foundBy[n] !== undefined) return;
       if (n !== target) {
-        flashWrong(n); // 点错：只有时间在流逝，无额外惩罚
+        flashWrong(n);
         return;
       }
       const elapsed = performance.now() - (searchStart ?? performance.now());
@@ -156,17 +182,23 @@ export function useSchulteBattle(): SchulteBattle {
       setLifeMs(nextLife);
       setFoundBy(nextFound);
       setTarget(null);
-      setSabotage({ fourColor: false, rotate: false });
       setSearchStart(null);
+      // 本次寻找消耗掉寻找方身上一回合 debuff
+      setDebuff((d) => {
+        const nd: [Debuff, Debuff] = [{ ...d[0] }, { ...d[1] }];
+        nd[finder].fourColor = Math.max(0, nd[finder].fourColor - 1);
+        nd[finder].rotate = Math.max(0, nd[finder].rotate - 1);
+        return nd;
+      });
 
       if (finderLife <= 0) {
         setWinner((1 - finder) as Player);
         setPhase('over');
       } else if (Object.keys(nextFound).length >= BATTLE_COUNT) {
-        setWinner(nextLife[0] >= nextLife[1] ? 0 : 1); // 全找完：剩命多者胜
+        setWinner(nextLife[0] >= nextLife[1] ? 0 : 1);
         setPhase('over');
       } else {
-        setFinder((f) => (1 - f) as Player); // 换手：刚找完的人去给对手出题
+        setFinder((f) => (1 - f) as Player);
         setPhase('assign');
       }
     },
@@ -193,7 +225,9 @@ export function useSchulteBattle(): SchulteBattle {
     target,
     lifeMs,
     used,
+    debuff,
     sabotage,
+    lastShuffle,
     searchStart,
     winner,
     wrong,
