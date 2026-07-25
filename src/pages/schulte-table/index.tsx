@@ -336,14 +336,16 @@ export function SchulteTablePage() {
         <div className='relative flex min-h-0 flex-1 items-center justify-center py-2'>
           <div
             className={cn(
-              'w-full transition-all duration-300',
+              'w-full',
               game.status === 'idle' && 'pointer-events-none',
-              // 遮罩态：普通模式模糊可见轮廓；随机模式完全隐藏，形态开局才揭晓
-              game.status === 'idle' && (isRandomMode ? 'opacity-0' : 'opacity-30 blur-[3px]'),
+              // 遮罩态：普通模式模糊可见轮廓（带渐变）
+              game.status === 'idle' && !isRandomMode && 'opacity-30 blur-[3px] transition-all duration-300',
               styles.hc, // 高对比度亮底深字，默认且唯一的棋盘配色
             )}
           >
-            {board}
+            {/* 随机模式 idle 时整块不挂载：靠透明度隐藏会在转场的 300ms 里
+                泄露新盘面的轮廓（上一局结束→再来一局时先显示再淡出） */}
+            {isRandomMode && game.status === 'idle' ? null : board}
           </div>
           {game.status === 'idle' && (
             <div className='absolute inset-0 z-10 flex flex-col items-center justify-center gap-3'>
