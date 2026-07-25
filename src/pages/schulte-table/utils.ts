@@ -36,8 +36,8 @@ export function shuffle<T>(arr: T[]): T[] {
 // 计时器颜色：随用时增加由绿 → 黄 → 红（HSL 色相插值，天然经过黄色）
 // budget 依据格子数量估算一个"理想用时"，越接近/超过越偏红
 export function timerColor(elapsedMs: number, count: number, factor = 1): string {
-  // 5×5 约 37.5s 的舒适预算，按尺寸超线性与盘面难度放宽
-  const budgetMs = 25 * 1500 * Math.pow(count / 25, 1.53) * factor;
+  // 舒适预算 = 该尺寸的 A 档基准 × 2.34（5×5 即 37.5s），再按盘面难度放宽
+  const budgetMs = anchorSeconds(count) * 2340 * factor;
   const frac = clamp(elapsedMs / (budgetMs * 1.6), 0, 1);
   const hue = 145 - 145 * frac; // 145°(绿) → 0°(红)，中途经过黄
   return `hsl(${hue.toFixed(0)} 90% 58%)`;
@@ -46,27 +46,39 @@ export function timerColor(elapsedMs: number, count: number, factor = 1): string
 export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
 // ===== 成绩评级 =====
-// 阈值针对 5×5 制定：8s ACE / 10s SS / 12s S / 16s A / 25s B / 36s C / 其余 D。
-// 其他尺寸按超线性缩放：盘越大每格搜索越慢（视觉搜索复杂度超线性），
-// T(count) = T(25) × (count/25)^1.53 —— 使 6×6 的 A 档 ≈ 28s、7×7 ≈ 45s。
+// 不跨尺寸套公式：每个尺寸单独标定一个「A 档基准秒数」（锚点），
+// 其余档位由 5×5 验证过的固定比例推出。想调整手感只改下面的锚点表。
 export type Grade = 'ACE' | 'SS' | 'S' | 'A' | 'B' | 'C' | 'D';
 
 export interface GradeStep {
   grade: Grade;
   label: string;
-  maxPerCellMs: number | null; // null 表示兜底档
+  ratio: number | null; // 相对 A 档基准的倍率；null 表示兜底档
   color: string;
 }
 
 export const GRADE_STEPS: GradeStep[] = [
-  { grade: 'ACE', label: '超凡', maxPerCellMs: 320, color: '#f0abfc' },
-  { grade: 'SS', label: '卓越', maxPerCellMs: 400, color: '#fbbf24' },
-  { grade: 'S', label: '顶尖', maxPerCellMs: 480, color: '#34d399' },
-  { grade: 'A', label: '优秀', maxPerCellMs: 640, color: '#38bdf8' },
-  { grade: 'B', label: '良好', maxPerCellMs: 1000, color: '#a78bfa' },
-  { grade: 'C', label: '中等', maxPerCellMs: 1440, color: '#fb923c' },
-  { grade: 'D', label: '待提高', maxPerCellMs: null, color: '#94a3b8' },
+  { grade: 'ACE', label: '超凡', ratio: 0.5, color: '#f0abfc' },
+  { grade: 'SS', label: '卓越', ratio: 0.625, color: '#fbbf24' },
+  { grade: 'S', label: '顶尖', ratio: 0.75, color: '#34d399' },
+  { grade: 'A', label: '优秀', ratio: 1, color: '#38bdf8' },
+  { grade: 'B', label: '良好', ratio: 1.5625, color: '#a78bfa' },
+  { grade: 'C', label: '中等', ratio: 2.25, color: '#fb923c' },
+  { grade: 'D', label: '待提高', ratio: null, color: '#94a3b8' },
 ];
+
+// 每尺寸的 A 档基准秒数。
+// 依据「串行搜索 + 点击底线」模型标定：单格耗时 = 0.15s(点击) + 搜索(∝ 平均候选数 (N+1)/2)，
+// 以 5×5 = 16s 反解系数后外推得 6×6 ≈ 30.5s、7×7 ≈ 53.5s，取整微调如下。
+// 盘子越大，固定的记忆容量能覆盖的比例越小，所以退化是超线性的。
+export const SIZE_ANCHOR_S: Record<number, number> = { 25: 16, 36: 31, 49: 55 };
+
+export function anchorSeconds(count: number): number {
+  const known = SIZE_ANCHOR_S[count];
+  if (known != null) return known;
+  // 未列入表中的尺寸：直接用上述模型推算
+  return count * (0.15 + (0.49 * ((count + 1) / 2)) / 13);
+}
 
 // 盘面难度系数：更难的盘面放宽时间预算（评级与百分位共用）。
 // 标准/蜂窝 ×1.0；三角/随机 ×1.1（朝向噪声/无网格结构）；
@@ -75,11 +87,6 @@ export function difficultyFactor(mode: GameMode, hell: boolean): number {
   if (mode === 'dynamic') return hell ? 1.6 : 1.2;
   if (mode === 'triangle' || mode === 'scatter') return 1.1;
   return 1;
-}
-
-// 尺寸缩放：相对 5×5 的时间倍率（超线性指数 1.53）
-export function sizeScale(count: number): number {
-  return Math.pow(count / 25, 1.53);
 }
 
 // 数字四色：亮底格子上可读的四个深色
@@ -126,10 +133,10 @@ export function computeScatterLayout(count: number, container: number): RandomLa
 }
 
 export function gradeFor(totalMs: number, count: number, factor = 1): GradeStep {
-  // 折算回 5×5 等效每格用时后查表
-  const perCell = totalMs / factor / sizeScale(count) / 25;
+  const seconds = totalMs / 1000 / factor;
+  const anchor = anchorSeconds(count);
   for (const s of GRADE_STEPS) {
-    if (s.maxPerCellMs != null && perCell < s.maxPerCellMs) return s;
+    if (s.ratio != null && seconds < anchor * s.ratio) return s;
   }
   return GRADE_STEPS[GRADE_STEPS.length - 1];
 }
@@ -159,7 +166,8 @@ const normCdf = (z: number) => 0.5 * (1 + erf(z / Math.SQRT2));
 
 // 返回「位于前百分之几」（0~100）：值越小成绩越好
 export function topPercentFor(totalMs: number, count: number, factor = 1): number {
-  const t5 = totalMs / factor / sizeScale(count) / 1000; // 折算难度与尺寸后的 5×5 等效秒数
+  // 用锚点比折算成 5×5 等效秒数（口径与评级一致）
+  const t5 = ((totalMs / 1000 / factor) * SIZE_ANCHOR_S[25]) / anchorSeconds(count);
   if (t5 <= 0) return 0.01;
   const z = (Math.log(t5) - Math.log(POP_MEDIAN_S)) / POP_SIGMA;
   return normCdf(z) * 100;

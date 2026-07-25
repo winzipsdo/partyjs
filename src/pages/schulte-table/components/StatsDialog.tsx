@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, HelpCircle, RotateCcw, Trophy } from 'lucide-react';
-import { GRADE_STEPS, formatSeconds, formatSplit, formatTopPercent, gradeFor, sizeScale, topPercentFor } from '../utils';
+import { GRADE_STEPS, anchorSeconds, formatSeconds, formatSplit, formatTopPercent, gradeFor, topPercentFor } from '../utils';
 import type { FindRecord } from '../useSchulteGame';
 
 interface Props {
@@ -188,10 +188,10 @@ function RulesPanel({ count, factor, onBack }: { count: number; factor: number; 
 
       <div className='space-y-1.5'>
         {GRADE_STEPS.map((s, i) => {
-          const scale = (sizeScale(count) * factor * 25) / 1000;
-          const upper = s.maxPerCellMs != null ? s.maxPerCellMs * scale : null;
-          const prev = i > 0 ? GRADE_STEPS[i - 1].maxPerCellMs : null;
-          const lower = prev != null ? prev * scale : null;
+          const base = anchorSeconds(count) * factor; // 该尺寸的 A 档基准（按盘面难度放宽）
+          const upper = s.ratio != null ? s.ratio * base : null;
+          const prev = i > 0 ? GRADE_STEPS[i - 1].ratio : null;
+          const lower = prev != null ? prev * base : null;
           const rangeText =
             upper == null
               ? `≥ ${lower?.toFixed(0)}s`
@@ -214,8 +214,10 @@ function RulesPanel({ count, factor, onBack }: { count: number; factor: number; 
       </div>
 
       <p className='text-xs leading-relaxed text-slate-400'>
-        阈值针对标准 5×5 制定（8s ACE、10s SS、12s S、16s A、25s B、36s
-        C），按尺寸超线性换算到当前难度（盘越大每格搜索越慢，6×6 的 A 档约 28s）。
+        每个尺寸单独标定「A 档基准」，其余档位按固定比例推出（ACE 0.5×、SS 0.625×、S 0.75×、B
+        1.56×、C 2.25×）。基准依据「串行搜索 + 点击底线」模型：单格耗时 = 点击 0.15s + 搜索（与平均候选数成正比），
+        故 5×5 / 6×6 / 7×7 分别为 16 / 31 / 55 秒 —— 本局基准{' '}
+        <span className='font-mono text-slate-300'>{(anchorSeconds(count) * factor).toFixed(0)}s</span>。
         {factor !== 1 && `当前盘面难度系数 ×${factor}，阈值已相应放宽。`}
         评级只依据总用时——点错不直接扣分，但会自然消耗时间。正序与倒式采用同一标准。
         <br />
