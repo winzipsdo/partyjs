@@ -81,7 +81,6 @@ export function SchulteTablePage() {
   // 进入随机模式时抽一次（之后由重置/再来一局触发 redraw）
   useEffect(() => {
     if (isRandomMode) redraw();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRandomMode]);
 
   const [statsOpen, setStatsOpen] = useState(false);
@@ -337,9 +336,12 @@ export function SchulteTablePage() {
           <div
             className={cn(
               'w-full',
-              game.status === 'idle' && 'pointer-events-none',
-              // 遮罩态：普通模式模糊可见轮廓（带渐变）
-              game.status === 'idle' && !isRandomMode && 'opacity-30 blur-[3px] transition-all duration-300',
+              // 遮罩态各模式一致（随机模式另外整块不挂载），避免切换模式时
+              // 透明度从 1 跳到 0.3 被 transition 拉成一段「先亮后暗」的闪白。
+              // 过渡只在非 idle 时挂载，于是「进入遮罩」瞬间完成、「揭晓」才有淡入。
+              game.status === 'idle'
+                ? 'pointer-events-none opacity-30 blur-[3px]'
+                : 'transition-all duration-300',
               styles.hc, // 高对比度亮底深字，默认且唯一的棋盘配色
             )}
           >

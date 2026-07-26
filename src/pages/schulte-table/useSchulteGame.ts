@@ -53,11 +53,22 @@ export function useSchulteGame(count: number, resetKey: string, descending = fal
     lastRef.current = 0;
   }, [count, firstTarget]);
 
-  // 数量或模式变化时重置（resetKey 编码了 mode 与 size）
-  useEffect(() => {
-    reset();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetKey]);
+  // 数量或模式变化时重置（resetKey 编码了 mode 与 size）。
+  // 必须在渲染期同步完成：若放在 useEffect 里，切换模式后会先用上一局的
+  // cells 配新 size 绘制一帧（格数与列数对不上），再被 effect 纠正 —— 肉眼可见跳闪。
+  const [appliedKey, setAppliedKey] = useState(resetKey);
+  if (appliedKey !== resetKey) {
+    setAppliedKey(resetKey);
+    setCells(shuffle(range(count)));
+    setStatus('idle');
+    setNextTarget(firstTarget);
+    setRecords([]);
+    setErrors(0);
+    setWrong(null);
+    setTotalMs(0);
+    setStartTime(null);
+    lastRef.current = 0;
+  }
 
   useEffect(() => () => {
     if (wrongTimer.current) clearTimeout(wrongTimer.current);
