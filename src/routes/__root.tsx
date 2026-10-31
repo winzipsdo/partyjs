@@ -26,6 +26,7 @@ const gameRoutes = [
   { label: '⚪ Othello', path: '/othello' },
   { label: '🔢 Schulte Table', path: '/schulte-table' },
   { label: '⚔️ Schulte Battle', path: '/schulte-battle' },
+  { label: '🧘 Kegel Trainer', path: '/kegel-trainer' },
 ];
 
 function RootComponent() {

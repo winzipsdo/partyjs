@@ -1,0 +1,41 @@
+.orb {
+  position: absolute;
+  inset: 12%;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 30%, hsl(var(--hue) / 0.95), hsl(var(--hue) / 0.35) 60%, hsl(var(--hue) / 0.12));
+  box-shadow:
+    0 0 60px hsl(var(--hue) / 0.45),
+    inset 0 0 40px hsl(0 0% 100% / 0.12);
+  transition-property: transform, background, box-shadow;
+  transition-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+  will-change: transform;
+}
+
+.pop {
+  animation: pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.startPulse {
+  animation: startPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes startPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsl(346 88% 62% / 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 14px hsl(346 88% 62% / 0);
+  }
+}

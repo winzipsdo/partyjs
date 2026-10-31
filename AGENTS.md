@@ -42,7 +42,8 @@ partyjs/
 │   │   ├── crocodile-dentist/ # Crocodile dentist game
 │   │   ├── color-memory-quest/ # Color memory matching game
 │   │   ├── gomoku/      # Local 2-player Gomoku (Five in a Row)
-│   │   └── othello/     # Local 2-player Othello (Reversi)
+│   │   ├── othello/     # Local 2-player Othello (Reversi)
+│   │   └── kegel-trainer/ # Daily pelvic floor (Kegel) follow-along trainer
 │   ├── routes/          # TanStack Router route definitions
 │   │   ├── __root.tsx   # Root layout with navigation
 │   │   └── [game]/      # Each game has its own route folder

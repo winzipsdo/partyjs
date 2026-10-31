@@ -74,6 +74,13 @@ const games: GameCard[] = [
     path: '/schulte-battle',
     hue: '349 90% 60%',
   },
+  {
+    emoji: '🧘',
+    title: 'Kegel Trainer',
+    description: 'Daily pelvic floor follow-along',
+    path: '/kegel-trainer',
+    hue: '330 85% 62%',
+  },
 ];
 
 export function HomePage() {

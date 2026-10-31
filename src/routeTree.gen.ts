@@ -20,6 +20,7 @@ const RussianRouletteIndexLazyRouteImport =
   createFileRoute('/russian-roulette/')()
 const OthelloIndexLazyRouteImport = createFileRoute('/othello/')()
 const LiarCardIndexLazyRouteImport = createFileRoute('/liar-card/')()
+const KegelTrainerIndexLazyRouteImport = createFileRoute('/kegel-trainer/')()
 const HomeIndexLazyRouteImport = createFileRoute('/home/')()
 const GomokuIndexLazyRouteImport = createFileRoute('/gomoku/')()
 const DiceRollIndexLazyRouteImport = createFileRoute('/dice-roll/')()
@@ -66,6 +67,13 @@ const LiarCardIndexLazyRoute = LiarCardIndexLazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/liar-card/index.lazy').then((d) => d.Route),
 )
+const KegelTrainerIndexLazyRoute = KegelTrainerIndexLazyRouteImport.update({
+  id: '/kegel-trainer/',
+  path: '/kegel-trainer/',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/kegel-trainer/index.lazy').then((d) => d.Route),
+)
 const HomeIndexLazyRoute = HomeIndexLazyRouteImport.update({
   id: '/home/',
   path: '/home/',
@@ -104,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/dice-roll/': typeof DiceRollIndexLazyRoute
   '/gomoku/': typeof GomokuIndexLazyRoute
   '/home/': typeof HomeIndexLazyRoute
+  '/kegel-trainer/': typeof KegelTrainerIndexLazyRoute
   '/liar-card/': typeof LiarCardIndexLazyRoute
   '/othello/': typeof OthelloIndexLazyRoute
   '/russian-roulette/': typeof RussianRouletteIndexLazyRoute
@@ -117,6 +126,7 @@ export interface FileRoutesByTo {
   '/dice-roll': typeof DiceRollIndexLazyRoute
   '/gomoku': typeof GomokuIndexLazyRoute
   '/home': typeof HomeIndexLazyRoute
+  '/kegel-trainer': typeof KegelTrainerIndexLazyRoute
   '/liar-card': typeof LiarCardIndexLazyRoute
   '/othello': typeof OthelloIndexLazyRoute
   '/russian-roulette': typeof RussianRouletteIndexLazyRoute
@@ -131,6 +141,7 @@ export interface FileRoutesById {
   '/dice-roll/': typeof DiceRollIndexLazyRoute
   '/gomoku/': typeof GomokuIndexLazyRoute
   '/home/': typeof HomeIndexLazyRoute
+  '/kegel-trainer/': typeof KegelTrainerIndexLazyRoute
   '/liar-card/': typeof LiarCardIndexLazyRoute
   '/othello/': typeof OthelloIndexLazyRoute
   '/russian-roulette/': typeof RussianRouletteIndexLazyRoute
@@ -146,6 +157,7 @@ export interface FileRouteTypes {
     | '/dice-roll/'
     | '/gomoku/'
     | '/home/'
+    | '/kegel-trainer/'
     | '/liar-card/'
     | '/othello/'
     | '/russian-roulette/'
@@ -159,6 +171,7 @@ export interface FileRouteTypes {
     | '/dice-roll'
     | '/gomoku'
     | '/home'
+    | '/kegel-trainer'
     | '/liar-card'
     | '/othello'
     | '/russian-roulette'
@@ -172,6 +185,7 @@ export interface FileRouteTypes {
     | '/dice-roll/'
     | '/gomoku/'
     | '/home/'
+    | '/kegel-trainer/'
     | '/liar-card/'
     | '/othello/'
     | '/russian-roulette/'
@@ -186,6 +200,7 @@ export interface RootRouteChildren {
   DiceRollIndexLazyRoute: typeof DiceRollIndexLazyRoute
   GomokuIndexLazyRoute: typeof GomokuIndexLazyRoute
   HomeIndexLazyRoute: typeof HomeIndexLazyRoute
+  KegelTrainerIndexLazyRoute: typeof KegelTrainerIndexLazyRoute
   LiarCardIndexLazyRoute: typeof LiarCardIndexLazyRoute
   OthelloIndexLazyRoute: typeof OthelloIndexLazyRoute
   RussianRouletteIndexLazyRoute: typeof RussianRouletteIndexLazyRoute
@@ -237,6 +252,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LiarCardIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kegel-trainer/': {
+      id: '/kegel-trainer/'
+      path: '/kegel-trainer'
+      fullPath: '/kegel-trainer/'
+      preLoaderRoute: typeof KegelTrainerIndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/home/': {
       id: '/home/'
       path: '/home'
@@ -282,6 +304,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiceRollIndexLazyRoute: DiceRollIndexLazyRoute,
   GomokuIndexLazyRoute: GomokuIndexLazyRoute,
   HomeIndexLazyRoute: HomeIndexLazyRoute,
+  KegelTrainerIndexLazyRoute: KegelTrainerIndexLazyRoute,
   LiarCardIndexLazyRoute: LiarCardIndexLazyRoute,
   OthelloIndexLazyRoute: OthelloIndexLazyRoute,
   RussianRouletteIndexLazyRoute: RussianRouletteIndexLazyRoute,
