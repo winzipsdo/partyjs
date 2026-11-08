@@ -31,6 +31,7 @@ partyjs/
 │   │   ├── PlayingCard/ # Playing card component
 │   │   └── ui/          # Shadcn UI components
 │   ├── constants/       # App constants
+│   │   ├── seo.ts       # Per-route SEO metadata
 │   │   └── storage.ts   # LocalStorage key helpers
 │   ├── lib/             # Utility functions
 │   │   └── utils.ts     # cn() for class merging
@@ -121,7 +122,14 @@ Routes are defined in `src/routes/` using TanStack Router file-based routing:
 - `dice-roll/index.lazy.tsx` - Lazy-loaded game routes
 - Route tree is auto-generated in `routeTree.gen.ts`
 
-The router uses hash history (`createHashHistory()`) for GitHub Pages compatibility.
+The router uses browser history with `basepath: '/partyjs/'` and `trailingSlash: 'always'` (real paths like `/partyjs/dice-roll/`, so search engines can index each game). Old hash links (`/partyjs/#/dice-roll`) are redirected in `src/main.tsx`.
+
+### SEO
+
+- Per-route title / description live in `src/constants/seo.ts` (shared by the browser and the build).
+- `build/seo-plugin.ts` (Vite plugin) fills the `<!--seo-->` block in `index.html`, and after build writes `docs/<route>/index.html` for every route (own title, description, canonical, Open Graph, JSON-LD), plus `docs/404.html` (SPA fallback) and `docs/sitemap.xml`.
+- `src/routes/__root.tsx` keeps title / description / canonical in sync on client-side navigation.
+- Use `<Link>` (real `<a href>`) rather than `onClick` + `navigate` for links you want crawled.
 
 ### Adding a New Game Route
 
@@ -145,6 +153,8 @@ const gameRoutes = [
   { label: '🎮 Game Name', path: '/game-name' },
 ];
 ```
+
+4. Add an entry to `GAME_SEO` in `src/constants/seo.ts` (title + description). Without it the game gets no static HTML page and is missing from the sitemap.
 
 ## UI Components
 

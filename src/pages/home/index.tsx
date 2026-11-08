@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import styles from './styles.module.css';
 import githubIcon from '@/assets/github.svg';
 
@@ -84,8 +84,6 @@ const games: GameCard[] = [
 ];
 
 export function HomePage() {
-  const navigate = useNavigate();
-
   return (
     <div className='min-h-[100dvh]'>
       {/* Header */}
@@ -109,26 +107,26 @@ export function HomePage() {
           />
           <h1 className={`font-mono text-4xl font-bold tracking-wide sm:text-5xl ${styles.brand}`}>PartyJS</h1>
         </div>
-        <p className='text-sm tracking-wide text-slate-400'>Pick a game and have fun!</p>
+        <p className='text-sm tracking-wide text-slate-400'>Free online party games — pick one and have fun!</p>
       </div>
 
       {/* Game Grid */}
       <div className='mx-auto max-w-2xl px-4 pb-10'>
         <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4'>
           {games.map((game, i) => (
-            <div
+            <Link
               key={game.path}
-              onClick={() => navigate({ to: game.path })}
-              className={styles.card}
+              to={game.path}
+              className={`block ${styles.card}`}
               style={{ '--hue': game.hue, '--delay': `${i * 0.055}s` } as React.CSSProperties}
             >
               <div className='relative p-4 sm:p-5'>
                 <div className={`mb-2 text-4xl sm:text-5xl ${styles.cardEmoji}`}>{game.emoji}</div>
-                <h3 className='text-sm font-bold leading-tight text-white sm:text-base'>{game.title}</h3>
+                <h2 className='text-sm font-bold leading-tight text-white sm:text-base'>{game.title}</h2>
                 <p className='mt-1 hidden text-xs leading-tight text-slate-400 sm:block'>{game.description}</p>
               </div>
               <div className={styles.cardTick} />
-            </div>
+            </Link>
           ))}
         </div>
       </div>
