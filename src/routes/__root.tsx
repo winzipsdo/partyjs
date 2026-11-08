@@ -14,9 +14,20 @@ import { useState, useRef, useEffect } from 'react';
 import GithubIcon from '@/assets/github.svg';
 import { Home, Search } from 'lucide-react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { canonicalUrl, findRouteSeo, fullTitle } from '@/constants/seo';
+
+/** 客户端切换路由时同步 title / description / canonical（首屏由构建生成的静态 HTML 提供） */
+function useRouteSeo(pathname: string) {
+  useEffect(() => {
+    const seo = findRouteSeo(pathname);
+    document.title = fullTitle(seo);
+    document.querySelector('meta[name="description"]')?.setAttribute('content', seo.description);
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonicalUrl(seo));
+  }, [pathname]);
+}
 
 const gameRoutes = [
-  { label: '🏠 Home', path: '/home' },
+  { label: '🏠 Home', path: '/' },
   { label: '🎲 Dice Roll', path: '/dice-roll' },
   { label: '🔫 Russian Roulette', path: '/russian-roulette' },
   { label: '🃏 Liar Card', path: '/liar-card' },
@@ -35,7 +46,8 @@ function RootComponent() {
   const location = useLocation();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const isHomePage = location.pathname === '/home' || location.pathname === '/' || location.pathname === '';
+  const isHomePage = ['', '/', '/home', '/home/'].includes(location.pathname);
+  useRouteSeo(location.pathname);
 
   useEffect(() => {
     const handleCustomCommand = () => {
@@ -67,7 +79,7 @@ function RootComponent() {
         <div className='sticky top-0 z-50 border-b border-white/[0.08] bg-[#0a0b14]/70 backdrop-blur-md'>
           <div className='flex items-center justify-between px-2 py-2'>
             <button
-              onClick={() => navigate({ to: '/home' })}
+              onClick={() => navigate({ to: '/' })}
               className='flex items-center gap-2 rounded-lg px-3 py-2 text-slate-400 transition-colors hover:bg-white/[0.06] hover:text-white'
             >
               <Home className='w-5 h-5' />
