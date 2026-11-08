@@ -5,6 +5,13 @@ let ctx: AudioContext | null = null;
 // 必须在用户点击里调用一次，iOS 才允许出声
 export function unlockAudio() {
   try {
+    // iOS 16.4+：按「媒体播放」处理，静音开关打开时提示音也能响
+    const session = (navigator as unknown as { audioSession?: { type: string } }).audioSession;
+    if (session) session.type = 'playback';
+  } catch {
+    /* ignore */
+  }
+  try {
     if (!ctx) {
       const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       ctx = new AC();
@@ -25,13 +32,15 @@ export function unlockAudio() {
   }
 }
 
-export function beep(freq: number, duration = 0.15, volume = 0.25) {
+export function beep(freq: number, duration = 0.15, volume = 0.25, type: OscillatorType = 'sine') {
   if (!ctx) return;
   try {
+    // 语音播报或来电等打断后，AudioContext 可能被系统挂起
+    if (ctx.state !== 'running') void ctx.resume();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     const t = ctx.currentTime;
-    osc.type = 'sine';
+    osc.type = type;
     osc.frequency.value = freq;
     gain.gain.setValueAtTime(0, t);
     gain.gain.linearRampToValueAtTime(volume, t + 0.01);

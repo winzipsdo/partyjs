@@ -39,8 +39,17 @@ export interface Step {
   speech?: string; // 语音播报
 }
 
-const FAST_CONTRACT = 0.7;
-const FAST_RELAX = 0.8;
+// 快收每次留够时间，让语音报数跟得上
+const FAST_CONTRACT = 0.8;
+const FAST_RELAX = 1.0;
+const CN_NUM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+
+// 1–20 的中文读法，用于快收报数
+function cnNumber(n: number) {
+  if (n <= 10) return CN_NUM[n - 1];
+  if (n < 20) return `十${CN_NUM[n - 11]}`;
+  return n === 20 ? '二十' : String(n);
+}
 const BREATH = 5; // 反向放松：吸 5 秒、呼 5 秒
 
 export const SECTION_LABEL: Record<Section, string> = {
@@ -90,10 +99,10 @@ export function buildTimeline(stage: Stage): Step[] {
     duration: 4,
     label: '接下来：快收',
     hint: `快速收紧，马上放松，共 ${stage.fastReps} 次`,
-    speech: '接下来快收，跟着提示音',
+    speech: '接下来快收，听到报数就收',
   });
   for (let i = 1; i <= stage.fastReps; i++) {
-    steps.push({ kind: 'contract', section: 'fast', duration: FAST_CONTRACT, rep: i, reps: stage.fastReps, label: '收', hint: '快速收紧' });
+    steps.push({ kind: 'contract', section: 'fast', duration: FAST_CONTRACT, rep: i, reps: stage.fastReps, label: '收', hint: '快速收紧', speech: cnNumber(i) });
     steps.push({ kind: 'relax', section: 'fast', duration: FAST_RELAX, rep: i, reps: stage.fastReps, label: '放', hint: '马上放松' });
   }
 

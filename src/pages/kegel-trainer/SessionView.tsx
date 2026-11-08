@@ -65,13 +65,13 @@ export function SessionView({ stage, cues, slotName, doneCount, onComplete, onEx
     const { sound, voice, vibration } = cuesRef.current;
     const isFast = step.section === 'fast' && (step.kind === 'contract' || step.kind === 'relax');
     if (sound) {
-      if (step.kind === 'contract') beep(isFast ? 988 : 880, isFast ? 0.08 : 0.18);
-      else if (step.kind === 'relax' && !isFast) beep(440, 0.22, 0.2);
+      if (step.kind === 'contract') beep(880, isFast ? 0.16 : 0.18, isFast ? 0.4 : 0.25, isFast ? 'triangle' : 'sine');
+      else if (step.kind === 'relax') beep(440, isFast ? 0.1 : 0.22, isFast ? 0.25 : 0.2);
       else if (step.kind === 'inhale') beep(392, 0.3, 0.15);
       else if (step.kind === 'exhale') beep(330, 0.3, 0.12);
       else if (step.kind === 'transition') beep(660, 0.25, 0.18);
     }
-    if (vibration && step.kind === 'contract') vibrate(isFast ? 40 : 120);
+    if (vibration && step.kind === 'contract') vibrate(isFast ? 60 : 120);
     if (voice && step.speech) speak(step.speech);
   }, []);
 
